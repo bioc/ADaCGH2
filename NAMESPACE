@@ -1,0 +1,21 @@
+useDynLib(ADaCGH2, .registration = TRUE)
+## useDynLib(ADaCGH2, ad_rConvAndPeak, ad_rPulseConv,
+##           ad_rWConvAndPeak, ad_rThresAndUnify)
+
+export("snowfallInit",
+       "pSegmentDNAcopy",
+       "pSegmentWavelets",
+       "pSegmentHMM",
+       "pSegmentBioHMM",
+       "pSegmentGLAD",
+       "pSegmentCGHseg",
+       "pSegmentHaarSeg",
+       "pChromPlot",
+       "inputDataToADaCGHData",
+       "outputToCGHregions")
+       ## "tempdir2",
+       ## "convertAndSave")
+
+
+
+

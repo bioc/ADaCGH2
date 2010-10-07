@@ -1,0 +1,348 @@
+% \VignetteIndexEntry{ADaCGH2 Overview}
+% \VignetteDepends{ADaCGH2}
+% \VignetteKeywords{ADaCGH2 CGH segmentation parallelization}
+% \VignettePackage{ADaCGH2}
+
+
+\documentclass[a4paper,11pt]{article}
+\usepackage{amsmath}
+\usepackage[authoryear,round]{natbib}
+\usepackage{hyperref}
+\SweaveOpts{echo=TRUE}
+
+\usepackage[latin1]{inputenc}
+\title{Analysis of data from aCGH experiments using parallel computing and
+ff objects}
+\author{Ram\'on D\'{\i}az-Uriarte$^{1}$ and Daniel Rico$^{1}$}
+\begin{document}
+\maketitle
+
+\begin{center}
+1. Structural Computational Biology Group. 
+Spanish National Cancer Center (CNIO), Madrid
+(SPAIN).
+{\tt rdiaz02@gmail.com}, {\tt drico@cnio.es}
+\end{center}
+
+\tableofcontents
+
+\section{Overview:}
+ADaCGH2 is a package for the analysis of CGH data. The main features of ADaCGH2 are:
+\begin{itemize}
+\item Parallelization of (several of) the main segmentation/calling
+  algorithms currently available, allow efficient usage of computing
+  clusters.
+  
+\item Data access data using the \textit{ff} package
+  (\url{http://cran.r-project.org/web/packages/ff/index.html}), making
+  it possible to analyze data from very large projects. 
+  
+\item Parallelization and \textit{ff} are used simultaneously. WaviCGH
+  \cite{Carro2010} (\url{http://wavi.bioinfo.cnio.es}), a web-server
+  application for the analysis and visualization of array-CGH data that
+  uses ADaCGH2,   consitutes a clear demonstration of the usage of \textit{ff} on a
+  computing cluster with shared storage over NFS.
+  
+\end{itemize}
+
+
+ADaCGH2 is a major re-write of our former package ADaCGH
+\cite{Diaz-Uriarte2007}. We have improved the parallelization and,
+specially, changed completely the data handling routines. Thanks to the
+usage of the \textit{ff} package, ADaCGH2 can now
+analyze data sets of more than four million probes in machines with no
+more than 2 GB of RAM.    
+  
+
+\section{A  commented example}
+
+
+For both interactive and non-interactive executions we will often execute
+the following in sequence:
+
+\begin{enumerate}
+\item Convert the original data to \textit{ff} objects
+\item Initialize the computing cluster
+\item Carry out segmentation and calling
+\item Plot the results
+\end{enumerate}
+
+
+
+We cover each in turn in the remaining of this section.
+
+<<>>=
+library(ADaCGH2)
+@ 
+
+
+
+<<echo=FALSE,eval=TRUE,results=hide>>=
+options(width = 70)
+@
+
+
+
+\subsection{Choosing a working directory}
+
+This package reads and writes quite a few files to the hard drive. The
+easiest way to organize your work is to create a separated directory for
+each project. All plot files and ff data will be stored there.
+
+\subsection{Convert original data to \texttt{ff} objects}
+
+The first two steps need not be carried out in that sequence. Conversion
+of original data does not use the computing cluster, but can be done after
+initialization of the cluster. The purpose of this step is to write down
+the \texttt{ff} files to disk, so they are available for the segmentation
+and ploting functions.  (See below, section \ref{snap} for examples of
+using objects from Limma and snapCGH).
+
+To allow the conversion to be carried out in data
+from previous sessions, the conversion takes as input the name of an
+RData.
+
+<<>>=
+fname <- list.files(path = system.file("data", package = "ADaCGH2"),
+                     full.names = TRUE, pattern = "inputEx1")
+tableChromArray <- inputDataToADaCGHData(filename = fname)
+tableChromArray
+@ 
+
+The first command is used in this example to find the complete path of the
+example data set. The actual call to the function is the second expression. The
+return object is not used for anything further and can be deleted (or not saved).
+
+
+
+With large data sets that can be the single step that consumes the most
+RAM, since we need to load the original data into R. Even if we remove the
+original data and call \texttt{gc()}, R might not return all of the memory
+to the operating system, and this might be inconvenient in multiuser
+environments and/or long running processes. Thus, it is possible to
+execute the above in a separate R process that is spawned exclusively just
+for the conversion. For instance, we could use the \texttt{multicore}
+package and do:
+
+<<eval=FALSE>>=
+
+require(multicore)
+parallel(inputDataToADaCGHData(filename = fname), silent = FALSE)
+tableChromArray <- collect()[[1]]
+if(inherits(tableChromArray, "try-error")) {
+  stop("ERROR in input data conversion")
+}
+
+@ 
+
+That way, the \texttt{ff} are produced and stored locally in the hard
+drive, but the R process where the original data was loaded (and the
+conversion to \texttt{ff} carried out) dies after the conversion, freeing
+back the memory to the operating system.
+
+
+
+
+\subsection{Initialize computing cluster}
+Initialization is done with the function \texttt{snowfallInit}, a function
+which uses the package \texttt{snowfall} to initialize the cluster and set
+up the slave nodes. In the example we will use a sockect cluster, but MPI
+can also be used (our servers use LAM-MPI). In this example we will use 2 nodes.
+
+<<>>=
+snowfallInit(universeSize = 2, typecluster = "SOCK")
+@ 
+
+\subsection{Carry out segmentation and calling}
+
+Segmentation and calling are carried out with the \texttt{pSegment}
+functions. Here we show just one such example. Many more are available
+from the help.
+
+<<eval=FALSE>>=
+help(pSegment)
+@ 
+
+
+<<>>=
+hs_mad.out <- pSegmentHaarSeg("cghData.RData",
+                           "chromData.RData", merging = "MAD")
+@ 
+
+We can take a quick look at the output. We first open the \texttt{ff}
+objects (the output is a list of \texttt{ff} objects) and then call
+\texttt{summary} on the smoothed list
+
+<<>>=
+lapply(hs_mad.out, open)
+summary(hs_mad.out[[1]][,])
+@ 
+
+
+\subsection{Plot the results}
+
+Plotting produces PNG files for easier sharing over the Internet. The
+plotting function takes as main arguments the names of RData files. We
+first write to disk the (\texttt{ff}) object with the results, and then
+call the plotting function:
+
+
+<<>>=
+save(hs_mad.out, file = "hs_mad.out.RData", compress = FALSE)
+
+pChromPlot(outRDataName = "hs_mad.out.RData",
+                            cghRDataName = "cghData.RData",
+                            chromRDataName = "chromData.RData",
+                            posRDataName = "posData.RData",
+                            probenamesRDataName = "probeNames.RData",
+                            imgheight = 350)
+@ 
+
+
+\section{Using CGHregions}
+
+The CGHregions package \cite{CGHregions-manual} is a BioConductor package
+that implements a well known method \cite{VandeWiel2007} for dimension
+reduction for aCGH data (see a review of common regions issues and methods
+in \cite{Rueda2010a}).
+
+The \texttt{CGHregions} function accepts different type of input, among
+others a data frame. The function \texttt{outputToCGHregions} produces
+that data frame, ready to be used as input to CGHregions (for the next
+example, you will need to have the \textit{CGHregions} package installed).
+
+<<>>=
+forcghr <- outputToCGHregions(hs_mad.out)
+if(require(CGHregions)) {
+  regions1 <- CGHregions(forcghr)
+  regions1
+}
+@ 
+
+Please note that \texttt{outputToCGHregions} does NOT check if the calls
+are something that can be meaningfully passed to CGHregions. In
+particular, you probably do NOT want to use this function when
+\texttt{pSegment} has been called using \texttt{merging = "none"}.
+
+
+\section{\label{snap}Input data from Limma and snapCGH}
+
+Many aCGH studies use pre-processing steps similar to those of gene
+expression data. The \texttt{MAList} object, from \textit{Limma} and
+\texttt{SegList} object, from \textit{snapCGH}, are commonly used to store
+aCGH information. The following examples illustrate the usage of the
+function \texttt{inputDataToADaCGHData} to convert \texttt{MAList} and
+\texttt{SrgList} data into a format suitable for \textit{ADaCGH2}.
+
+
+We will start with objects produced by \textit{snapCGH}. The following
+code is copied from the \textit{snapCGH} vignette (pp.\ 2 and 3). Please
+check the original vignette for details. In summary, a set of array files
+are read, the data are normalized and, finally, averaged over
+clones. snapCGH uses limma for the initial import of data and, next, with
+the \texttt{read.clonesinfo} function adds additional information such as
+chromosome and position.  The \texttt{MA} object created is of class
+\texttt{MAList}, but with added information (compared to a basic,
+original, limma MAList object). \texttt{MA2} is of type \texttt{SegList}.
+
+
+<<>>=
+datadir <- system.file("testdata", package = "snapCGH")
+targets <- readTargets("targets.txt", path = datadir)
+RG1 <- read.maimages(targets$FileName, path = datadir, source = "genepix")
+
+RG1 <- read.clonesinfo("cloneinfo.txt", RG1, path = datadir) ## snapCGH-specific
+RG1$printer <- getLayout(RG1$genes)
+types <- readSpotTypes("SpotTypes.txt", path = datadir)
+RG1$genes$Status <- controlStatus(types, RG1)
+
+RG1$design <- c(-1, -1)
+
+RG2 <- backgroundCorrect(RG1, method = "minimum") ## class RGList
+MA <- normalizeWithinArrays(RG2, method = "median") ## class MAList
+class(MA)
+MA2 <- processCGH(MA, method.of.averaging = mean, ID = "ID") ## class SegList
+class(MA2)
+@ 
+
+
+All the information (intensity ratios and location) is available in the
+\texttt{MA} and \texttt{MA2} objects. We can directly convert them to
+\textit{ADaCGH2} objects (we set \texttt{na.omit = TRUE} as the data
+contain missing values). The first call process the \texttt{MAList} and
+the second the \texttt{SegList}. 
+
+
+<<>>=
+tmp <- inputDataToADaCGHData(MAList = MA, na.omit = TRUE)
+
+tmp <- inputDataToADaCGHData(MAList = MA2, na.omit = TRUE, 
+                             minNumPerChrom = 4)
+@ 
+
+We need to change the argument to \texttt{minNumPerChrom} because, after
+the data processing step in \texttt{processCGH}, chromosome 21 has only
+four observations. 
+
+
+
+The original \texttt{MAList} as produced directly from \textit{limma} do
+not have chromosome and position information. That is what the
+\texttt{read.clonesinfo} function from \textit{snapCGH} did. To allow
+using objects directly from \textit{limma} and incorporating position
+information, we will use an approach to directly mimicks that in
+\textit{snapCGH}. If you use and \texttt{MAList} you can also provide a
+\texttt{cloneinfo} argument; this can be either the full path to a file
+with the format required by \texttt{read.clonesinfo} or, else, the name of
+an object with (at least) three columns, names \texttt{ID}, \texttt{Chr},
+and \texttt{Position}. 
+
+
+We copy from the limma vignette (section 3.2, p.8), changing the names of
+objets by appending ``.limma''. 
+<<>>=
+targets.limma <- readTargets("targets.txt", path = datadir)
+RG.limma <- read.maimages(targets.limma, path = datadir, source="genepix")
+RG.limma <- backgroundCorrect(RG.limma, method="normexp", offset=50)
+MA.limma <- normalizeWithinArrays(RG.limma)
+@ 
+
+We can add the chromosomal and position information in two different
+ways. First, as in  \texttt{read.clonesinfo} or, else, we can provide the
+name of a file (with the same format as required by
+\texttt{read.clonesinfo}). Note that \texttt{fclone} is a path (and, thus,
+a character vector).
+
+
+
+<<>>=
+fclone <- list.files(path = system.file("testdata", package = "snapCGH"),
+                     full.names = TRUE, pattern = "cloneinfo.txt")
+fclone
+tmp <- inputDataToADaCGHData(MAList = MA.limma, 
+                             cloneinfo = fclone,
+                             na.omit = TRUE)
+@ 
+
+Alternatively, we can provide the name of an object with the additional
+information. For illustrative purposes, we can use here the columns of the
+\texttt{MA} object.
+
+
+<<>>=
+acloneinfo <- MA$genes
+tmp <- inputDataToADaCGHData(MAList = MA.limma, 
+                             cloneinfo = acloneinfo,
+                             na.omit = TRUE)
+@ 
+
+
+
+%% 
+
+%% \section{Implementation details}
+%\newpage
+\bibliographystyle{apalike}
+\bibliography{ADaCGH2}
+
+\end{document}
