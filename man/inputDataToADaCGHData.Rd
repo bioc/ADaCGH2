@@ -105,7 +105,8 @@ inputDataToADaCGHData(ffpattern = paste(getwd(), "/", sep = ""),
   consuming. Since this function is mainly used for its side effects
   (leaving the ff files in the disk), it
   can be run in a separate process that will then be killed. See an
-  example below.
+  example below using \pkg{multicore}. (For the example you must install
+  \pkg{multicore}). 
 }
 
 
@@ -123,6 +124,7 @@ tableChromArray <- inputDataToADaCGHData(filename = fname)
 
 
 ### Running in a separate process
+### This example only does anything if you have multicore installed.
   if(require(multicore)) {
   parallel(inputDataToADaCGHData(filename = fname), silent = FALSE)
   tableChromArray <- collect()[[1]]
