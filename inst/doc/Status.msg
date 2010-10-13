@@ -1,2 +1,0 @@
-
-Snowfall error
