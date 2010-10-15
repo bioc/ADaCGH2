@@ -87,7 +87,15 @@ options(width = 70)
 
 This package reads and writes quite a few files to the hard drive. The
 easiest way to organize your work is to create a separated directory for
-each project. All plot files and ff data will be stored there.
+each project. All plot files and ff data will be stored there. At the end
+of this example, we will remove this directory.
+
+<<>>=
+dir.create("ADaCGH2_vignette_tmp_dir")
+originalDir <- getwd()
+setwd("ADaCGH2_vignette_tmp_dir")
+@
+
 
 \subsection{Convert original data to \texttt{ff} objects}
 
@@ -217,6 +225,7 @@ if(require(CGHregions)) {
   regions1 <- CGHregions(forcghr)
   regions1
 }
+
 @ 
 
 Please note that \texttt{outputToCGHregions} does NOT check if the calls
@@ -251,6 +260,8 @@ datadir <- system.file("testdata", package = "snapCGH")
 targets <- readTargets("targets.txt", path = datadir)
 RG1 <- read.maimages(targets$FileName, path = datadir, source = "genepix")
 
+
+
 RG1 <- read.clonesinfo("cloneinfo.txt", RG1, path = datadir) ## snapCGH-specific
 RG1$printer <- getLayout(RG1$genes)
 types <- readSpotTypes("SpotTypes.txt", path = datadir)
@@ -258,12 +269,16 @@ RG1$genes$Status <- controlStatus(types, RG1)
 
 RG1$design <- c(-1, -1)
 
+
 RG2 <- backgroundCorrect(RG1, method = "minimum") ## class RGList
 MA <- normalizeWithinArrays(RG2, method = "median") ## class MAList
 class(MA)
 MA2 <- processCGH(MA, method.of.averaging = mean, ID = "ID") ## class SegList
 class(MA2)
+
+
 @ 
+
 
 
 All the information (intensity ratios and location) is available in the
@@ -278,6 +293,8 @@ tmp <- inputDataToADaCGHData(MAList = MA, na.omit = TRUE)
 
 tmp <- inputDataToADaCGHData(MAList = MA2, na.omit = TRUE, 
                              minNumPerChrom = 4)
+                             
+                             
 @ 
 
 We need to change the argument to \texttt{minNumPerChrom} because, after
@@ -305,6 +322,7 @@ targets.limma <- readTargets("targets.txt", path = datadir)
 RG.limma <- read.maimages(targets.limma, path = datadir, source="genepix")
 RG.limma <- backgroundCorrect(RG.limma, method="normexp", offset=50)
 MA.limma <- normalizeWithinArrays(RG.limma)
+
 @ 
 
 We can add the chromosomal and position information in two different
@@ -322,6 +340,7 @@ fclone
 tmp <- inputDataToADaCGHData(MAList = MA.limma, 
                              cloneinfo = fclone,
                              na.omit = TRUE)
+
 @ 
 
 Alternatively, we can provide the name of an object with the additional
@@ -329,13 +348,44 @@ information. For illustrative purposes, we can use here the columns of the
 \texttt{MA} object.
 
 
+
 <<>>=
 acloneinfo <- MA$genes
 tmp <- inputDataToADaCGHData(MAList = MA.limma, 
                              cloneinfo = acloneinfo,
                              na.omit = TRUE)
+
+
 @ 
 
+
+\section{Clean up actions}
+These are not strictly necessary, but we will explicitly stop the cluster
+and remove the directory we created. To make sure there are no file permission 
+problems, we also explicitly delete some of the "ff" files and objects (and we 
+wait a few seconds to allow pending I/O operations to happen before
+we delete the directory).
+
+
+<<>>=
+sfStop()
+load("chromData.RData")
+load("posData.RData")
+load("cghData.RData")
+
+delete(cghData); rm(cghData)
+delete(posData); rm(posData)
+delete(chromData); rm(chromData)
+
+lapply(hs_mad.out, delete)
+rm(hs_mad.out)
+
+setwd(originalDir)
+print(getwd())
+Sys.sleep(3)
+unlink("ADaCGH2_vignette_tmp_dir", recursive = TRUE)
+print(dir())
+@
 
 
 %% 

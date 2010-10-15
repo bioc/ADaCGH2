@@ -1,3 +1,7 @@
+0.99.2	2010-10-15
+	- Added clean ups to vignette to build OK under Windows (stoping
+	cluster and deleting ff objects and tmp directory).
+
 0.99.1	2010-10-13
 	- multicore moved to "Enhances" to allow easier R CMD check in
 	Windows. 
