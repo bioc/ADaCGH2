@@ -375,8 +375,19 @@ Ramon Diaz-Uriarte
 
 
  \examples{
+
+## Create a temp dir for storing output.
+## (Not needed, but cleaner).
+
+dir.create("ADaCGH2_example_tmp_dir")
+originalDir <- getwd()
+setwd("ADaCGH2_example_tmp_dir")
+
+
+
 ## Start a socket cluster. Change the appropriate number of CPUs
 ## for your hardware
+
 snowfallInit(universeSize = 2, typecluster = "SOCK")
 
 ## Get input data in ff format
@@ -519,6 +530,93 @@ summary(waves_mad.out[[1]][,])
 
 summary(waves_ml.out[[2]][,])
 summary(waves_mad.out[[2]][,])
+
+
+############## Clean up actions
+####  (These are not needed. They are convenient here, to prevent
+####   leaving garbage in your hard drive. In "real life" you will
+####   have to decide what to delete and what to store).
+
+
+
+### Explicitly stop cluster
+sfStop()
+
+
+### All objects (RData and ff) are left in this directory
+getwd()
+
+### We will clean it up, and do it step-by-step
+### BEWARE: DO NOT do this with objects you want to keep!!!
+
+## Remove ff and RData for the data
+
+load("chromData.RData")
+load("posData.RData")
+load("cghData.RData")
+
+delete(cghData); rm(cghData)
+delete(posData); rm(posData)
+delete(chromData); rm(chromData)
+unlink("chromData.RData")
+unlink("posData.RData")
+unlink("cghData.RData")
+unlink("probeNames.RData")
+
+
+## Remove ff and R objects with segmentation results
+
+lapply(cbs.out, delete)
+rm(cbs.out)
+
+lapply(cbs_mad.out, delete)
+rm(cbs_mad.out)
+
+lapply(cbs_none.out, delete)
+rm(cbs_none.out)
+
+lapply(hs_ml.out, delete)
+rm(hs_ml.out)
+
+lapply(hs_mad.out, delete)
+rm(hs_mad.out)
+
+lapply(hmm_ml.out, delete)
+rm(hmm_ml.out)
+
+lapply(hmm_mad.out, delete)
+rm(hmm_mad.out)
+
+lapply(hmm_mad_bic.out, delete)
+rm(hmm_mad_bic.out)
+
+lapply(cghseg_ml.out, delete)
+rm(cghseg_ml.out)
+
+lapply(cghseg_mad.out, delete)
+rm(cghseg_mad.out)
+
+
+lapply(glad.out, delete)
+rm(glad.out)
+
+
+
+lapply(waves_mad.out, delete)
+rm(waves_mad.out)
+
+lapply(waves_ml.out, delete)
+rm(waves_ml.out)
+
+
+### Try to prevent problems in R CMD check
+Sys.sleep(2)
+
+### Delete temp dir
+setwd(originalDir)
+unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
+Sys.sleep(2)
+
 }
 
 % #### Writing

@@ -108,6 +108,9 @@ snowfallInit(minUniverseSize = 4, typecluster = "MPI")
 ## you regard as an unacceptable minimum
 }
 
+
+## Better to explicitly stop cluster after you are done
+sfStop()
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

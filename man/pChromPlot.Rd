@@ -110,6 +110,13 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
 }
 \examples{
 
+## Create a temp dir for storing output
+dir.create("ADaCGH2_plot_tmp_dir")
+originalDir <- getwd()
+setwd("ADaCGH2_plot_tmp_dir")
+
+
+## Start cluster
 snowfallInit(universeSize = 2, typecluster = "SOCK")
 
 ## To speed up R CMD check, we do not use inputEx1, but a much smaller
@@ -139,6 +146,8 @@ pChromPlot(outRDataName = "hs_mad.out.RData",
                             probenamesRDataName = "probeNames.RData",
                             imgheight = 350)
 
+
+
 \dontrun{
 ## Produce the coordinate and probe names files.
 pChromPlot(outRDataName = "hs_mad.out.RData",
@@ -150,6 +159,36 @@ pChromPlot(outRDataName = "hs_mad.out.RData",
                             imagemap = TRUE)
 }
 
+### PNGs are in this directory
+getwd()
+
+### Explicitly stop cluster
+sfStop()
+
+### Clean up (DO NOT do this with objects you want to keep!!!)
+load("chromData.RData")
+load("posData.RData")
+load("cghData.RData")
+
+delete(cghData); rm(cghData)
+delete(posData); rm(posData)
+delete(chromData); rm(chromData)
+unlink("chromData.RData")
+unlink("posData.RData")
+unlink("cghData.RData")
+unlink("probeNames.RData")
+
+lapply(hs_mad.out, delete)
+rm(hs_mad.out)
+unlink("hs_mad.out.RData")
+
+### Try to prevent problems in R CMD check
+Sys.sleep(2)
+
+### Delete all png files and temp dir
+setwd(originalDir)
+unlink("ADaCGH2_plot_tmp_dir", recursive = TRUE)
+Sys.sleep(2)
 }
 
 \keyword{ hplot }

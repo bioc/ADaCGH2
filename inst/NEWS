@@ -1,3 +1,6 @@
+0.99.3	2010-10-16
+	- Clean up in examples.
+
 0.99.2	2010-10-15
 	- Added clean ups to vignette to build OK under Windows (stoping
 	cluster and deleting ff objects and tmp directory).

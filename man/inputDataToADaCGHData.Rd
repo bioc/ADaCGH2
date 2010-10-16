@@ -123,6 +123,20 @@ fname <- list.files(path = system.file("data", package = "ADaCGH2"),
 tableChromArray <- inputDataToADaCGHData(filename = fname)
 
 
+### Clean up (DO NOT do this with objects you want to keep!!!)
+load("chromData.RData")
+load("posData.RData")
+load("cghData.RData")
+
+delete(cghData); rm(cghData)
+delete(posData); rm(posData)
+delete(chromData); rm(chromData)
+unlink("chromData.RData")
+unlink("posData.RData")
+unlink("cghData.RData")
+unlink("probeNames.RData")
+
+
 ### Running in a separate process
 ### This example only does anything if you have multicore installed.
   if(require(multicore)) {
@@ -131,7 +145,21 @@ tableChromArray <- inputDataToADaCGHData(filename = fname)
   if(inherits(tableChromArray, "try-error")) {
     stop("ERROR in input data conversion")
   }
+### Clean up (DO NOT do this with objects you want to keep!!!)
+load("chromData.RData")
+load("posData.RData")
+load("cghData.RData")
+
+delete(cghData); rm(cghData)
+delete(posData); rm(posData)
+delete(chromData); rm(chromData)
+unlink("chromData.RData")
+unlink("posData.RData")
+unlink("cghData.RData")
+unlink("probeNames.RData")
 }
+### Try to prevent problems in R CMD check
+Sys.sleep(2)
 
 }
 \keyword{ IO }

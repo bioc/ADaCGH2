@@ -77,6 +77,29 @@ if(require(CGHregions)) {
   regions1 <- CGHregions(forcghr)
   regions1
 }
+
+### Explicitly stop cluster
+sfStop()
+
+### Clean up (DO NOT do this with objects you want to keep!!!)
+load("chromData.RData")
+load("posData.RData")
+load("cghData.RData")
+
+delete(cghData); rm(cghData)
+delete(posData); rm(posData)
+delete(chromData); rm(chromData)
+unlink("chromData.RData")
+unlink("posData.RData")
+unlink("cghData.RData")
+unlink("probeNames.RData")
+
+lapply(hs_mad.out, delete)
+rm(hs_mad.out)
+
+### Try to prevent problems in R CMD check
+Sys.sleep(2)
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
