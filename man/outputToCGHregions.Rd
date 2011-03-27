@@ -51,6 +51,14 @@ outputToCGHregions(output, directory = getwd())
   \code{\link{pSegment}}
 }
 \examples{
+
+## Create a temp dir for storing output.
+## (Not needed, but cleaner).
+dir.create("ADaCGH2_cghreg_example_tmp_dir")
+originalDir <- getwd()
+setwd("ADaCGH2_cghreg_example_tmp_dir")
+Sys.sleep(1)
+
 snowfallInit(universeSize = 2, typecluster = "SOCK")
 
 ## To speed up R CMD check, we do not use inputEx1, but a much smaller
@@ -98,6 +106,11 @@ lapply(hs_mad.out, delete)
 rm(hs_mad.out)
 
 ### Try to prevent problems in R CMD check
+Sys.sleep(2)
+
+### Delete all files and temp dir
+setwd(originalDir)
+unlink("ADaCGH2_cghreg_example_tmp_dir", recursive = TRUE)
 Sys.sleep(2)
 
 }

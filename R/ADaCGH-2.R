@@ -1030,6 +1030,10 @@ pSegmentHMM <- function(cghRDataName, chromRDataName, merging = "mergeLevels", m
   } else {
     stop("This merging method not recognized")
   }
+
+  ## Clean up ff files
+  lapply(out0, delete)
+  rm(out0)
   
   ## nodeWhere("pSegmentHMM_1")
   return(outToffdf(out, arrayNames))
@@ -1148,7 +1152,11 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
   } else {
     stop("This merging method not recognized")
   }
-  
+
+  ## Clean up ff files
+  lapply(out0, delete)
+  rm(out0)
+
   ## nodeWhere("pSegmentBioHMM_1")
   return(outToffdf(out, arrayNames))
 }
@@ -1236,6 +1244,15 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
   } else {
     stop("This merging method not recognized")
   }
+
+  ## Clean up ff files. The structure is different if merging or not
+  if(merging == "none") {
+    lapply(out0, function(x) lapply(x, delete))
+  } else {
+    lapply(out0, delete)
+  }
+  rm(out0)
+  
   ## nodeWhere("pSegmentCGHseg_1")
   return(outToffdf(out, arrayNames))
 }
@@ -1388,6 +1405,15 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
   } else {
     stop("This merging method not recognized")
   }
+
+  ## Clean up ff files. The structure is different if merging or not
+  if(merging == "none") {
+    lapply(out0, function(x) lapply(x, delete))
+  } else {
+    lapply(out0, delete)
+  }
+  rm(out0)
+  
   ## nodeWhere("pSegmentWavelets_1")
   return(outToffdf(out, arrayNames))
 }

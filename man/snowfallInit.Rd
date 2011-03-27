@@ -111,6 +111,9 @@ snowfallInit(minUniverseSize = 4, typecluster = "MPI")
 
 ## Better to explicitly stop cluster after you are done
 sfStop()
+
+## Not needed. To prevent Windoze from crashing in CMD check.
+Sys.sleep(2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -118,9 +118,20 @@ inputDataToADaCGHData(ffpattern = paste(getwd(), "/", sep = ""),
 % }
 \examples{
 
+
+## Create a temp dir for storing output.
+## (Not needed, but cleaner).
+dir.create("ADaCGH2_example_input_dir")
+originalDir <- getwd()
+setwd("ADaCGH2_example_input_dir")
+Sys.sleep(1)
+
+## Get location (and full filename) of example data file
 fname <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx1")
+
 tableChromArray <- inputDataToADaCGHData(filename = fname)
+
 
 
 ### Clean up (DO NOT do this with objects you want to keep!!!)
@@ -158,7 +169,13 @@ unlink("posData.RData")
 unlink("cghData.RData")
 unlink("probeNames.RData")
 }
+
 ### Try to prevent problems in R CMD check
+Sys.sleep(2)
+
+### Delete temp dir
+setwd(originalDir)
+unlink("ADaCGH2_example_input_dir", recursive = TRUE)
 Sys.sleep(2)
 
 }

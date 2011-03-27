@@ -390,9 +390,66 @@ print(dir())
 
 %% 
 
-%% \section{Implementation details}
-%\newpage
+\section{Implementation details}
+
+
+
+
+
+
+
+
+
+\newpage
 \bibliographystyle{apalike}
 \bibliography{ADaCGH2}
 
 \end{document}
+
+
+% To try to get call graphs with proftools
+% <<>>=
+
+% library(proftools)
+% library(ADaCGH2)
+
+% ## Do not use cluster if drawing call graphs
+% ## snowfallInit(universeSize = 2, typecluster = "SOCK")
+% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                     full.names = TRUE, pattern = "inputEx2")
+
+% tableChromArray <- inputDataToADaCGHData(filename = fname)
+
+
+% Rprof(tmp <- tempfile())
+% cbs.out <- pSegmentDNAcopy("cghData.RData",
+%                            "chromData.RData")
+% Rprof()
+
+% profileCallGraph2Dot(readProfileData(tmp), score = "total",
+%                                filename = "pSegment.dot",
+%                      rankdir = "TB")
+
+
+% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                      full.names = TRUE, pattern = "inputEx1")
+
+% Rprof(tmp <- tempfile())
+% hmm_mad.out <- pSegmentHMM("cghData.RData",
+%                            "chromData.RData", merging = "MAD")
+% Rprof()
+% profileCallGraph2Dot(readProfileData(tmp), score = "total",
+%                                filename = "pSegmentHMM.dot",
+%                      rankdir = "TB")
+
+
+
+% ## edit, change name, see and produce pdf
+% ## dotty pSegment-DNAcopy.dot 
+% ## dot -Tpdf pSegment-DNAcopy.dot > foo.pdf
+% ## xpdf foo.pdf
+
+
+
+
+% @ 

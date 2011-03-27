@@ -91,7 +91,8 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     \code{\link{inputDataToADaCGHData}} produces these type of files.}
   
   \item{merging}{Merging method; for most methods one of "MAD" or
-    "mergeLevels". For CBS (pSegmentDNAcopy) also "none". This options
+    "mergeLevels". For CBS (pSegmentDNAcopy),  GGHseg (pSegmentCGHseg), and Wavelets (as
+    in Hsu et al. ---pSegmentWavelets)  also "none". This option
     does not apply to GLAD (which has its own merging-like approach). See
     details.}
   
@@ -190,12 +191,12 @@ versions of ADaCGH, where some computations, depending on number of
 samples, could be parallelized over array*chromosome). 
 
 CGHseg has been implemented here following the original authors
-description. Note that several publications incorrectly claim they use
-the CGHseg approach when, actually, they are only using the "segment"
-function in the "tilingArray" package, but they are missing the key step
-of choosing the optimal number of segments (see p. 13 in Picard et al,
-2005). See out internal function "piccardsKO". 
-
+description. Note that several publications incorrectly claim that they
+use the CGHseg approach when, actually, they are only using the
+"segment" function in the "tilingArray" package, but they are missing
+the key step of choosing the optimal number of segments (see p. 13 in
+Picard et al, 2005). We implement the author's method in our (internal,
+so use "ADaCGH2:::piccardsKO") function "piccardsKO".
 
 
 
@@ -211,13 +212,13 @@ considered aberrant.  Merging is also performed for CGHseg (the default,
 however, is MAD, not mergeLevels).  Merging (using either of
 "mergeLevels" or "MAD") can also be used with the wavelet-based method
 of Hsu et al.; please note that the later is an experimental feature
-implemented by us, and there is no evidence of its performance.
+implemented by us, and there is no study of its performance.
 
 In summary, for all segmentation methods (except GLAD) merging is
 available as either "mergeLevels" or "MAD". For DNAcopy, CGHseg, and
-wavelets as in hsu et al., you can also choose no merging, though this
-will rarely be what you want (we offer this options, to allow using
-original authors' choices in their first descriptions of methods). 
+wavelets as in Hsu et al., you can also choose no merging, though this
+will rarely be what you want (we offer this option to allow using
+the original authors' choices in their first descriptions of methods). 
 
 
 When using mergeLevels, we map the results to states of "Alteration", so
@@ -504,14 +505,20 @@ cghseg_ml.out <- pSegmentCGHseg("cghData.RData",
                            "chromData.RData", merging = "mergeLevels")
 cghseg_mad.out <- pSegmentCGHseg("cghData.RData",
                            "chromData.RData", merging = "MAD")
+cghseg_none.out <- pSegmentCGHseg("cghData.RData",
+                           "chromData.RData", merging = "none")
+
 lapply(cghseg_ml.out, open)
 lapply(cghseg_mad.out, open)
+lapply(cghseg_none.out, open)
 
 summary(cghseg_ml.out[[1]][,])
 summary(cghseg_mad.out[[1]][,])
+summary(cghseg_none.out[[1]][,])
 
 summary(cghseg_ml.out[[2]][,])
 summary(cghseg_mad.out[[2]][,])
+summary(cghseg_none.out[[2]][,])
 
 
 glad.out <- pSegmentGLAD("cghData.RData",
@@ -522,14 +529,20 @@ waves_ml.out <- pSegmentWavelets("cghData.RData",
                            "chromData.RData", merging = "mergeLevels")
 waves_mad.out <- pSegmentWavelets("cghData.RData",
                            "chromData.RData", merging = "MAD")
+waves_none.out <- pSegmentWavelets("cghData.RData",
+                           "chromData.RData", merging = "none")
 lapply(waves_ml.out, open)
 lapply(waves_mad.out, open)
+lapply(waves_none.out, open)
+
 
 summary(waves_ml.out[[1]][,])
 summary(waves_mad.out[[1]][,])
+summary(waves_none.out[[1]][,])
 
 summary(waves_ml.out[[2]][,])
 summary(waves_mad.out[[2]][,])
+summary(waves_none.out[[2]][,])
 
 
 ############## Clean up actions
@@ -596,11 +609,11 @@ rm(cghseg_ml.out)
 lapply(cghseg_mad.out, delete)
 rm(cghseg_mad.out)
 
+lapply(cghseg_none.out, delete)
+rm(cghseg_none.out)
 
 lapply(glad.out, delete)
 rm(glad.out)
-
-
 
 lapply(waves_mad.out, delete)
 rm(waves_mad.out)
@@ -608,6 +621,19 @@ rm(waves_mad.out)
 lapply(waves_ml.out, delete)
 rm(waves_ml.out)
 
+lapply(waves_none.out, delete)
+rm(waves_none.out)
+
+
+\dontrun{
+## Execute only if you run the BioHMM examples
+lapply(biohmm_ml.out, delete)
+rm(biohmm_ml.out)
+lapply(biohmm_mad.out, delete)
+rm(biohmm_mad.out)
+lapply(biohmm_mad_bic.out, delete)
+rm(biohmm_mad_bic.out)
+}
 
 ### Try to prevent problems in R CMD check
 Sys.sleep(2)
