@@ -30,4 +30,18 @@
 	- Works with R-2.11 (adapted to differences in "inherits").
 
 2.1.0	2010-09-23
-	- First fully working version for BioC
+	- First fully working version for BioC. Versioning changed!
+       
+1.0.0  2010-10-16
+       - First version in BioC release (2.7).
+
+1.1.0  2010-10-28
+       - Clean up changes inside functions, deleting tmp. objects.
+       (all in BioC devel version)
+	
+1.1.1  2011-03-27
+       - Trying to pass check in Windows 64-bit: all examples now
+       execute within their temp dirs, which get deleted. And more
+       Sys.sleep.
+       - Further work in code to remove some unneeded temporary
+       ff objects inside functions.
