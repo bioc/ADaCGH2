@@ -90,8 +90,12 @@ easiest way to organize your work is to create a separated directory for
 each project. All plot files and ff data will be stored there. At the end
 of this example, we will remove this directory.
 
+
+(Just in case, I check for its existence first.)
+
 <<>>=
-dir.create("ADaCGH2_vignette_tmp_dir")
+if(!file.exists("ADaCGH2_vignette_tmp_dir"))
+  dir.create("ADaCGH2_vignette_tmp_dir")
 originalDir <- getwd()
 setwd("ADaCGH2_vignette_tmp_dir")
 @
@@ -383,14 +387,18 @@ rm(hs_mad.out)
 setwd(originalDir)
 print(getwd())
 Sys.sleep(3)
+@ 
+
+
+<<>>=
 unlink("ADaCGH2_vignette_tmp_dir", recursive = TRUE)
 print(dir())
+Sys.sleep(3)
 @
 
 
-%% 
 
-\section{Implementation details}
+%% \section{Implementation details}
 
 
 
