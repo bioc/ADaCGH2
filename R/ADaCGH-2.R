@@ -2844,7 +2844,11 @@ stop.na.inf <- function(x) {
   ## The code for many functions allows for dealing with NA and Inf, but
   ## would need to adjust other functions (as different arrays would have
   ## different length of pos, genenames, etc. So for now stop
-  if(any(is.na(x)) | any(is.infinite(x)))
+
+  
+  ## if(any(is.na(x)) | any(is.infinite(x)))
+  ## Improved as per Duncan Murdoch's suggestion, email 2011-05-28
+  if(any(is.na(x)) || any(is.infinite(x))) || any(is.nan(x)))
         stop("Either an NA or an infinite in the data: ",
              deparse(substitute(x)), ".\n",
              "   Eliminate those values or use imputation")

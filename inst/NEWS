@@ -45,3 +45,9 @@
        Sys.sleep.
        - Further work in code to remove some unneeded temporary
        ff objects inside functions.
+
+1.2.0  2011-04-14
+       - Version in BioC 2.8
+
+1.2.1  2011-06-06
+       - Changed "if" in stop.na.inf, as per Dundan Murdoch's suggestion.
