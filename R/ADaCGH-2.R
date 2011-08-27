@@ -2848,7 +2848,7 @@ stop.na.inf <- function(x) {
   
   ## if(any(is.na(x)) | any(is.infinite(x)))
   ## Improved as per Duncan Murdoch's suggestion, email 2011-05-28
-  if(any(is.na(x)) || any(is.infinite(x))) || any(is.nan(x)))
+  if(any(is.na(x)) || any(is.infinite(x)) || any(is.nan(x)))
         stop("Either an NA or an infinite in the data: ",
              deparse(substitute(x)), ".\n",
              "   Eliminate those values or use imputation")
