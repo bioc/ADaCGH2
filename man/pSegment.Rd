@@ -637,6 +637,9 @@ rm(biohmm_mad_bic.out)
 
 ### Try to prevent problems in R CMD check
 Sys.sleep(2)
+### To prevent CMD check from crashing after cleanEx
+detach("package:rlecuyer", unload = TRUE)
+
 
 ### Delete temp dir
 setwd(originalDir)

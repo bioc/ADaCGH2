@@ -89,6 +89,7 @@ if(require(CGHregions)) {
 ### Explicitly stop cluster
 sfStop()
 
+
 ### Clean up (DO NOT do this with objects you want to keep!!!)
 load("chromData.RData")
 load("posData.RData")
@@ -106,7 +107,10 @@ lapply(hs_mad.out, delete)
 rm(hs_mad.out)
 
 ### Try to prevent problems in R CMD check
+### (As a regular user, most likely you do not need this)
 Sys.sleep(2)
+detach("package:rlecuyer", unload = TRUE)
+
 
 ### Delete all files and temp dir
 setwd(originalDir)

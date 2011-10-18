@@ -114,6 +114,10 @@ sfStop()
 
 ## Not needed. To prevent Windoze from crashing in CMD check.
 Sys.sleep(2)
+
+## To prevent CMD check from crashing after cleanEx
+detach("package:rlecuyer", unload = TRUE)
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

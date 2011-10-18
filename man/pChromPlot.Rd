@@ -184,6 +184,9 @@ unlink("hs_mad.out.RData")
 
 ### Try to prevent problems in R CMD check
 Sys.sleep(2)
+## To prevent CMD check from crashing after cleanEx
+detach("package:rlecuyer", unload = TRUE)
+
 
 ### Delete all png files and temp dir
 setwd(originalDir)
