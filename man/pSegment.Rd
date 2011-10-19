@@ -643,6 +643,7 @@ detach("package:rlecuyer", unload = TRUE)
 
 ### Delete temp dir
 setwd(originalDir)
+Sys.sleep(2)
 unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
 Sys.sleep(2)
 

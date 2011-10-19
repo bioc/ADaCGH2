@@ -175,6 +175,7 @@ Sys.sleep(2)
 
 ### Delete temp dir
 setwd(originalDir)
+Sys.sleep(2)
 unlink("ADaCGH2_example_input_dir", recursive = TRUE)
 Sys.sleep(2)
 

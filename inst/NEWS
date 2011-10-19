@@ -55,3 +55,7 @@
 1.3.2  2011-10-18
        - Added unloading of rlecuyer, to prevent problems with cleanEx
        during R CMD check.
+
+1.3.3  2011-10-19
+       - Added more "Sys.sleep" to see if we can get it not to crash in
+       Windoze. 

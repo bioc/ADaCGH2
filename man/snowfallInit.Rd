@@ -117,7 +117,7 @@ Sys.sleep(2)
 
 ## To prevent CMD check from crashing after cleanEx
 detach("package:rlecuyer", unload = TRUE)
-
+Sys.sleep(2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

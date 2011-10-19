@@ -190,6 +190,7 @@ detach("package:rlecuyer", unload = TRUE)
 
 ### Delete all png files and temp dir
 setwd(originalDir)
+Sys.sleep(2)
 unlink("ADaCGH2_plot_tmp_dir", recursive = TRUE)
 Sys.sleep(2)
 }
