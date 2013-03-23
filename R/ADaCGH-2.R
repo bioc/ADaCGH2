@@ -4,19 +4,21 @@
 ### FIXME: if using fork or parallel, probably don't want
 ##  to call quit.
 
+## Removed because it was creating warnigns
+## and is no longer used
+## ## .__ADaCGH_WEB_APPL <- TRUE in web appl!
+## if(exists(".__ADaCGH_WEB_APPL", env = .GlobalEnv))
+## {
+##   warningsForUsers <- vector()
+## #  running.as.web.adacgh <- TRUE
+## } else if (exists(".__ADaCGH_SERVER_APPL", env = .GlobalEnv)) {
+##   warningsForUsers <- vector()
+## #  running.as.web.adacgh <- FALSE
+## } else {
+## #  running.as.web.adacgh <- FALSE
+##   warningsForUsers <- warning
+## }
 
-## .__ADaCGH_WEB_APPL <- TRUE in web appl!
-if(exists(".__ADaCGH_WEB_APPL", env = .GlobalEnv))
-{
-  warningsForUsers <- vector()
-#  running.as.web.adacgh <- TRUE
-} else if (exists(".__ADaCGH_SERVER_APPL", env = .GlobalEnv)) {
-  warningsForUsers <- vector()
-#  running.as.web.adacgh <- FALSE
-} else {
-#  running.as.web.adacgh <- FALSE
-  warningsForUsers <- warning
-}
 
 mydcat <- function(x) {
   cat("\n", x, "\n")
@@ -149,7 +151,7 @@ snowfallInit <- function(universeSize = NULL,
                socketHosts = socketHosts)
     }
 
-    sfClusterEval(rm(list = ls(env = .GlobalEnv), envir =.GlobalEnv))
+    sfClusterEval(rm(list = ls(envir = .GlobalEnv), envir =.GlobalEnv))
     rngenerators <- c("SPRNG", "RNGstream")
     t1 <- try(sfClusterSetupRNG(type = RNG))
     if(inherits(t1, "try-error")) {
@@ -218,7 +220,7 @@ mysize <- function(x) {
 
 sizesobj <- function(n = 1,  minsizeshow = 0.5) {
   ## n: how far up to go
-  l1 <- ls(env = parent.frame(n = n))
+  l1 <- ls(envir = parent.frame(n = n))
   if(length(l1) > 0) {
    
     ## The following does not work reliably, probably because
@@ -229,7 +231,7 @@ sizesobj <- function(n = 1,  minsizeshow = 0.5) {
 
     sizes <- rep(NA, length(l1))
     for(i in 1:length(l1)) sizes[i] <- object.size(get(l1[i],
-                                                       env = parent.frame(n = n)))
+                                                       envir = parent.frame(n = n)))
     names(sizes) <- l1
     sizes <- sort(sizes, decreasing = TRUE)
     sizes <- round(as.matrix(sizes/10^6), 1)
@@ -320,7 +322,7 @@ getNames <- function(namesRDataName, posInitEnd = NULL) {
   
 
 getffObj <- function(RDataName, silent = FALSE) {
-  nmobj <- load(RDataName, env = parent.frame())
+  nmobj <- load(RDataName, envir = parent.frame())
     if(!silent) {
       cat("\n Making an assignment in the calling environment!!! \n")
       cat("We just created (or overwrote)", nmobj, "\n")
@@ -576,7 +578,7 @@ inputDataToADaCGHData <- function(ffpattern = paste(getwd(), "/", sep = ""),
   tmp <- paste(inputData[, 2], inputData[, 3], sep = ".")
   if (sum(duplicated(tmp))) {
     cat("\n We have identical MidPos!!! \n")
-    if(exists(".__ADaCGH_SERVER_APPL", env = .GlobalEnv))
+    if(exists(".__ADaCGH_SERVER_APPL", envir = .GlobalEnv))
       capture.output(print("We have identical MidPos!!!"),
                      file = "WARNING.DUPLICATED")
     ## add a random variate, to break ties:
@@ -2077,7 +2079,7 @@ caughtOtherError <- function(message) {
     png.width  <- 400
     png.pointsize <- 10
 
-    if(exists(".__ADaCGH_WEB_APPL", env = .GlobalEnv)) {
+    if(exists(".__ADaCGH_WEB_APPL", envir = .GlobalEnv)) {
         png("ErrorFigure.png", width = png.width,
             height = png.height, 
             pointsize = png.pointsize)
@@ -2094,7 +2096,7 @@ caughtOtherError <- function(message) {
         cat(message)
         sink()
         quit(save = "no", status = 11, runLast = TRUE)
-    } else if(exists(".__ADaCGH_SERVER_APPL", env = .GlobalEnv)) {
+    } else if(exists(".__ADaCGH_SERVER_APPL", envir = .GlobalEnv)) {
         caughtOtherError.Web(message)
 
     } else {
@@ -2109,7 +2111,7 @@ caughtError <- function(message) {
     png.width  <- 400
     png.pointsize <- 10
 
-    if(exists(".__ADaCGH_WEB_APPL", env = .GlobalEnv)) {
+    if(exists(".__ADaCGH_WEB_APPL", envir = .GlobalEnv)) {
         png("ErrorFigure.png", width = png.width,
             height = png.height, 
             pointsize = png.pointsize)
@@ -2126,7 +2128,7 @@ caughtError <- function(message) {
         cat(message)
         sink()
         quit(save = "no", status = 11, runLast = TRUE)
-    } else if(exists(".__ADaCGH_SERVER_APPL", env = .GlobalEnv)) {
+    } else if(exists(".__ADaCGH_SERVER_APPL", envir = .GlobalEnv)) {
         caughtOtherPackageError.Web(message)
     } else {
         message <- paste("This is a known problem in a package we depend upon. ", message)
@@ -2218,7 +2220,7 @@ mpi.clean.quit.Web <- function() {
 caughtOurError2 <- function(message) {
   message <- paste("There was a problem with our code. Please let us know.\n", 
                    message)
-  if(exists(".__ADaCGH_SERVER_APPL", env = .GlobalEnv)) {
+  if(exists(".__ADaCGH_SERVER_APPL", envir = .GlobalEnv)) {
     snowfall.clean.quit.Web()
     sink(file = "R_Error_msg.txt")
     cat(message)
@@ -2238,7 +2240,7 @@ caughtUserError2 <- function(message) {
   message <- paste("There was a problem with something you did.\n",
                      "Check the error message, your data and options and try again.\n",
                    message, "\n")
-  if(exists(".__ADaCGH_SERVER_APPL", env = .GlobalEnv)) {
+  if(exists(".__ADaCGH_SERVER_APPL", envir = .GlobalEnv)) {
     snowfall.clean.quit.Web()
     sink(file = "R_Error_msg.txt")
     cat(message)
@@ -2318,7 +2320,7 @@ imagemap3 <- function(filename,width=480,height=480,
                       title='Imagemap from R', ps = 12){
 ## copied from "imagemap" function in imagemap.R from B. Rowlingson
   
-    png(file = paste(filename,".png",sep=''),
+    png(filename = paste(filename,".png",sep=''),
         width=width,
         height=height,
         pointsize = ps)	  
