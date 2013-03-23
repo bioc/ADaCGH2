@@ -58,4 +58,10 @@
 
 1.3.3  2011-10-19
        - Added more "Sys.sleep" to see if we can get it not to crash in
-       Windoze. 
+       Windoze.
+
+1.9.0  2013-03-23
+       - Commented out unused code that gave warnings in checks.
+       - Removed partial matching (was giving notes).
+       - Note: version 2.0 is almost ready, so work on current version
+         is now limited. 
