@@ -114,11 +114,11 @@ fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
 cutFile(fnametxt, 1, 2, 3)
 
 ## Verify we have ID, Chrom, Pos
-c("ID.txt", "Chrom.txt", "Pos.txt") %in% list.files(getwd())
+c("ID.txt", "Chrom.txt", "Pos.txt") \%in\% list.files(getwd())
 
 ## verify some other column
 
-c("col_5.txt") %in% list.files(getwd())
+c("col_5.txt") \%in\% list.files(getwd())
 
 ## Read a white space separated file, and assign the first, second, and
 ## third positions to ID, Chrom, and Position, but remove the sixth

@@ -607,6 +607,15 @@ will often execute the following in sequence:
 \item Plot the results
 \end{enumerate}
 
+
+Compared to section \ref{ex-ram-fork} we introduce here the following new
+major topics:
+
+\begin{itemize}
+\item Using \textit{ff} objects.
+\item Setting up a cluster.
+\end{itemize}
+
 % We cover each in turn in the remaining of this section and discuss
 % alternative routes.
 
@@ -717,12 +726,15 @@ section \ref{input-as-text}.
 
 With large data sets, converting from RData to \textit{ff} can be the
 single step that consumes the most RAM, since we need to load the original
-data into R. Even if we remove the original data and call \texttt{gc()}, R
-might not return all of the memory to the operating system, and this might
-be inconvenient in multiuser environments and/or long running
-processes. Thus, it is possible to execute the above in a separate R
-process that is spawned exclusively just for the conversion. For instance,
-we could use the \texttt{mcparallel} function and do:
+data into R. Even if, after the conversion to \textit{ff}, we remove the
+original data and call \texttt{gc()}, R might not return all of the memory
+to the operating system, and this might be inconvenient in multiuser
+environments and/or long running processes. 
+
+We can try dealing with the above problems by executing the conversion to
+\textit{ff} in a separate R process that is spawned exclusively just for
+the conversion. For instance, we could use the \texttt{mcparallel}
+function (from package \textbf{paralle}) and do:
 
 <<eval=FALSE>>=
 mcparallel(inputDataToADaCGHData(ff.or.RAM = "ff",
@@ -736,9 +748,8 @@ mcparallel(inputDataToADaCGHData(ff.or.RAM = "ff",
 
 That way, the \textit{ff} are produced and stored locally in the hard
 drive, but the R process where the original data was loaded (and the
-conversion to \textit{ff} carried out) dies after the conversion, freeing
-back the memory to the operating system. 
-
+conversion to \textit{ff} carried out) dies immediately after the
+conversion, freeing back the memory to the operating system.
 
 
 
@@ -782,12 +793,11 @@ You can also use data from snapCGH and Limma. See section \ref{snap}.
 
 \subsubsection{Reading data from a directory}
 \label{reading-dir-1}
-See section \ref{reading-dir} for further details.  This option is a
-reasonable option with very large data sets. The initial data reading will
-use forking and, once we have saved the objects as \textit{ff} objects, we
-can apply all the subsequent analysis steps discussed in the rest of this section.
-
-
+See section \ref{reading-dir} for further details.  This option is the
+best option with very large data sets. The initial data reading will use
+forking and, once we have saved the objects as \textit{ff} objects, we can
+apply all the subsequent analysis steps discussed in the rest of this
+section.
 
 
 \subsubsection{Moving a set of \textit{ff} objects}
@@ -813,11 +823,14 @@ ffload(file = "pathtofile/savedcghData", rootpath = getwd())
 
 \subsection{Initializing the computing cluster}\label{initcluster}
 
-Unless we use forking, we need to set up and initialize a cluster. Cluster
-initialization uses the functions provided in \texttt{parallel}. In the
-example we will use a sockect cluster, but MPI can also be used (that is
-what we use in our servers). In this example we will use a four node
-cluster.
+%%Unless we use forking, we need to set up and initialize a cluster. 
+Cluster initialization uses the functions provided in
+\texttt{parallel}. In the example we will use a sockect cluster, since
+this is likely to run under a variety of operating systems and should not
+need any additional software. Note, however, that MPI can also be used (in
+fact, that is what we use in our servers). In this example we will use a
+four node cluster.
+
 
 <<>>=
 cl2 <- makeCluster(4,"PSOCK")
@@ -834,18 +847,18 @@ The first two calls create a cluster and initialize the random number
 generator. The third expression sets the cluster just created as the
 default cluster. This is important: to simplify function calls, we do not
 pass the cluster name around, but rather expect a default cluster to be
-set up. And, of course, we need to make the package available in all the
-nodes of the cluster.
+set up. The fourth line makes the \textbf{ADaCGH2} package available in
+all the nodes of the cluster (notice we did not need to do this with
+forking, as the child processes shared memory with the parent). 
 
 
-The last three lines make sure the slave or child process use the same
-directory as the master. Because we created the cluster after changing
-directories (section \ref{choosewd}) this step is not really needed
-here. But we make it explicit so as to verify it works, and as a reminder
-that you will need to do this if you change directories AFTER creating the
-cluster. If you run on a multinode cluster, you must ensure that the same
-directory exists in all machines. (In this case, we are running on the
-localhost).
+The last three lines make sure the slave processes use the same directory
+as the master. Because we created the cluster after changing directories
+(section \ref{choosewd}) this step is not really needed here. But we make
+it explicit so as to verify it works, and as a reminder that you will need
+to do this if you change directories AFTER creating the cluster. If you
+run on a multinode cluster, you must ensure that the same directory exists
+in all machines. (In this case, we are running on the localhost).
 
 
 
@@ -858,11 +871,6 @@ in the second vignette.
 <<eval=FALSE>>=
 help(pSegment)
 @ 
-
-
-
-
-
 <<>>=
 haar.ff.cluster <- pSegmentHaarSeg("cghData.RData",
                                    "chromData.RData", 
@@ -872,7 +880,8 @@ haar.ff.cluster <- pSegmentHaarSeg("cghData.RData",
 
 We can take a quick look at the output. We first open the \textit{ff}
 objects (the output is a list of \textit{ff} objects) and then call
-\texttt{summary} on the smoothed list
+\texttt{summary} on the list that contains the results of the wavelet
+smoothing: 
 
 <<>>=
 lapply(haar.ff.cluster, open)
@@ -911,18 +920,21 @@ but it will not use a cluster but forking, as in section
 will need to read data and convert it to \textit{ff} objects.
 
 
+Here we introduce no new major topics. Working with \textit{ff} objects
+was covered in section \ref{to-ff} and forking was covered in section
+\ref{segment-local-fork}. We simply combine these work-flows.
+
+
 \subsection{Choosing a working directory}
 \label{choosewd-ex3}
 
 
 As we will use \textit{ff} objects, it will be convenient, as we did in
 section \ref{choosewd}, to create a separate directory for each project,
-to store all plot files and ff data. 
-
-
-Since we already did that above (section \ref{choosewd}) we do not repeat
-it here. However, for real work, you might want to keep different analyses
-associated to different working directories.
+to store all plot files and ff data.  Since we already did that above
+(section \ref{choosewd}) we do not repeat it here. However, for real work,
+you might want to keep different analyses associated to different working
+directories.
 
 
 % this would be a mess for me, when deleating, cleaning up,
@@ -967,10 +979,12 @@ inputDataToADaCGHData(ff.or.RAM = "ff",
   process}
 \label{separate-proc-ex3}
 
-Even if we are using forking, we might still want to carry it the
-conversion to \textit{ff} objects in a separate process, as in section
-\ref{separate-proc} since the conversion to \textit{ff} objects might be
-the step that consumes most RAM in the whole process.
+Even if we are using forking, we might still want to carry the conversion
+to \textit{ff} objects in a separate process, as we did in section
+\ref{separate-proc}, since the conversion to \textit{ff} objects might be
+the step that consumes most RAM in the whole process and we might want to
+make sure we return that memory to the operating system as soon as
+possible. 
 
 <<eval=FALSE>>=
 mcparallel(inputDataToADaCGHData(ff.or.RAM = "ff",
@@ -1016,12 +1030,14 @@ time it takes to convert the file will be more than compensated by the
 speed ups of reading, in R, each file on its own. With very large files,
 it is much faster to read the data this way (we avoid having to loop many
 times over the file to read each column). Reading the data is
-parallalized, which allows us to speed up the reading process
+parallelized, which allows us to speed up the reading process
 significantly (the parallelization uses forking, and thus you will see no
-speed gains in Windows). Finally, we use \textit{ff} objects for
-intermediate storage.
+speed gains in Windows). Finally, to maximize speed and minimize memory
+consumption, we use \textit{ff} objects for intermediate storage.
 
-\paragraph{Cutting the original file into one-column files}
+
+
+\subsubsection{Cutting the original file into one-column files}
 We provide a simple function, \texttt{cutFile}, to do this job. For instance
 
 <<>>=
@@ -1034,27 +1050,50 @@ cuttedFileAndffs.dir <- getwd()
 setwd("../")
 @ 
 
-We create a new directory and carry out the conversions there since the
+We create a new directory and carry out the file cutting there since the
 upper level directory is already populated with other files we have been
-creating. If we cut the file here, we would later need to specify a
-lengthy list of files to exclude in the arguments to
+creating. If we cut the file in the upper directory, we would later need
+to specify a lengthy list of files to exclude in the arguments to
 \texttt{inputDataToADaCGHData}. To avoid that, we create a directory, and
-leave the files there. After cutting, we return to the former level
-directory, to keep that directory with only the files for input.
+leave the files in the newly created directory. After cutting, we return
+to the former level directory, to keep that directory with only the files
+for input.
+
+It is important to realize that the previous paragraph, which might seem a
+mess, does not reflect the way you would usually work, which would
+actually be much simpler, and something like the following:
+
+\begin{enumerate}
+\item Create a directory for your new project (lets call this directory
+  \texttt{d1}).
+\item Copy the text file with your big txt file with data to \texttt{d1};
+  lets call this file \texttt{afile.txt}.
+\item In R, move to \texttt{d1} (for example, \texttt{setwd("~/d1")}).
+\item Use \texttt{cutFile}: \texttt{cutFile("afile.txt", 1, 2, 3)}.
+\item Call \texttt{inputDataToADaCGHData}: 
+  \texttt{inputDataToADaCGHData(ff.or.RAM = "ff", path = getwd(),
+    excludefile = "afile.txt")}
+\end{enumerate}
+
+(In this vignette the work flow was not as easy because we are running
+lots of different examples, with several different work flows.)
+
+
 
 
 \texttt{cutFile} will run several jobs in parallel to speed up the cutting
-process, and will produce files with the required naming conventions of
-\texttt{inputDataToADaCGHData}. Note that \texttt{cutFile} is unlikely to work
-under Windows. 
+process, launching by default as many jobs as cores it can detect, and
+will produce files with the required naming conventions of
+\texttt{inputDataToADaCGHData}. Note that \texttt{cutFile} is unlikely to
+work under Windows.
 
 
 If you do not want to use \texttt{cutFile} you can use utilities provided
 by your operating system. The following is a very simple example of using
-\texttt{cut} (which is also used internally by \texttt{cutFile}) to
-produce one-column files from a file called \texttt{Data.txt}, with 77
-arrays/subjects, where cutting the data part is parallelized over four
-processors:
+\texttt{cut} under bash (which is similar to what we do internally in
+\texttt{cutFile}) to produce one-column files from a file called
+\texttt{Data.txt}, with 77 arrays/subjects, where cutting the data part is
+parallelized over four processors:
 
 \begin{verbatim}
 cut -f1 Data.txt > ID.txt
@@ -1067,7 +1106,6 @@ for i in {41..60}; do cut -f$i Data.txt > col_$i.txt; done &
 for i in {61..80}; do cut -f$i Data.txt > col_$i.txt; done &
 
 \end{verbatim}
-
 
 
 
@@ -1118,17 +1156,18 @@ created can vary. In particular, the command \texttt{list.files} (which we
 use to list of the files) can produce different output (different order of
 files) between operating systems and versions of R. What this means is
 that, say, column three does not necessarily refer to the same subject or
-array. Always use the column names to identify unambiguously the data and
-the results.
+array. \textbf{Always use the column names to identify unambiguously the data and
+the results}.
 
 
 
 \paragraph{What about performing this step in a separate process?}
-In section \ref{separate-proc} we performed the data preparation in a
-separate process, to free up RAM to the OS right after the conversion. You
-can do that too here if you want, but we have not found that necessary,
-since the memory consumption when reading column by column is often
-small. See examples with large data sets in section \ref{large-ex-read}.
+In sections \ref{separate-proc} and \ref{separate-proc-ex3} we performed
+the data preparation in a separate process, to free up RAM to the OS right
+after the conversion. You can do that too here if you want, but we have
+not found that necessary, since the memory consumption when reading column
+by column is often small. See examples with large data sets in section
+\ref{large-ex-read}.
 
 
 \subsection{Carrying out segmentation and calling}
@@ -1211,7 +1250,7 @@ class(MA2)
 
 
 
-%% GIXME: watch out for NAs!
+%% FIXME: watch out for NAs!
 All the information (intensity ratios and location) is available in the
 \texttt{MA} and \texttt{MA2} objects. We can directly convert them to
 \textit{ADaCGH2} objects (we set \texttt{na.omit = TRUE} as the data
@@ -1340,51 +1379,55 @@ setwd(originalDir)
 \label{very-large-example}
 
 
-We discuss here a specific example to give an rough idea of timings and
-possible preferred approaches for analyzing very large data sets.
+We discuss here a specific example to give you a rough idea of timings and
+preferred approaches for analyzing very large data sets.
 
 \subsection{Data set and hardware}
 \label{sec:data-set-hardware}
 
-The simulated data set contains 6,067,433 rows and 1000 columns of data. In
-some examples shown below, we use smaller subsets of the same data. There
-are 421000 missing values per data column. The ASCII file with the data is
-about 96 GB and the RData for those same data is 46 GB (without
-compression). We will analyze the full data set with 1000 columns, and
-some smaller versions of that data set (with 200 and 50 data columns).
+We use a simulated data set that contains 6,067,433 rows and 1000 columns
+of data; these are, thus, data for an array with 6 million probes and data
+for 1000 subjects. In some examples shown below, we use smaller subsets of
+the same data (with only 200 or 50 columns). There are 421,000 missing
+values per data column. The ASCII file with the data is about 96 GB and
+the RData for those same data is 46 GB (without compression). We will
+analyze the full data set with 1000 columns, and some smaller versions of
+that data set (with 200 and 50 data columns).
 
 
 The examples below were run on a Dell PowerEdge C6145 chasis with two
 nodes. Each node has 4 AMD Opteron 6276 processors; since each processor
 has 16 cores, each node has 64 cores. Each node has 256 GB RAM. Both nodes
 are connected by Infiniband (40Gb/s).  For the data presented here, when
-using a single node, the data live on an xfs partition of a RAID0 array
-of SCSI disks (15000 rpm) that are local to the node doing the
+using a single node, the data live on an xfs partition of a RAID0 array of
+SAS disks (15000 rpm) that are local to the node doing the
 computations. When using the two nodes, the data live on that same local
-SCSI drive, which is seen by the other node using a simple NFS setup (we
+SAS drive, which is seen by the other node using a simple NFS setup (we
 have also used distributed file systems, such as FhGFS, but they have
 tended to be a lot slower in these experiments; your mileage might
 vary). Therefore, in the table entries below, executions using both nodes
 will indicate ``124 cores'' \footnote{124 is not a typo; it is 124, even
   if the total number of cores is $128 = 64 * 2$. This is due to the
-  following documented issue with MPI and Infiniband:
+  following documented issue with Open MPI and Infiniband:
   \url{http://www.open-mpi.org/community/lists/users/2011/07/17003.php},
   and since $128^2 = 16384$, we are hitting the limit, and we have not had
-  a chance to correct this problem yet. Regardless, it would be a
-  difference of 4 process out of 124.}
+  a chance to correct this problem yet. Regardless, the penalty we would
+  pay would be a difference of 4 process out of 124.}
 
   
 We will also show some examples run on an HP Z800 workstation, with 2
 Intel Xeon E5645 processors (each processor has six cores), and 64 GB of
 RAM. The data live on an ext4 partition on a SATA disk (7200 rmp). In the
-tables, this is indicated as ``12, Coleonyx''.
+tables, this is indicated as ``Coleonyx, 12 cores'' (table with results
+for reading data) or by the number 12 in the column for number of cores.
 
 
 In both systems, the operating system is Debian GNU/Linux (a mixture of
 Debian testing and Debian unstable). The Dell PowerEdge nodes were running
 version R-2.15.1 as available from the Debian repository (v.\
 2.15.1-5). The Xeon workstation was running R-2.15.1, patched version
-(2012-10-02 r60861), compiled from sources.
+(2012-10-02 r60861), compiled from sources. Open MPI is version 1.4.3-2 (as
+available from Debian).
 
 
 
@@ -1419,11 +1462,13 @@ For the two tables below, the meaning of columns is as follows:
   the given function. This number cannot reflect all the memory used by the
   function if the function spawns other R processes.
 
-\item[Max.\ $\Sigma$ mem.] A simple attempt to measure of the sum of all the
-  memory used by all the process. Right before starting the execution of
-  our function, we call the user command \texttt{free} and record the
-  value reported by the ``-/+ buffers/cache'' row. Then, while the
-  function is executing, we record, every 0.5 seconds, that same
+\item[Max.\ $\Sigma$ mem.] A simple attempt to measure the memory used by
+  all the processes\footnote{Just adding the entries given by \texttt{top}
+    or \texttt{ps} will not do, and will overestimate, sometimes by a huge
+    amount, the total memory used.}. Right before starting the execution
+  of our function, we call the operating system command \texttt{free} and
+  record the value reported by the ``-/+ buffers/cache'' row. Then, while
+  the function is executing, we record, every 0.5 seconds, that same
   quantity. The largest difference between the successive measures and the
   original one is the largest RAM consumption. Note that this is an
   approximation. First, if other process start executing, they will lead
@@ -1435,13 +1480,14 @@ For the two tables below, the meaning of columns is as follows:
   
   \item[Columns] The number of data columns of the data set.
   \item[Method] The analysis method (either HaarSeg or CBS ---DNAcopy).
-  \item[Fork/MPI] Whether forking (via \texttt{mclapply}) or MPI are used
-    to parallelize execution.
+  \item[Fork/MPI] Whether forking (via \texttt{mclapply}) or MPI (using
+    the facilities provided by package \textbf{Rmpi}, which are called
+    from package \textbf{snow}) are used to parallelize execution.
 \item[Cores] Number of cores, and machine. 64: 64 cores in a single node
   of the Dell PowerEdge C6145. 124: 124 cores, using both nodes of the
   Dell PowerEdge. 12: 12 cores in the Z800 HP Workstation.
   \item[ff/in-RAM] If the data for the analysis was stored as an
-    \textit{ff} object, or as an RData data frame that was loaded in full
+    \textit{ff} object, or as an RData data frame that was loaded 
     before the analysis.
   
 \end{description}
@@ -1460,11 +1506,11 @@ C6145 (64 cores).
 \begin{threeparttable}
   
 
-  \begin{tabular}{p{3cm}p{1.8cm}p{1.8cm}p{2.5cm}p{2.5cm}}
+  \begin{tabular}{p{3cm}p{1.8cm}p{1.8cm}p{2.65cm}p{2.65cm}}
  
     \hline
-    &Columns & Wall time (min.)& Max.\ mem. (\texttt{gc}), Gb &
-    Max.\ $\Sigma$ mem., Gb\\
+    &Columns & Wall time (minutes)& Max.\ mem.\ (\texttt{gc}), GB &
+    Max.\ $\Sigma$ mem., GB\\
 \hline
     Txt file to \textit{ff} & 1000 & 2630 & 1.3 & NA (not calculated) \\
     Directory to \textit{ff} & 1000 & 29 & 1.3 & 41.21 \\
@@ -1525,7 +1571,7 @@ Directory to in-RAM & 50 & 5.8 + 0.1\tnote{c} & 5.8 & 27 \\
     
     \hline
 
-Method& Fork /MPI & Cores & ff/in-RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), Gb & Max.\ $\Sigma$ mem., Gb\\
+Method& Fork /MPI & Cores & ff/in-RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
 
 \hline
 
@@ -1583,28 +1629,31 @@ HaarSeg & Fork &64  & in-RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
   data with MPI is often generally slower than using forking, which is not
   surprising. Note also that with MPI there is an overhead of spawning
   slaves and loading packages in the slaves (which, in our case, takes
-  about half a minute to a minute).
+  about half a minute to a minute). %% These overheads could be amortized if
+  %% you continue using MPI for a session (but OpenMPI is not ideal for that
+  %% scenario, in contrast to other versions such as LAM MPI).
   
   
 \item When using two nodes (i.e., almost doubling the number of cores),
   MPI might, or might not, be faster than using forking on a single
   node. Two main issues affect the speed differences: inter-process
   communication and access to files. In our case, the likely bottleneck
-  lies in access to files, which live on a SCSI disk which is accessed via
+  lies in access to files, which live on a SAS disk which is accessed via
   NFS. With other hardware/software configurations, access to shared files
-  might be much faster. Regardless, the MPI costs might not be offset if
+  might be much faster. Regardless, the MPI costs might not be worth if
   each individual calculation is fast; this is why MPI with HaarSeg does
   not pay off, but it does pay off with CBS.
     
   
 \item When using \textit{ff}, the exact same operations in systems with
   different RAM can lead to different amounts of memory usage, as
-  \textit{ff} tries autotuning when starting. Note, for instance, the
-  differences in RAM usage between our two machines when reading a
-  directory of when forking, with a 1000 column data set. You can tune
-  parameters when you load the \textbf{ff} package, but even if you don't
-  (and, by default, we don't), defaults are often sensible and will play
-  in your favor.
+  \textit{ff} tries autotuning when starting. %% Note, for instance, the
+  %% differences in RAM usage between our two machines when reading a
+  %% directory with a 1000 column data set. Hey! This is just because we
+  %% use 12 or 64 cores! 
+  You can tune parameters when you load the \textbf{ff} package, but even
+  if you don't (and, by default, we don't), defaults are often sensible
+  and will play in your favor.
     
 \item Even for relatively small examples, using \textit{ff} can be faster
   than using RAM objects. Using RAM objects incurs overheads of loading
@@ -1619,8 +1668,7 @@ HaarSeg & Fork &64  & in-RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
   bottlenecks and contention problems that result from accessing data in a
   single data frame simultaneously from multiple processes, compared to
   loading exactly just one column independently in each process, and/or
-  repeated cache misses when the complete data frame does not fit in the
-  cache(s).
+  repeated cache misses.
   
 \end{enumerate}
 
