@@ -4,24 +4,57 @@
 \title{
 ADaCGH2 output as input to CGHregions
 }
-\description{
-  Convert ADaCGH2 output to a data frame that can be used as
-  input for \code{\link[CGHregions]{CGHregions}}.
+
+\description{ Convert ADaCGH2 output to a data frame that can be used as
+  input for \code{\link[CGHregions]{CGHregions}}. This function takes as
+  input the two possible types of input produced by the
+  \code{\link{pSegment}} functions: either an ff object (and its
+  associated directory) or the names of the RAM objects (the usual, in
+  memory R objects) with the output, and chromosome, position, and probe
+  name information.
+
 }
+
 \usage{
-outputToCGHregions(output, directory = getwd())
+outputToCGHregions(ffoutput = NULL, directory = getwd(),
+                               output.dat = NULL,
+                               chrom.dat = NULL,
+                               pos.dat = NULL,
+                               probenames.dat = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{output}{
-    The name of the output from a call to a \code{\link{pSegment}} function.
+  \item{ffoutput}{
+    The name of the ff object with the output from a call to a
+    \code{\link{pSegment}} function. You must provide either this
+    argument or all of the arguments output.dat, chrom.dat, pos.dat and
+    probenames.dat. 
 }
   \item{directory}{
     The directory where the initial data transformation and the analysis
     have been carried out. It is a lot better if you just work on a
     single directory for a set of files. Otherwise, unless you keep very
     carefull track of where you do what, you will run into trouble.
+
+    This is only relevant if you use an \code{ff} object (i.e., if
+    \code{ffoutput} is not NULL.)
   }
+
+  \item{output.dat}{The name of the RAM object with the output from
+    a call to a \code{\link{pSegment}} function. You must provide this
+    argument (as well as chrom.dat, pos.dat and probenames.dat) OR the
+    name of an ffobject to argument \code{ffoutput.}}
+
+  \item{chrom.dat}{The name of the RAM object with the chromosome
+  data information. See the help for \code{\link{inputDataToADaCGHData}}.}
+
+
+\item{pos.dat}{The name of the RAM object with the position data
+  information. See the help for \code{\link{inputDataToADaCGHData}}.}
+
+\item{probenames.dat}{The name of the RAM object with the probe
+names. See the help for \code{\link{inputDataToADaCGHData}}.}
+
 }
 % \details{
 % }
@@ -43,6 +76,11 @@ outputToCGHregions(output, directory = getwd())
   particular, you probably do NOT want to use this function when
   \code{\link{pSegment}} has been called using \option{merging = "none"}.
 
+
+  Moreover, we do not check if there are missing values, and CGHregions
+  is likely to fail when there are NAs. Finally, we do not try to use
+  \code{ff} objects, so using this function with very large objects will
+  probably fail. 
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -52,6 +90,54 @@ outputToCGHregions(output, directory = getwd())
 }
 \examples{
 
+
+
+## Get location (and full filename) of example data file
+## We will read from a text file
+
+fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
+                         full.names = TRUE, pattern = "inputEx.txt")
+
+
+##################################
+#####
+##### Using RAM objects
+#####
+##################################
+
+## Read data into RAM objects
+
+
+
+
+inputDataToADaCGHData(ff.or.RAM = "RAM",
+                      textfilename = fnametxt)
+
+## Run segmentation (e.g., HaarSeg)
+
+haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
+                                   merging = "MAD")
+
+forcghr <- outputToCGHregions(output.dat = haar.RAM.fork,
+                              chrom.dat = chrom.dat,
+                              pos.dat = pos.dat,
+                              probenames.dat = probenames.dat)
+
+## Run CGHregions
+if(require(CGHregions)) {
+  regions1 <- CGHregions(na.omit(forcghr))
+  regions1
+}
+
+
+
+##################################
+#####
+##### Using ff objects
+#####
+##################################
+
+
 ## Create a temp dir for storing output.
 ## (Not needed, but cleaner).
 dir.create("ADaCGH2_cghreg_example_tmp_dir")
@@ -59,36 +145,22 @@ originalDir <- getwd()
 setwd("ADaCGH2_cghreg_example_tmp_dir")
 Sys.sleep(1)
 
-snowfallInit(universeSize = 2, typecluster = "SOCK")
 
-## To speed up R CMD check, we do not use inputEx1, but a much smaller
-## data set. When you try the examples, you might one to use
-## inputEx1 instead.
-
-\dontrun{
-
-fname <- list.files(path = system.file("data", package = "ADaCGH2"),
-                     full.names = TRUE, pattern = "inputEx1")
-}
-
-fname <- list.files(path = system.file("data", package = "ADaCGH2"),
-                     full.names = TRUE, pattern = "inputEx2")
+inputDataToADaCGHData(ff.or.RAM = "ff",
+                      textfilename = fnametxt)
 
 
-tableChromArray <- inputDataToADaCGHData(filename = fname)
 
-hs_mad.out <- pSegmentHaarSeg("cghData.RData",
-                           "chromData.RData", merging = "MAD")
+haar.ff.fork <- pSegmentHaarSeg("cghData.RData",
+                                "chromData.RData",
+                                merging = "MAD")
 
-forcghr <- outputToCGHregions(hs_mad.out)
+forcghr.ff <- outputToCGHregions(ffoutput = haar.ff.fork)
+
 if(require(CGHregions)) {
-  regions1 <- CGHregions(forcghr)
+  regions1 <- CGHregions(na.omit(forcghr.ff))
   regions1
 }
-
-### Explicitly stop cluster
-sfStop()
-
 
 ### Clean up (DO NOT do this with objects you want to keep!!!)
 load("chromData.RData")
@@ -103,20 +175,77 @@ unlink("posData.RData")
 unlink("cghData.RData")
 unlink("probeNames.RData")
 
-lapply(hs_mad.out, delete)
-rm(hs_mad.out)
-
-### Try to prevent problems in R CMD check
-### (As a regular user, most likely you do not need this)
-Sys.sleep(2)
-detach("package:rlecuyer", unload = TRUE)
-
+lapply(haar.ff.fork, delete)
+rm(haar.ff.fork)
 
 ### Delete all files and temp dir
 setwd(originalDir)
 Sys.sleep(2)
 unlink("ADaCGH2_cghreg_example_tmp_dir", recursive = TRUE)
 Sys.sleep(2)
+
+
+
+
+
+% snowfallInit(universeSize = 2, typecluster = "SOCK")
+
+% ## To speed up R CMD check, we do not use inputEx1, but a much smaller
+% ## data set. When you try the examples, you might one to use
+% ## inputEx1 instead.
+
+% \dontrun{
+% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                      full.names = TRUE, pattern = "inputEx1")
+% }
+
+
+% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                      full.names = TRUE, pattern = "inputEx2")
+
+
+% tableChromArray <- inputDataToADaCGHData(filename = fname)
+
+% hs_mad.out <- pSegmentHaarSeg("cghData.RData",
+%                            "chromData.RData", merging = "MAD")
+
+% forcghr <- outputToCGHregions(hs_mad.out)
+% if(require(CGHregions)) {
+%   regions1 <- CGHregions(forcghr)
+%   regions1
+% }
+
+% ### Explicitly stop cluster
+% sfStop()
+
+
+% ### Clean up (DO NOT do this with objects you want to keep!!!)
+% load("chromData.RData")
+% load("posData.RData")
+% load("cghData.RData")
+
+% delete(cghData); rm(cghData)
+% delete(posData); rm(posData)
+% delete(chromData); rm(chromData)
+% unlink("chromData.RData")
+% unlink("posData.RData")
+% unlink("cghData.RData")
+% unlink("probeNames.RData")
+
+% lapply(hs_mad.out, delete)
+% rm(hs_mad.out)
+
+% ### Try to prevent problems in R CMD check
+% ### (As a regular user, most likely you do not need this)
+% Sys.sleep(2)
+% detach("package:rlecuyer", unload = TRUE)
+
+
+% ### Delete all files and temp dir
+% setwd(originalDir)
+% Sys.sleep(2)
+% unlink("ADaCGH2_cghreg_example_tmp_dir", recursive = TRUE)
+% Sys.sleep(2)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

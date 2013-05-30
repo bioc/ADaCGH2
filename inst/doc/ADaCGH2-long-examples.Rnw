@@ -1,0 +1,804 @@
+% \VignetteIndexEntry{ADaCGH2 long examples}
+% \VignetteDepends{ADaCGH2}
+% \VignetteKeywords{ADaCGH2 CGH segmentation parallelization}
+% \VignettePackage{ADaCGH2}
+
+
+
+\documentclass[a4paper,11pt]{article}
+\usepackage{amsmath}
+% \usepackage[authoryear,round]{natbib} %% no refs here
+\usepackage{threeparttable}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{geometry}
+\geometry{verbose,a4paper,tmargin=23mm,bmargin=26mm,lmargin=28mm,rmargin=28mm}
+
+
+\SweaveOpts{echo=TRUE}
+
+%\usepackage{tikz}
+%\usetikzlibrary{arrows,shapes,positioning}
+
+\usepackage[latin1]{inputenc}
+\title{Analysis of data from aCGH experiments using parallel computing and
+ff objects: long list of examples}
+\author{Ram\'on D\'{\i}az-Uriarte$^{1}$, Daniel Rico$^{2}$, and Oscar M.\ Rueda$^{3}$}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+1. Department of Biochemistry,
+Universidad Autonoma de Madrid
+Instituto de Investigaciones Biomedicas ``Alberto Sols'' (UAM-CSIC), Madrid
+(SPAIN).
+2. Structural Computational Biology Group. 
+Spanish National Cancer Center (CNIO), Madrid
+(SPAIN).
+3. Cancer Research UK
+Cambridge Research Institute
+Cambridge, UK
+{\tt rdiaz02@gmail.com}, {\tt drico@cnio.es}, {\tt Oscar.Rueda@cancer.org.uk}
+\end{center}
+
+\tableofcontents
+
+
+\section{This vignette}\label{all-examples}
+
+We provide here example calls of all segmentation methods, with different
+options for methods, as well as different options for type of input object
+and clustering. This is provided here as both extended help and as a
+simple way of checking that all the functions can be run and yield
+the same  results regardless of type of input and clustering.
+
+
+%% This is needed if we want the example to be self-contained
+
+% <<>>=
+% data(inputEx)
+% cgh.dat <- inputEx[, -c(1, 2, 3)]
+% chrom.dat <- as.integer(inputEx[, 2])
+% pos.dat <- inputEx[, 3]
+
+% @ 
+
+% OR
+
+% <<>>=
+% fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                      full.names = TRUE, pattern = "inputEx.RData")
+
+% tableChromArray <- inputDataToADaCGHData(ff.or.RAM = "RAM",
+%                                          RDatafilename = fnameRdata)
+
+% @ 
+
+% <<>>=
+% dir.create("self-contained_dir")
+% originalDir <- getwd()
+% setwd("self-contained_dir")
+
+% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                      full.names = TRUE, pattern = "inputEx.RData")
+% tableChromArray <- inputDataToADaCGHData(ff.or.RAM = "ff",
+%                                          RDatafilename = fname)
+
+% cl2 <- makeCluster(4,"PSOCK")
+% clusterSetRNGStream(cl2)
+% setDefaultCluster(cl2) 
+% clusterEvalQ(NULL, library("ADaCGH2"))
+
+% wdir <- getwd()
+% clusterExport(NULL, "wdir")
+% clusterEvalQ(NULL, setwd(wdir))
+% @ 
+
+
+\section{Creating objects}
+We must ensure that we can run this vignette as stand alone. Thus, we load
+the package and create all necessary objects. This repeats work done in the
+main vignette.
+
+
+We first try to move to the ``~/tmp'' directory, if it exists. If it does not,
+the code will be executed in your current directory.
+<<>>=
+try(setwd("~/tmp"))
+@ 
+
+<<>>=
+library(ADaCGH2)
+ 
+## loading in-RAM objects
+data(inputEx)
+summary(inputEx)
+head(inputEx)
+cgh.dat <- inputEx[, -c(1, 2, 3)]
+chrom.dat <- as.integer(inputEx[, 2])
+pos.dat <- inputEx[, 3]
+
+
+## choosing working dir for cluster
+originalDir <- getwd()
+if(!file.exists("ADaCGH2_vignette_tmp_dir"))
+  dir.create("ADaCGH2_vignette_tmp_dir")
+setwd("ADaCGH2_vignette_tmp_dir")
+
+## creating ff objects
+fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
+                     full.names = TRUE, pattern = "inputEx.RData")
+inputDataToADaCGHData(ff.or.RAM = "ff",
+                      RDatafilename = fnameRdata)
+
+## initializing cluster
+cl2 <- makeCluster(4,"PSOCK")
+clusterSetRNGStream(cl2)
+setDefaultCluster(cl2) 
+clusterEvalQ(NULL, library("ADaCGH2"))
+
+wdir <- getwd()
+clusterExport(NULL, "wdir")
+clusterEvalQ(NULL, setwd(wdir))
+@
+
+
+
+\section{The examples}
+\subsection{RAM objects and forking}
+
+
+\label{allex-forking-local}
+
+%% We skip the creation of the input data objects (as we already did this in
+%% section \ref{input-as-RData}). Here we directly carry out segmentation
+%% with all methods and their main available options.
+
+% <<>>=
+% data(inputEx)
+% cgh.dat <- inputEx[, -c(1, 2, 3)]
+% chrom.dat <- as.integer(inputEx[, 2])
+% pos.dat <- inputEx[, 3]
+% @ 
+
+
+% Now, carry out segmentation with all methods and their main available
+% options.
+
+
+
+<<>>=
+cbs.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat)
+cbs.mad.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat,merging = "MAD")
+cbs.none.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat, merging = "none")
+
+hmm.RAM.fork <- pSegmentHMM(cgh.dat, chrom.dat, merging = "mergeLevels")
+hmm.mad.RAM.fork <- pSegmentHMM(cgh.dat, chrom.dat, merging = "MAD")
+
+
+hs.ml.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "mergeLevels")
+hs.mad.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "MAD")
+
+
+glad.RAM.fork <- pSegmentGLAD(cgh.dat, chrom.dat)
+
+
+biohmm.RAM.fork <- pSegmentBioHMM(cgh.dat,
+                                chrom.dat,
+                                pos.dat,
+                                merging = "mergeLevels")
+biohmm.mad.RAM.fork <- pSegmentBioHMM(cgh.dat,
+                                        chrom.dat,
+                                        pos.dat,
+                                        merging = "MAD")
+biohmm.mad.bic.RAM.fork <- pSegmentBioHMM(cgh.dat,
+                                            chrom.dat,
+                                            pos.dat,
+                                            merging = "MAD",
+                                            aic.or.bic = "BIC")
+
+cghseg.merge.RAM.fork <- pSegmentCGHseg(cgh.dat,
+                                          chrom.dat,
+                                          merging = "mergeLevels")
+
+cghseg.mad.RAM.fork <- pSegmentCGHseg(cgh.dat,
+                                        chrom.dat,
+                                        merging = "MAD")
+
+cghseg.none.RAM.fork <- pSegmentCGHseg(cgh.dat,
+                                         chrom.dat,
+                                         merging = "none")
+
+
+waves.merge.RAM.fork <- pSegmentWavelets(cgh.dat,
+                           chrom.dat, merging = "mergeLevels")
+waves.mad.RAM.fork <- pSegmentWavelets(cgh.dat,
+                                         chrom.dat, merging = "MAD")
+waves.none.RAM.fork <- pSegmentWavelets(cgh.dat,
+                                          chrom.dat, merging = "none")
+
+@ 
+
+
+
+\subsection{\textit{ff} objects and cluster}
+\label{allex-ff-cluster}
+
+
+%% We skip the steps we already carried out: choosing a working directory
+%% (section \ref{choosewd}), storing data as \textit{ff} objects (section
+%% \ref{to-ff}) and initializing the computing cluster (section
+%% \ref{initcluster}). 
+
+
+Compared to the section \ref{allex-forking-local}, the main differences
+are that we explicitly set the \texttt{typeParall} argument to
+\texttt{"cluster"} (the default is ``fork'') and the change in the names
+of the input data (which now refer to the names of the RData objects that
+contain the \textit{ff} objects).
+
+
+
+
+<<>>=
+
+cbs.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+                                  typeParall = "cluster")
+cbs.mad.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData",
+                                      merging = "MAD",
+                                      typeParall = "cluster")
+cbs.none.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+                                       merging = "none", 
+                                       typeParall = "cluster")
+
+hmm.ff.cluster <- pSegmentHMM("cghData.RData", "chromData.RData", 
+                              merging = "mergeLevels", 
+                              typeParall = "cluster")
+hmm.mad.ff.cluster <- pSegmentHMM("cghData.RData", "chromData.RData", 
+                                  merging = "MAD", 
+                                  typeParall = "cluster")
+
+
+hs.ml.ff.cluster <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                             merging = "mergeLevels", 
+                                    typeParall = "cluster")
+hs.mad.ff.cluster <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                             merging = "MAD", typeParall = "cluster")
+
+
+glad.ff.cluster <- pSegmentGLAD("cghData.RData", "chromData.RData", 
+                                typeParall = "cluster")
+
+
+biohmm.ff.cluster <- pSegmentBioHMM("cghData.RData",
+                                "chromData.RData",
+                                "posData.RData",
+                                merging = "mergeLevels", 
+                                    typeParall = "cluster")
+biohmm.mad.ff.cluster <- pSegmentBioHMM("cghData.RData",
+                                        "chromData.RData",
+                                        "posData.RData",
+                                        merging = "MAD", 
+                                        typeParall = "cluster")
+biohmm.mad.bic.ff.cluster <- pSegmentBioHMM("cghData.RData",
+                                            "chromData.RData",
+                                            "posData.RData",
+                                            merging = "MAD",
+                                            aic.or.bic = "BIC", 
+                                            typeParall = "cluster")
+
+cghseg.merge.ff.cluster <- pSegmentCGHseg("cghData.RData",
+                                          "chromData.RData",
+                                          merging = "mergeLevels", 
+                                          typeParall = "cluster")
+
+cghseg.mad.ff.cluster <- pSegmentCGHseg("cghData.RData",
+                                        "chromData.RData",
+                                        merging = "MAD", 
+                                        typeParall = "cluster")
+
+cghseg.none.ff.cluster <- pSegmentCGHseg("cghData.RData",
+                                         "chromData.RData",
+                                         merging = "none", 
+                                         typeParall = "cluster")
+
+
+waves.merge.ff.cluster <- pSegmentWavelets("cghData.RData",
+                                           "chromData.RData", 
+                                           merging = "mergeLevels", 
+                                           typeParall = "cluster")
+waves.mad.ff.cluster <- pSegmentWavelets("cghData.RData",
+                                         "chromData.RData", 
+                                         merging = "MAD", 
+                                         typeParall = "cluster")
+waves.none.ff.cluster <- pSegmentWavelets("cghData.RData",
+                                          "chromData.RData", 
+                                          merging = "none", 
+                                          typeParall = "cluster")
+
+@ 
+
+
+
+
+
+\subsection{\textit{ff} objects and forking}
+\label{allex-ff-fork}
+
+%% Here we also skip the actions already performed in section
+%% \ref{ex-ff-fork}, specifically choosing a working directory (section
+%% \ref{choosewd-ex3}) and storing data as \textit{ff} objects (section
+%% \ref{RData-to-ff-ex3}).
+
+
+The main difference with section \ref{allex-ff-cluster} is the argument
+\texttt{typeParall}; we did not need to pass it explicitly (since the default is
+\texttt{fork}), but we will do for clarity.
+
+
+<<>>=
+cbs.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+                                  typeParall = "fork")
+cbs.mad.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData",
+                                   merging = "MAD",
+                                      typeParall = "fork")
+cbs.none.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+                                    merging = "none", typeParall = "fork")
+
+hmm.ff.fork <- pSegmentHMM("cghData.RData", "chromData.RData", 
+                           merging = "mergeLevels", typeParall = "fork")
+
+hmm.mad.ff.fork <- pSegmentHMM("cghData.RData", "chromData.RData", 
+                               merging = "MAD", typeParall = "fork")
+
+
+hs.ml.ff.fork <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                             merging = "mergeLevels", typeParall = "fork")
+hs.mad.ff.fork <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                             merging = "MAD", typeParall = "fork")
+
+
+glad.ff.fork <- pSegmentGLAD("cghData.RData", "chromData.RData", 
+                             typeParall = "fork")
+
+
+biohmm.ff.fork <- pSegmentBioHMM("cghData.RData",
+                                "chromData.RData",
+                                "posData.RData",
+                                merging = "mergeLevels", 
+                                 typeParall = "fork")
+biohmm.mad.ff.fork <- pSegmentBioHMM("cghData.RData",
+                                        "chromData.RData",
+                                        "posData.RData",
+                                        merging = "MAD", 
+                                     typeParall = "fork")
+biohmm.mad.bic.ff.fork <- pSegmentBioHMM("cghData.RData",
+                                            "chromData.RData",
+                                            "posData.RData",
+                                            merging = "MAD",
+                                            aic.or.bic = "BIC", 
+                                         typeParall = "fork")
+
+cghseg.merge.ff.fork <- pSegmentCGHseg("cghData.RData",
+                                          "chromData.RData",
+                                          merging = "mergeLevels", 
+                                       typeParall = "fork")
+
+cghseg.mad.ff.fork <- pSegmentCGHseg("cghData.RData",
+                                        "chromData.RData",
+                                        merging = "MAD", typeParall = "fork")
+
+cghseg.none.ff.fork <- pSegmentCGHseg("cghData.RData",
+                                         "chromData.RData",
+                                         merging = "none", typeParall = "fork")
+
+
+waves.merge.ff.fork <- pSegmentWavelets("cghData.RData",
+                                        "chromData.RData", 
+                                        merging = "mergeLevels", 
+                                        typeParall = "fork")
+waves.mad.ff.fork <- pSegmentWavelets("cghData.RData",
+                                         "chromData.RData", 
+                                      merging = "MAD", 
+                                      typeParall = "fork")
+waves.none.ff.fork <- pSegmentWavelets("cghData.RData",
+                                       "chromData.RData", 
+                                       merging = "none", 
+                                       typeParall = "fork")
+
+
+@ 
+
+
+
+\subsection{Comparing output}
+\label{allex-comparing}
+
+Here we verify that using different input and clustering methods does not
+change the results. Before carrying out the comparisons, however, we open
+the \textit{ff} objects gently.
+
+First, we will open the objects created above (same objects as were also
+created in the main vignette, in section "Carrying out segmentation and
+calling'').  Instead of inserting many calls to each individual object, we
+open all available objects that match \texttt{ff.cluster}. To do that
+quickly we store the names of the objects
+
+<<>>=
+ff.cluster.obj <- ls(pattern = "*.ff.cluster")
+@ and then we open them (we capture the output to prevent from filling
+pages with the string ``TRUE'')
+
+<<>>=
+tmpout <- 
+  capture.output(
+    lapply(ff.cluster.obj, function(x) lapply(get(x), open))
+    )
+@ 
+
+
+We repeat that operation with the output from section \ref{allex-ff-fork}:
+
+<<>>=
+ff.fork.obj <- ls(pattern = "*.ff.fork")
+tmpout <- 
+  capture.output(
+    lapply(ff.fork.obj, function(x) lapply(get(x), open))
+    )
+
+@ 
+
+
+And we create the list of results from the RAM and forking runs (no need
+for special opening here, since these are not \textit{ff} objects)
+
+
+<<>>=
+RAM.fork.obj <- ls(pattern = "*.RAM.fork")
+@ 
+% <<>>=
+% lapply(cbs.ff.cluster, open)
+% lapply(cbs.mad.ff.cluster, open)
+% lapply(hmm.ff.cluster, open)
+% lapply(hmm.mad.ff.cluster, open)
+% lapply(hs.ml.ff.cluster, open)
+% lapply(hs.mad.ff.cluster, open)
+% lapply(glad.ff.cluster, open)
+% lapply(biohmm.ff.cluster, open)
+% lapply(biohmm.mad.ff.cluster, open)
+% lapply(biohmm.mad.bic.ff.cluster, open)
+% lapply(cghseg.merge.ff.cluster, open)
+% lapply(cghseg.mad.ff.cluster, open)
+% lapply(cghseg.none.ff.cluster, open)
+% lapply(waves.merge.ff.cluster, open)
+% lapply(waves.mad.ff.cluster, open)
+% lapply(waves.none.ff.cluster, open)
+% @ 
+
+
+
+%Then, those from section \ref{allex-ff-fork}:
+% <<>>=
+% lapply(cbs.ff.fork, open)
+% lapply(cbs.mad.ff.fork, open)
+% lapply(hmm.ff.fork, open)
+% lapply(hmm.mad.ff.fork, open)
+% lapply(hs.ml.ff.fork, open)
+% lapply(hs.mad.ff.fork, open)
+% lapply(glad.ff.fork, open)
+% lapply(biohmm.ff.fork, open)
+% lapply(biohmm.mad.ff.fork, open)
+% lapply(biohmm.mad.bic.ff.fork, open)
+% lapply(cghseg.merge.ff.fork, open)
+% lapply(cghseg.mad.ff.fork, open)
+% lapply(cghseg.none.ff.fork, open)
+% lapply(waves.merge.ff.fork, open)
+% lapply(waves.mad.ff.fork, open)
+% lapply(waves.none.ff.fork, open)
+
+% @ 
+
+
+We can now compare the output. We want to compare the output from three
+different methods, so we need to run three comparisons (this is what we
+did explicitly in the help for \texttt{pSegment}). Since this is a very
+repetitive operation, we define a small utility function that will return
+\texttt{TRUE} if both components (\texttt{outSmoothed} and
+\texttt{outState}) of all three objects are identical. (Since the function
+will take as input not an actual object, but a name, we use \texttt{get}
+inside the function.)
+
+
+We use \texttt{all.equal} to compare the output from the smoothing, to
+allow for possible numerical fuzz (that could result from differences in
+storage). When comparing the assigned state, however, we check for exact
+identity.
+
+
+<<>>=
+identical3 <- function(x, y, z) {
+  comp1 <- all.equal(get(x)$outSmoothed[ , ], get(y)$outSmoothed[ , ])
+  comp2 <- all.equal(get(y)$outSmoothed[ , ], get(z)$outSmoothed[ , ])
+  comp3 <- identical(get(x)$outState[ , ], get(y)$outState[ , ])
+  comp4 <- identical(get(y)$outState[ , ], get(z)$outState[ , ])  
+  if (!all(isTRUE(comp1), isTRUE(comp2), comp3, comp4)) {
+    cat(paste("Comparing ", x, y, z, "\n",
+          "not equal: some info from comparisons.\n",
+              "\n comp1 = ", paste(comp1, sep = " ", collapse = "\n    "),
+              "\n comp2 = ", paste(comp2, sep = " ", collapse = "\n    "),
+              "\n comp3 = ", paste(comp3, sep = " ", collapse = "\n    "),
+              "\n comp4 = ", paste(comp4, sep = " ", collapse = "\n    "),
+              "\n\n"))
+    return(FALSE)
+  } else {
+    TRUE
+  }
+}
+@ 
+
+
+
+
+% For the comparisons, however, we will exclude all segmentations with
+% \texttt{BioHMM}, since the underlying algorithm does not always yield the
+% same results (you can easily check this yourself) and, thus, we can expect
+% minor differences between runs.
+
+% <<>>=
+% all(mapply(identical3, RAM.fork.obj[-(1:3)], 
+%            ff.fork.obj[-(1:3)], ff.cluster.obj[-(1:3)]))
+
+% @ 
+
+
+You should expect most (though not necessarily all) the comparisons to
+yield a TRUE. In some cases, however, different runs of the same method
+might not yield the same results (e.g., CBS, HMM, etc). If you
+get non-identical results, you can try running those methods a few times,
+to check for differences.
+
+
+<<>>=
+mapply(identical3, RAM.fork.obj, 
+           ff.fork.obj, ff.cluster.obj)
+
+@ 
+
+(Of course, we depend on the lists of names of objects having the output
+from the same method and option in the same position, which is the case in
+these examples).
+
+
+
+%% Te following are some possible ways of looking into the differences in
+%% more detail, and playing with seeds, etc.
+% ## cucu <- which(cbs.none.ff.cluster$outSmoothed[ ,4 ] != cbs.none.ff.fork$outSmoothed[ , 4])
+% ## cucu
+
+% ## cbs.none.ff.cluster$outSmoothed[cucu ,4 ]; cbs.none.ff.fork$outSmoothed[cucu ,4 ]
+
+% ## cbs.mad.ff.cluster$outSmoothed[cucu ,4 ]; cbs.mad.ff.fork$outSmoothed[cucu , 4]
+
+
+% ## cucu2 <- which(hmm.mad.ff.fork$outSmoothed[ ,3 ] != hmm.mad.ff.cluster$outSmoothed[ , 3])
+% ## hmm.mad.ff.fork$outSmoothed[cucu2 ,3 ]; hmm.mad.ff.cluster$outSmoothed[cucu2 , 3]
+
+% RNGkind("L'Ecuyer-CMRG")
+% clusterSetRNGStream(cl2, 2); set.seed(2456)
+% cbs.none.ff.clusterB <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+%                                        merging = "none", 
+%                                        typeParall = "cluster")
+% clusterSetRNGStream(cl2, 12); set.seed(12)
+% cbs.none.ff.forkB <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+%                                     merging = "none", typeParall = "fork")
+% which(cbs.none.ff.clusterB$outSmoothed[ , ] != cbs.none.ff.forkB$outSmoothed[ , ])
+
+
+% clusterSetRNGStream(cl2, 3); set.seed(3)
+% hmm.mad.ff.forkB <- pSegmentHMM("cghData.RData", "chromData.RData", 
+%                                merging = "MAD", typeParall = "fork")
+% clusterSetRNGStream(cl2, 3); set.seed(3)
+% hmm.mad.ff.clusterB <- pSegmentHMM("cghData.RData", "chromData.RData", 
+%                                   merging = "MAD", 
+%                                   typeParall = "cluster")
+
+
+% ## clusterSetRNGStream(cl2, 3); set.seed(3)
+% ## hmm.mad.ff.forkC<- pSegmentHMM("cghData.RData", "chromData.RData", 
+% ##                                merging = "MAD", typeParall = "fork")
+% ## clusterSetRNGStream(cl2, 3); set.seed(3)
+% ## hmm.mad.ff.clusterC <- pSegmentHMM("cghData.RData", "chromData.RData", 
+% ##                                   merging = "MAD", 
+% ##                                   typeParall = "cluster")
+
+
+
+% ## cucuB <- which(cbs.none.ff.clusterB$outSmoothed[ ,4 ] != cbs.none.ff.forkB$outSmoothed[ , 4])
+% ## cucu2B <- which(hmm.mad.ff.forkB$outSmoothed[ ,3 ] != hmm.mad.ff.clusterB$outSmoothed[ , 3])
+% ## hmm.mad.ff.forkB$outSmoothed[cucu2B ,3 ]; hmm.mad.ff.clusterB$outSmoothed[cucu2B , 3]
+
+
+
+
+
+
+\section{Clean up actions}
+These are not strictly necessary, but we will explicitly stop the
+cluster. In this vignette, we will not execute the code below to remove
+the directory we created or the objects, in case you want to check them
+out or play around with them, but the code is below.
+
+To make sure there are no file permission problems, we also explicitly
+delete some of the "ff" files and objects (and we wait a few seconds to
+allow pending I/O operations to happen before we delete the directory).
+
+
+%% Fixme
+<<>>=
+stopCluster(cl2)
+@ 
+
+<<eval=FALSE>>=
+## This is the code to remove all the files we created
+## and the temporary directory.
+## We are not executing it!
+
+load("chromData.RData")
+load("posData.RData")
+load("cghData.RData")
+
+delete(cghData); rm(cghData)
+delete(posData); rm(posData)
+delete(chromData); rm(chromData)
+
+tmpout <- 
+  capture.output(
+    lapply(ff.fork.obj, function(x) {
+      lapply(get(x), delete)}))
+
+rm(list = ff.fork.obj)
+
+tmpout <- 
+  capture.output(
+    lapply(ff.cluster.obj, function(x) {
+      lapply(get(x), delete)}))
+rm(list = ff.cluster.obj)
+
+setwd(originalDir)
+print(getwd())
+Sys.sleep(3)
+unlink("ADaCGH2_vignette_tmp_dir", recursive = TRUE)
+Sys.sleep(3)
+@
+
+% <<>>=
+% unlink("ADaCGH2_vignette_tmp_dir", recursive = TRUE)
+% print(dir())
+% Sys.sleep(3)
+% @
+
+
+
+%% \section{Implementation details}
+
+
+
+
+
+
+
+
+\end{document}
+
+
+% To try to get call graphs with proftools
+% <<>>=
+
+% library(proftools)
+% library(ADaCGH2)
+
+% ## Do not use cluster if drawing call graphs
+% ## snowfallInit(universeSize = 2, typecluster = "SOCK")
+% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                     full.names = TRUE, pattern = "inputEx2")
+
+% tableChromArray <- inputDataToADaCGHData(filename = fname)
+
+
+% Rprof(tmp <- tempfile())
+% cbs.out <- pSegmentDNAcopy("cghData.RData",
+%                            "chromData.RData")
+% Rprof()
+
+% profileCallGraph2Dot(readProfileData(tmp), score = "total",
+%                                filename = "pSegment.dot",
+%                      rankdir = "TB")
+
+
+% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                      full.names = TRUE, pattern = "inputEx1")
+
+% Rprof(tmp <- tempfile())
+% hmm_mad.out <- pSegmentHMM("cghData.RData",
+%                            "chromData.RData", merging = "MAD")
+% Rprof()
+% profileCallGraph2Dot(readProfileData(tmp), score = "total",
+%                                filename = "pSegmentHMM.dot",
+%                      rankdir = "TB")
+
+
+
+% ## edit, change name, see and produce pdf
+% ## dotty pSegment-DNAcopy.dot 
+% ## dot -Tpdf pSegment-DNAcopy.dot > foo.pdf
+% ## xpdf foo.pdf
+
+
+
+
+% @ 
+
+
+
+                                           
+                                           
+
+
+% <<>>=
+
+% waves.merge.RAM.fork <- pSegmentWavelets(cgh.dat,
+%                            chrom.dat, merging = "mergeLevels");head(waves.merge.RAM.fork[[1]])
+
+
+% @ 
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%   FIXME: MOVE HERE ORIGINAL VIGNETTE
+
+
+
+
+
+
+
+
+
+%%% Notes for additional text
+
+
+It should be noted that reading very large RData files and trying to
+remove NAs can break R. For instance, with messages such as
+
+[ramon@Lacerta:]~/ADaCGH2-test-files tail -f read-1000cols-RData-ff.Rout
+The following object(s) are masked from 'package:base':
+
+    %in%
+
+Loading required package: parallel
+> 
+> fnameRData <- paste(getwd(), "/Data1000cols.RData", sep = "")
+> 
+> unix.time(tableChromArray <- inputDataToADaCGHData(ff.or.RAM = "ff",
++                                                    RDatafilename = fnameRData, na.omit = TRUE))
+Error in cbind(deparse.level, ...) : 
+  resulting vector exceeds vector length limit in 'AnswerType'
+Calls: unix.time ... inputDataToADaCGHData -> is.na -> is.na.data.frame -> do.call -> cbind
+Timing stopped at: 768.444 113.815 892.471 
+Execution halted
+
+
+so you are suggested to clean NAs before hand, or use text files as input.
+

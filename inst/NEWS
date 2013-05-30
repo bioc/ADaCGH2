@@ -1,67 +1,80 @@
-0.99.3	2010-10-16
-	- Clean up in examples.
+Changes in version 2.1.0 (2013-05-30)
+       - This is a major rewrite of a most of the code, has new
+       functions, major changes in existing functions, new vignettes, etc.
+       - We no longer use snowfall.
+       - Major changes in parallelization, using forking.
+       - Reading of data: many more options, parallelized reading.
 
-0.99.2	2010-10-15
-	- Added clean ups to vignette to build OK under Windows (stoping
-	cluster and deleting ff objects and tmp directory).
+Changes in version 1.3.3  (2011-10-19)
+       - Added more "Sys.sleep" to see if we can get it not to crash in
+       Windoze. 
 
-0.99.1	2010-10-13
-	- multicore moved to "Enhances" to allow easier R CMD check in
-	Windows. 
+Changes in version 1.3.2  (2011-10-18)
+       - Added unloading of rlecuyer, to prevent problems with cleanEx
+       during R CMD check.
 
-0.99.0	2010-10-06
-	- First version in BioC; same as 2.1.3 as per old numbering system.
+Changes in version 1.2.1  (2011-06-06)
+       - Changed "if" in stop.na.inf, as per Dundan Murdoch's suggestion.
 
-2.1.3	2010-10-06
-	- Rmpi in "Enhances", not "Suggests", to allow for R CMD check in
-	Mac and Windows. 
+Changes in version 1.2.0  (2011-04-14)
+       - Version in BioC 2.8
 
-2.1.2	2010-10-04
-	- rsprng no longer in depends; L'Ecuyer as default random number
-	generator.
-	- Using R's registration mechanism for C routines.
-	- Decreased size of example to speed up R CMD check.
-	- SOCK is default cluster, and Rmpi not loaded by us.
-
-2.1.1	2010-09-30
-	- Output to CGHregions and input from limma and
-	  snapCGH. Changes in functions, help, vignnette.
-	- Can also use rlecuyer.
-	- Works with R-2.11 (adapted to differences in "inherits").
-
-2.1.0	2010-09-23
-	- First fully working version for BioC. Versioning changed!
-       
-1.0.0  2010-10-16
-       - First version in BioC release (2.7).
-
-1.1.0  2010-10-28
-       - Clean up changes inside functions, deleting tmp. objects.
-       (all in BioC devel version)
-	
-1.1.1  2011-03-27
+Changes in version 1.1.1  (2011-03-27)
        - Trying to pass check in Windows 64-bit: all examples now
        execute within their temp dirs, which get deleted. And more
        Sys.sleep.
        - Further work in code to remove some unneeded temporary
        ff objects inside functions.
 
-1.2.0  2011-04-14
-       - Version in BioC 2.8
+Changes in version 1.1.0  (2010-10-28)
+       - Clean up changes inside functions, deleting tmp. objects.
+       (all in BioC devel version)
 
-1.2.1  2011-06-06
-       - Changed "if" in stop.na.inf, as per Dundan Murdoch's suggestion.
 
-1.3.2  2011-10-18
-       - Added unloading of rlecuyer, to prevent problems with cleanEx
-       during R CMD check.
+Changes in version 1.0.0  (2010-10-16)
+       - First version in BioC release (2.7).
 
-1.3.3  2011-10-19
-       - Added more "Sys.sleep" to see if we can get it not to crash in
-       Windoze.
 
-1.9.0  2013-03-23
-       - Commented out unused code that gave warnings in checks.
-       - Removed partial matching (was giving notes).
-       - Note: version 2.0 is almost ready, so work on current version
-         is now limited. 
+Changes in version 0.99.3 (2010-10-16)
+	- Clean up in examples.
+
+Changes in version 0.99.2 (2010-10-15)
+	- Added clean ups to vignette to build OK under Windows (stoping
+	cluster and deleting ff objects and tmp directory).
+
+Changes in version 0.99.1 (2010-10-13)
+	- multicore moved to "Enhances" to allow easier R CMD check in
+	Windows. 
+
+Changes in version 0.99.0 (2010-10-06)
+	- First version in BioC; same as 2.1.3 as per old numbering system.
+
+	- These are entries for former numbering system:
+	        2.1.3	2010-10-06
+		- Rmpi in "Enhances", not "Suggests", to allow for R CMD
+		check in Mac and Windows.
+
+	    	 2.1.2	2010-10-04
+		- rsprng no longer in depends; L'Ecuyer as default random
+		number generator.
+		- Using R's registration mechanism for C routines.
+		- Decreased size of example to speed up R CMD check.
+		- SOCK is default cluster, and Rmpi not loaded by us.
+
+		2.1.1	2010-09-30
+		- Output to CGHregions and input from limma and
+		snapCGH. Changes in functions, help, vignnette.
+		- Can also use rlecuyer.
+		- Works with R-2.11 (adapted to differences in "inherits").
+
+		2.1.0	2010-09-23
+		- First fully working version for BioC. Versioning changed!
+       
+
+	
+
+
+
+
+
+

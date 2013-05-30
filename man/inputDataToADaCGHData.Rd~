@@ -1,9 +1,9 @@
 \name{inputDataToADaCGHData}
 \alias{inputDataToADaCGHData}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Convert CGH data to ff or RAM objects for use with ADaCGH2}
+\title{Convert CGH data to ff data frames}
 \description{
-  Input data with CGH data are converted to several ff files and
+  An input data frame with CGH data is converted to several ff files and
   data checked for potential errors and location duplications.
 }
 \usage{
@@ -15,7 +15,6 @@ inputDataToADaCGHData(ff.or.RAM = "RAM",
                       cloneinfo = NULL,
                       RDatafilename = NULL,
                       textfilename = NULL,
-                      dataframe = NULL,
                       path = NULL,
                       excludefiles = NULL,
                       cloneinfosep = "\t",
@@ -61,8 +60,7 @@ inputDataToADaCGHData(ff.or.RAM = "RAM",
 
   \item{RDatafilename}{ Name of data RData file that contains the data frame
     with original, non-ff, data. Note: this is the name of the RData file
-    (possibly including path), NOT the name of the data frame. (For
-    that, look at \code{dataframe}).
+    (possibly including path), NOT the name of the data frame.
     
     The first three columns of the data frame are the IDs of the probes,
     the chromosome number, and the position, and all remaining columns
@@ -90,16 +88,6 @@ inputDataToADaCGHData(ff.or.RAM = "RAM",
     \code{RDatafilename}, \code{textfilename}, \code{path}.
     
   }
-
-  \item{dataframe}{The name of a data frame with the data.
-    The first three columns of the data frame are the IDs of the probes,
-    the chromosome number, and the position, and all remaining columns
-    contain the data for the arrays, one column per array. The names of
-    the first three column do not matter, but the order does. Names of the
-    remaining columns will be used if existing; otherwise, fake array
-    names will be created.
-  }
-
   
   \item{path}{The name of the directory (the full path) to where each of
   the individual, one-column, files are. We will read ALL of the files

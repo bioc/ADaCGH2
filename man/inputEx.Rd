@@ -1,13 +1,18 @@
-\name{inputEx2}
+\name{inputEx}
 \docType{data}
-\alias{inputEx2}
+\alias{inputEx}
+\alias{inputEx-sp}
 \title{A fictitious aCGH data set}
 \description{
   A fictitious aCGH data set.
 }
-\usage{inputEx2}
-\format{A data frame with 452 rows and 6 columns; the last three
-  correspond to the aCGH data for three samples.}
+\usage{inputEx}
+
+\format{A data frame with 500 rows and 6 columns; the last three
+  correspond to the aCGH data for three samples. There are data for five
+  chromosomes. The same file is available in three formats: an RData
+  file, a tab separated text file, and a space-separate text file.}
+
 \source{Simulated data}
 % \references{
 %     Diaz-Uriarte, R. and Rueda, O.M. (2006). ADaCGH: an R package and
