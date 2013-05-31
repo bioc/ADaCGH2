@@ -70,7 +70,7 @@ the same  results regardless of type of input and clustering.
 % fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
 %                      full.names = TRUE, pattern = "inputEx.RData")
 
-% tableChromArray <- inputDataToADaCGHData(ff.or.RAM = "RAM",
+% tableChromArray <- inputToADaCGH(ff.or.RAM = "RAM",
 %                                          RDatafilename = fnameRdata)
 
 % @ 
@@ -82,7 +82,7 @@ the same  results regardless of type of input and clustering.
 
 % fname <- list.files(path = system.file("data", package = "ADaCGH2"),
 %                      full.names = TRUE, pattern = "inputEx.RData")
-% tableChromArray <- inputDataToADaCGHData(ff.or.RAM = "ff",
+% tableChromArray <- inputToADaCGH(ff.or.RAM = "ff",
 %                                          RDatafilename = fname)
 
 % cl2 <- makeCluster(4,"PSOCK")
@@ -129,7 +129,7 @@ setwd("ADaCGH2_vignette_tmp_dir")
 ## creating ff objects
 fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 
 ## initializing cluster
@@ -705,7 +705,7 @@ Sys.sleep(3)
 % fname <- list.files(path = system.file("data", package = "ADaCGH2"),
 %                     full.names = TRUE, pattern = "inputEx2")
 
-% tableChromArray <- inputDataToADaCGHData(filename = fname)
+% tableChromArray <- inputToADaCGH(filename = fname)
 
 
 % Rprof(tmp <- tempfile())
@@ -791,11 +791,11 @@ Loading required package: parallel
 > 
 > fnameRData <- paste(getwd(), "/Data1000cols.RData", sep = "")
 > 
-> unix.time(tableChromArray <- inputDataToADaCGHData(ff.or.RAM = "ff",
+> unix.time(tableChromArray <- inputToADaCGH(ff.or.RAM = "ff",
 +                                                    RDatafilename = fnameRData, na.omit = TRUE))
 Error in cbind(deparse.level, ...) : 
   resulting vector exceeds vector length limit in 'AnswerType'
-Calls: unix.time ... inputDataToADaCGHData -> is.na -> is.na.data.frame -> do.call -> cbind
+Calls: unix.time ... inputToADaCGH -> is.na -> is.na.data.frame -> do.call -> cbind
 Timing stopped at: 768.444 113.815 892.471 
 Execution halted
 

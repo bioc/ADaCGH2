@@ -282,7 +282,7 @@ cutFile <- function(filename,
       if( c1 == 1 ) colsep <- "\t"
       if( c2 == 1 ) colsep <- " "
     }
-    warning("colsep (column separator) not specified.",
+    warning("colsep (column separator) not specified. ",
             "We guess it is ", ifelse(colsep == " ", "a space", "a tab"))
   }
   
@@ -332,7 +332,7 @@ cutFile <- function(filename,
                c("ID.txt", "Chrom.txt", "Pos.txt"), sep = "")
   sapply(asc, function(x) system(x, ignore.stdout = TRUE))
 
-##  cat("You can now call 'inputDataToADaCGHData' as follows")
+##  cat("You can now call 'inputToADaCGH' as follows")
 }
 
 
@@ -1041,7 +1041,7 @@ setColClasses <- function(x) {
 
 ## FIXME!!: Where is the opening of the chrom position in the ff??
 ## I get a warning, from somewhere
-inputDataToADaCGHData <- function(ff.or.RAM = "RAM",
+inputToADaCGH <- function(ff.or.RAM = "RAM",
                                   robjnames = c("cgh.dat", "chrom.dat",
                                     "pos.dat", "probenames.dat"),
                                   ffpattern = paste(getwd(), "/", sep = ""),
@@ -5032,7 +5032,7 @@ my.usr2png <- function(xy, imWidth, imHeight) {
 
 
 
-### For inputDataToADaCGHData check what is better if eval((substitute or get(
+### For inputToADaCGH check what is better if eval((substitute or get(
 
 
 ## ## f0 <- function(z) get(z, inherits = FALSE)

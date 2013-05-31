@@ -46,14 +46,14 @@ outputToCGHregions(ffoutput = NULL, directory = getwd(),
     name of an ffobject to argument \code{ffoutput.}}
 
   \item{chrom.dat}{The name of the RAM object with the chromosome
-  data information. See the help for \code{\link{inputDataToADaCGHData}}.}
+  data information. See the help for \code{\link{inputToADaCGH}}.}
 
 
 \item{pos.dat}{The name of the RAM object with the position data
-  information. See the help for \code{\link{inputDataToADaCGHData}}.}
+  information. See the help for \code{\link{inputToADaCGH}}.}
 
 \item{probenames.dat}{The name of the RAM object with the probe
-names. See the help for \code{\link{inputDataToADaCGHData}}.}
+names. See the help for \code{\link{inputToADaCGH}}.}
 
 }
 % \details{
@@ -110,7 +110,7 @@ fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
 
 
 
-inputDataToADaCGHData(ff.or.RAM = "RAM",
+inputToADaCGH(ff.or.RAM = "RAM",
                       textfilename = fnametxt)
 
 ## Run segmentation (e.g., HaarSeg)
@@ -146,7 +146,7 @@ setwd("ADaCGH2_cghreg_example_tmp_dir")
 Sys.sleep(1)
 
 
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       textfilename = fnametxt)
 
 
@@ -204,7 +204,7 @@ Sys.sleep(2)
 %                      full.names = TRUE, pattern = "inputEx2")
 
 
-% tableChromArray <- inputDataToADaCGHData(filename = fname)
+% tableChromArray <- inputToADaCGH(filename = fname)
 
 % hs_mad.out <- pSegmentHaarSeg("cghData.RData",
 %                            "chromData.RData", merging = "MAD")

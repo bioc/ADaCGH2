@@ -8,7 +8,7 @@
   cores, if available.  Specified columns are renamed as ID.txt,
   Chrom.txt, Pos.txt, and other columns can be deleted. The individual
   files can then all be read from a given directory with
-  \code{inputDataToADaCGHData}.  }
+  \code{inputToADaCGH}.  }
 
 \usage{
 cutFile(filename,
@@ -85,7 +85,7 @@ cutFile(filename,
   the stdout output is shown to the user (to check that things worked).
   
   After calling this function, you can call
-  \code{\link{inputDataToADaCGHData}}.  }
+  \code{\link{inputToADaCGH}}.  }
 
 % \references{
 % %% ~put references to the literature/web site here ~

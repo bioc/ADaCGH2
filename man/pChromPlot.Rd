@@ -50,18 +50,18 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
         If this is an \code{\link[ff]{ffdf}} object, it can be created using
     \code{\link[ff]{as.ffdf}} with a data frame with genes (probes) in
     rows and subjects or arrays in columns. You can also use
-    \code{\link{inputDataToADaCGHData}} to produce these type of files.
+    \code{\link{inputToADaCGH}} to produce these type of files.
   }
   
   \item{chromRDataName}{The RData file name with the ff (short integer)
     vector with the chromosome indicator, or the name of the RAM object
-    with the data. Function \code{\link{inputDataToADaCGHData}} produces
+    with the data. Function \code{\link{inputToADaCGH}} produces
     these type of files. }
   
   \item{posRDataName}{The RData file name with the ff double vector with
     the location (e.g., position in kbases) of each probe in the
     chromosome, or the name of the RAM object with the data. Function
-    \code{\link{inputDataToADaCGHData}} produces these type of files.
+    \code{\link{inputToADaCGH}} produces these type of files.
 
     This argument is used for the spacing in the plots. If NULL, the
     x-axis goes from 1:number of probes in that chromosome.
@@ -71,7 +71,7 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
 
   \item{probenamesRDataName}{The RData file name with the vector with
     the probe names or the RAM object. Function
-    \code{\link{inputDataToADaCGHData}} produces these type of
+    \code{\link{inputToADaCGH}} produces these type of
     files. (Note even if this is an RData file stored on disk, this
     is not an ff file.)  }
 
@@ -211,12 +211,12 @@ clusterEvalQ(NULL, setwd(wdir))
 
 ## Get input data in ff format
 ## (we loaded the RData above, but we need to find the full path
-## to use it in the call to inputDataToADaCGHData)
+## to use it in the call to inputToADaCGH)
 
 fname <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
 
-tableChromArray <- inputDataToADaCGHData(ff.or.RAM = "ff",
+tableChromArray <- inputToADaCGH(ff.or.RAM = "ff",
                                          RDatafilename = fname)
 
 

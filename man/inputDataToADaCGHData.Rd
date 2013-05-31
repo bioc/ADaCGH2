@@ -1,5 +1,5 @@
-\name{inputDataToADaCGHData}
-\alias{inputDataToADaCGHData}
+\name{inputToADaCGH}
+\alias{inputToADaCGH}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Convert CGH data to ff or RAM objects for use with ADaCGH2}
 \description{
@@ -7,7 +7,7 @@
   data checked for potential errors and location duplications.
 }
 \usage{
-inputDataToADaCGHData(ff.or.RAM = "RAM",
+inputToADaCGH(ff.or.RAM = "RAM",
                       robjnames = c("cgh.dat", "chrom.dat",
                                    "pos.dat", "probenames.dat"),
                       ffpattern = paste(getwd(), "/", sep = ""),
@@ -208,7 +208,7 @@ inputDataToADaCGHData(ff.or.RAM = "RAM",
 
   Further details: this object is created inside several of the pSegment
   functions to distribute and speed up the parallel jobs. We call a
-  function that is called by inputDataToADaCGHData itself. Recreating
+  function that is called by inputToADaCGH itself. Recreating
   this object is not really needed if you are using ff objects, but
   creating it is very fast anyway, and passing the object or creating it
   depending on whether you use ff or not would be a lot more cumbersome
@@ -254,27 +254,27 @@ fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
 namepath <- system.file("example-datadir", package = "ADaCGH2")
 
 ## Read from RData and write to ff
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRData)
 
 ## Read from text file and write to ff
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       textfilename = fnametxt)
 
 
 ## Read from text file and write to RAM
-inputDataToADaCGHData(ff.or.RAM = "RAM",
+inputToADaCGH(ff.or.RAM = "RAM",
                       textfilename = fnametxt)
 
 ## Read from a directory and write to ff
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       path = namepath)
 
 
 
 % FIXME: and RData -> RAM? This would be silly. But do something about it?
 % It works (seems to work)
-% inputDataToADaCGHData(ff.or.RAM = "RAM",
+% inputToADaCGH(ff.or.RAM = "RAM",
 %                       RDatafilename = fnameRData)
 
 
@@ -299,7 +299,7 @@ unlink("probeNames.RData")
 ### if returning ff objects (ff.or.RAM = "ff")
 ### This example will not work on Windows
 \dontrun{
-mcparallel(inputDataToADaCGHData(ff.or.RAM = "ff",
+mcparallel(inputToADaCGH(ff.or.RAM = "ff",
                                  RDatafilename = fnameRData),
                                  silent = FALSE)
   tableChromArray <- mccollect()

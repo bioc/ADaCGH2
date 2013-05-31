@@ -98,7 +98,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     If this is an \code{\link[ff]{ffdf}} object, it can be created using
     \code{\link[ff]{as.ffdf}} with a data frame with genes (probes) in
     rows and subjects or arrays in columns. You can also use
-    \code{\link{inputDataToADaCGHData}} to produce these type of files.
+    \code{\link{inputToADaCGH}} to produce these type of files.
 
     Note that the type of object in \code{cghRDataName},
     \code{chromRDataName}, \code{posRDataName}, should all be of the
@@ -111,12 +111,12 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
   \item{chromRDataName}{The RData file name with the ff (short integer)
     vector with the chromosome indicator, or the name of the in-memory
     RAM R object with the data. Function
-    \code{\link{inputDataToADaCGHData}} produces these type of files. }
+    \code{\link{inputToADaCGH}} produces these type of files. }
   
   \item{posRDataName}{The RData file name with the ff double vector with
     the location (e.g., position in kbases) of each probe in the
     chromosome, or the name of the in-memory RAM R object with the
-    data. Function \code{\link{inputDataToADaCGHData}} produces these
+    data. Function \code{\link{inputToADaCGH}} produces these
     type of files.}
   
   \item{merging}{Merging method; for most methods one of "MAD" or
@@ -438,7 +438,7 @@ Ramon Diaz-Uriarte
 
 \seealso{
   \code{\link{pChromPlot}},
-  \code{\link{inputDataToADaCGHData}}
+  \code{\link{inputToADaCGH}}
  }
 
 
@@ -503,12 +503,12 @@ setwd("ADaCGH2_example_tmp_dir")
 
 ## Get input data in ff format
 ## (we loaded the RData above, but we need to find the full path
-##  to use it in the call to inputDataToADaCGHData)
+##  to use it in the call to inputToADaCGH)
 
 fname <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
 
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fname)
 
 
@@ -765,7 +765,7 @@ Sys.sleep(2)
 % fname <- list.files(path = system.file("data", package = "ADaCGH2"),
 %                      full.names = TRUE, pattern = "inputEx2")
 
-% tableChromArray <- inputDataToADaCGHData(filename = fname)
+% tableChromArray <- inputToADaCGH(filename = fname)
 
 
 

@@ -202,7 +202,7 @@ with small to moderate data sets:
     \hline
     & &Lots of RAM && Little RAM &\\
     \hline
-    \centerline{Single node,} many cores/node &&\centerline{RData objects (?), forking}
+    \centerline{Single node,} many cores/node &&\centerline{RAM objects (?), forking}
     \textit{ff} objects (?), forking&& \textit{ff} objects, forking& \\
 \\
     \centerline{Many nodes,}few cores/node&& \textit{ff} objects, cluster && \textit{ff} objects,
@@ -226,12 +226,13 @@ with small to moderate data sets:
 
 The question marks denote not-so-obvious choices, where the best decision
 will depend on the actual details of number of nodes, size of data sets,
-speed of communication between nodes, etc.
+speed of communication between nodes, etc. For large data sets, the
+recommended usage involves always using \textit{ff} objects. Using
+\textit{ff} objects is slightly more cumbersome, but can allow us to
+analyze very large data sets in moderate hardware (see examples in section
+\ref{very-large-example}). Of course, what is ``lots'', ``many'', and
+``large'', will depend on the arrays you analyze and the hardware.
 
-For large data sets, the recommended usage involves always using
-\textit{ff} objects. Using \textit{ff} objects is slightly more
-cumbersome, but can allow us to analyze very large data sets in moderate
-hardware (see examples in section \ref{very-large-example}).
 
 
 % \begin{center}
@@ -248,8 +249,6 @@ hardware (see examples in section \ref{very-large-example}).
 % \end{tabular}
 % \end{center}
 
-Of course, what is ``lots'', ``many'', and ``large'', will depend on the
-arrays you analyze and the hardware.
   
   
 %%% FIXME: fuse previous table and next section, and discuss reasons for choices.  
@@ -273,7 +272,7 @@ parallelization.
 
 
 % \begin{description}
-% \item[inputDataToADaCGHData]
+% \item[inputToADaCGH]
 %   \begin{description}
 %   \item[Input] Local R objects, text file, Limma and snapCGH
 %   \end{description}
@@ -408,7 +407,7 @@ frame (\texttt{inputEx}), which we have saved as an RData file
 (\texttt{inputEx.RData}). 
 
 
-We will use \texttt{inputDataToADaCGHData} to produce the three objects
+We will use \texttt{inputToADaCGH} to produce the three objects
 needed later for the segmentation, and to carry out some checks for
 missing values, repeated identifiers and positions, etc.
 % To allow the conversion to be carried out using data from previous
@@ -419,7 +418,7 @@ missing values, repeated identifiers and positions, etc.
 fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
 
-inputDataToADaCGHData(ff.or.RAM = "RAM",
+inputToADaCGH(ff.or.RAM = "RAM",
                       RDatafilename = fnameRdata)
 @ 
 
@@ -443,22 +442,22 @@ vectors); thus, they are RAM objects.
 
 \subsubsection{Data available as an R data frame}\label{input-as-df}
 Instead of accessing the RData file, we will directly use the data
-frame. This way, we use \texttt{inputDataToADaCGHData} basically for its
+frame. This way, we use \texttt{inputToADaCGH} basically for its
 checks. The first three columns of the data frame are the IDs of the
 probes, the chromosome number, and the position, and all remaining columns
 contain the data for the arrays, one column per array.
 
 <<>>=
 data(inputEx) ## make inputEx available as a data frame with that name
-inputDataToADaCGHData(ff.or.RAM = "RAM",
+inputToADaCGH(ff.or.RAM = "RAM",
                       dataframe = inputEx)
 @ 
 
 
 
-\paragraph{Skipping the call to \texttt{inputDataToADaCGHData}}
+\paragraph{Skipping the call to \texttt{inputToADaCGH}}
 Since our data are already available as an R data frame, and if we are not
-interested in the checks provided by \texttt{inputDataToADaCGHData}, we do
+interested in the checks provided by \texttt{inputToADaCGH}, we do
 not need to call it. To prepare the data for later usage with
 \texttt{pSegment} we can just do as follows:
 
@@ -486,7 +485,7 @@ available RAM.
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
 
-tmp <- inputDataToADaCGHData(ff.or.RAM = "RAM",
+tmp <- inputToADaCGH(ff.or.RAM = "RAM",
                              textfilename = fnametxt)
 @ 
 
@@ -513,7 +512,7 @@ in the disk.
 %% you will see that. As far as you are concerned, this is irrelevant here,
 %% and 
 
-The function \texttt{inputDataToADaCGHData} will work with both compressed
+The function \texttt{inputToADaCGH} will work with both compressed
 and uncompressed files. However, if you are working with a really large
 text file, if you start from a compressed file, you will have to add the
 time it takes to decompress the file; thus, you might want to decompress
@@ -648,10 +647,10 @@ It is \textbf{very important} to remember that the names of the
 \textit{ff} objects that are exposed to the user are always the same
 (i.e., chromData.RData, posData.RData, cghData.RData,
 probeNames.RData). Therefore, successive invocations of
-\texttt{inputDataToADaCGHData}, if they produce \textit{ff} output (i.e.,
+\texttt{inputToADaCGH}, if they produce \textit{ff} output (i.e.,
 \texttt{ff.or.RAM = "ff"}) will overwrite this objects (and make them
 point to different binary \textit{ff} files on disk). In this vignette, we
-keep reusing \texttt{inputDataToADaCGHData}, but note that in all the
+keep reusing \texttt{inputToADaCGH}, but note that in all the
 cases we produce as output \textit{ff} files (sections \ref{to-ff},
 \ref{RData-to-ff}, \ref{separate-proc}, \ref{input-as-text-to-ff},
 \ref{to-ff-ex3}, \ref{RData-to-ff-ex3}, \ref{separate-proc-ex3},
@@ -685,7 +684,7 @@ plain, ``regular'' R objects (which, if loaded, would be RAM objects).
 <<>>=
 fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 @ 
 
@@ -737,7 +736,7 @@ the conversion. For instance, we could use the \texttt{mcparallel}
 function (from package \textbf{paralle}) and do:
 
 <<eval=FALSE>>=
-mcparallel(inputDataToADaCGHData(ff.or.RAM = "ff",
+mcparallel(inputToADaCGH(ff.or.RAM = "ff",
                                  RDatafilename = fnameRData),
                                  silent = FALSE)
   tableChromArray <- mccollect()
@@ -759,7 +758,7 @@ frame, as we did in section \ref{input-as-df}.
 
 <<>>=
 data(inputEx) ## make inputEx available as a data frame with that name
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       dataframe = inputEx)
 @ 
 
@@ -780,7 +779,7 @@ however, the output will be a set of \textit{ff} objects.
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
 
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       textfilename = fnametxt)
 @ 
 
@@ -970,7 +969,7 @@ working directory to slave processes explictly (in contrast to
 <<>>=
 fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 
 @ 
@@ -987,7 +986,7 @@ make sure we return that memory to the operating system as soon as
 possible. 
 
 <<eval=FALSE>>=
-mcparallel(inputDataToADaCGHData(ff.or.RAM = "ff",
+mcparallel(inputToADaCGH(ff.or.RAM = "ff",
                                  RDatafilename = fnameRdata), 
            silent = FALSE)
 tableChromArray <- collect()
@@ -1010,7 +1009,7 @@ frame, as we did in section \ref{input-as-df-cluster}.
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
 
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       textfilename = fnametxt)
 @ 
 
@@ -1054,7 +1053,7 @@ We create a new directory and carry out the file cutting there since the
 upper level directory is already populated with other files we have been
 creating. If we cut the file in the upper directory, we would later need
 to specify a lengthy list of files to exclude in the arguments to
-\texttt{inputDataToADaCGHData}. To avoid that, we create a directory, and
+\texttt{inputToADaCGH}. To avoid that, we create a directory, and
 leave the files in the newly created directory. After cutting, we return
 to the former level directory, to keep that directory with only the files
 for input.
@@ -1070,8 +1069,8 @@ actually be much simpler, and something like the following:
   lets call this file \texttt{afile.txt}.
 \item In R, move to \texttt{d1} (for example, \texttt{setwd("~/d1")}).
 \item Use \texttt{cutFile}: \texttt{cutFile("afile.txt", 1, 2, 3)}.
-\item Call \texttt{inputDataToADaCGHData}: 
-  \texttt{inputDataToADaCGHData(ff.or.RAM = "ff", path = getwd(),
+\item Call \texttt{inputToADaCGH}: 
+  \texttt{inputToADaCGH(ff.or.RAM = "ff", path = getwd(),
     excludefile = "afile.txt")}
 \end{enumerate}
 
@@ -1084,7 +1083,7 @@ lots of different examples, with several different work flows.)
 \texttt{cutFile} will run several jobs in parallel to speed up the cutting
 process, launching by default as many jobs as cores it can detect, and
 will produce files with the required naming conventions of
-\texttt{inputDataToADaCGHData}. Note that \texttt{cutFile} is unlikely to
+\texttt{inputToADaCGH}. Note that \texttt{cutFile} is unlikely to
 work under Windows.
 
 
@@ -1123,20 +1122,20 @@ contraints); see section \ref{very-large-example}.
 
 %% <<>>=
 %% namepath <- system.file("example-datadir", package = "ADaCGH2")
-%% inputDataToADaCGHData(ff.or.local = "ff",
+%% inputToADaCGH(ff.or.local = "ff",
 %%                       path = namepath)
 %% @ 
 
 
 %% <<>>=
 %% namepath <- getwd() 
-%% inputDataToADaCGHData(ff.or.local = "ff",
+%% inputToADaCGH(ff.or.local = "ff",
 %%                       path = namepath)
 %% @ 
 
 
 <<>>=
-inputDataToADaCGHData(ff.or.RAM = "ff",
+inputToADaCGH(ff.or.RAM = "ff",
                       path = cuttedFileAndffs.dir)
 @ 
 
@@ -1210,7 +1209,7 @@ Many aCGH studies use pre-processing steps similar to those of gene
 expression data. The \texttt{MAList} object, from \textit{Limma} and
 \texttt{SegList} object, from \textit{snapCGH}, are commonly used to store
 aCGH information. The following examples illustrate the usage of the
-function \texttt{inputDataToADaCGHData} to convert \texttt{MAList} and
+function \texttt{inputToADaCGH} to convert \texttt{MAList} and
 \texttt{SrgList} data into a format suitable for \textit{ADaCGH2}.
 
 
@@ -1264,11 +1263,11 @@ default. (Note that we could also have produced \textit{ff} files as
 output, using the option \texttt{ff.or.RAM = "ff"}).
 
 <<>>=
-tmp <- inputDataToADaCGHData(MAList = MA, 
+tmp <- inputToADaCGH(MAList = MA, 
                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
                                           "pos-ma.dat", "probenames-ma.dat"))
 
-tmp <- inputDataToADaCGHData(MAList = MA2, 
+tmp <- inputToADaCGH(MAList = MA2, 
                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
                                           "pos-ma.dat", "probenames-ma.dat"),
                              minNumPerChrom = 4)
@@ -1313,7 +1312,7 @@ a character vector).
 fclone <- list.files(path = system.file("testdata", package = "snapCGH"),
                      full.names = TRUE, pattern = "cloneinfo.txt")
 fclone
-tmp <- inputDataToADaCGHData(MAList = MA.limma, 
+tmp <- inputToADaCGH(MAList = MA.limma, 
                              cloneinfo = fclone,
                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
                                           "pos-ma.dat", "probenames-ma.dat"))
@@ -1327,7 +1326,7 @@ information. For illustrative purposes, we can use here the columns of the
 
 <<>>=
 acloneinfo <- MA$genes
-tmp <- inputDataToADaCGHData(MAList = MA.limma, 
+tmp <- inputToADaCGH(MAList = MA.limma, 
                              cloneinfo = acloneinfo,
                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
                                           "pos-ma.dat", "probenames-ma.dat"))
@@ -1701,7 +1700,7 @@ HaarSeg & Fork &64  & in-RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 % fname <- list.files(path = system.file("data", package = "ADaCGH2"),
 %                     full.names = TRUE, pattern = "inputEx2")
 
-% tableChromArray <- inputDataToADaCGHData(filename = fname)
+% tableChromArray <- inputToADaCGH(filename = fname)
 
 
 % Rprof(tmp <- tempfile())
@@ -1787,11 +1786,11 @@ Loading required package: parallel
 > 
 > fnameRData <- paste(getwd(), "/Data1000cols.RData", sep = "")
 > 
-> unix.time(tableChromArray <- inputDataToADaCGHData(ff.or.local = "ff",
+> unix.time(tableChromArray <- inputToADaCGH(ff.or.local = "ff",
 +                                                    RDatafilename = fnameRData, na.omit = TRUE))
 Error in cbind(deparse.level, ...) : 
   resulting vector exceeds vector length limit in 'AnswerType'
-Calls: unix.time ... inputDataToADaCGHData -> is.na -> is.na.data.frame -> do.call -> cbind
+Calls: unix.time ... inputToADaCGH -> is.na -> is.na.data.frame -> do.call -> cbind
 Timing stopped at: 768.444 113.815 892.471 
 Execution halted
 

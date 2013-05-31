@@ -10,7 +10,7 @@ export("pSegmentDNAcopy",
        "pSegmentCGHseg",
        "pSegmentHaarSeg",
        "pChromPlot",
-       "inputDataToADaCGHData",
+       "inputToADaCGH",
        "outputToCGHregions",
        "cutFile")
        ## "tempdir2",
