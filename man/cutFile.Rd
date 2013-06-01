@@ -70,7 +70,8 @@ cutFile(filename,
 \details{ This function is unlikely to work under Windows unless MinGW
   or similar are installed (and even then it might not work). This
   function basically calls "cut" and "awk" using \code{system}, and
-  trying to divide all the job into as many \code{cores} as you specify. %% There
+  trying to divide all the job into as many cores as you specify
+  (argument \code{cores}). %% There
   %% are many ways in which this function can fail.
 }
 
@@ -109,6 +110,9 @@ cutFile(filename,
 ## Read a tab separated file, and assign the first,
 ## second, and third positions to ID, Chrom, and Position
 
+if(.Platform$OS.type == "unix") {
+## This will not work in Windows
+
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
 cutFile(fnametxt, 1, 2, 3)
@@ -128,7 +132,7 @@ fnametxt2 <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx-sp.txt")
 cutFile(fnametxt2, 1, 2, 3, delete.columns = 2)
 
-
+}
 }
 
 \keyword{ IO }

@@ -1389,9 +1389,12 @@ of data; these are, thus, data for an array with 6 million probes and data
 for 1000 subjects. In some examples shown below, we use smaller subsets of
 the same data (with only 200 or 50 columns). There are 421,000 missing
 values per data column. The ASCII file with the data is about 96 GB and
-the RData for those same data is 46 GB (without compression). We will
-analyze the full data set with 1000 columns, and some smaller versions of
-that data set (with 200 and 50 data columns).
+the RData for those same data is 46 GB (without compression; 41 GB with
+the standard R compression). We will analyze the full data set with 1000
+columns, and some smaller versions of that data set (with 200 and 50 data
+columns).
+
+
 
 
 The examples below were run on a Dell PowerEdge C6145 chasis with two
@@ -1428,7 +1431,26 @@ version R-2.15.1 as available from the Debian repository (v.\
 (2012-10-02 r60861), compiled from sources. Open MPI is version 1.4.3-2 (as
 available from Debian).
 
+As a reference for the size of the data set, the RData object with the
+1000 columns, when loaded into R in the PowerEdges, takes 13 minutes to
+load and uses a total of 46 GB (45.7 as reported by \texttt{gc}, and
+adding Ncells and Vcells, or 45.6 as reported by
+\texttt{object.size}). Note that this is not the result of the object
+being a data frame and having a column with identifiers (a factor),
+instead of being a matrix; a similarly sized matrix with just numeric data
+would be about 45.3 GB\footnote{A submatrix of those same data with 100
+  columns of data, i.e., a numeric matrix of, say, columns 101 to 200,
+  occupies 4.52 GB. Thus, a matrix with 1003 columns of that type of data
+  would occupy about 45.34 GB (4.52 * 1003/100 = 45.34); the difference of
+  300 MB is minute relative to the size of the matrix.}.
 
+ %%             used    (Mb) gc trigger    (Mb)   max used    (Mb)
+ %% Ncells    6272458   335.0    9532693   509.2    6273371   335.1
+ %% Vcells 6102207940 46556.2 6634368466 50616.3 6102370100 46557.4 
+
+%% 100 data columns (columns 101 to 200) occupy, as data.frame 
+%% 4853957368 bytes, so about 4.52 GB.
+%% As a matrix, 4853952408 bytes, so another 4.52 GB.
 
 
 

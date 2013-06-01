@@ -413,12 +413,29 @@ sizesobj <- function(n = 1,  minsizeshow = 0.5) {
 
 distribute <- function(type, mc.cores, X, FUN, ..., silent = FALSE) {
   if(type == "fork") {
+    if(.Platform$OS.type == "windows") {
+      warning("You are running Windows. Setting mc.cores = 1")
+      mc.cores <- 1
+    }
     mclapply(X, FUN, ..., 
              mc.cores = mc.cores, mc.silent = silent)
   } else if(type == "cluster") {
     ## we might need to do list(...)
     clusterApply(NULL, X, FUN, ...)
   } else stop("distribute does not know this type")
+}
+
+
+mcc <- function() {
+  ## Return the number of cores, unless in windows;
+  ## used inside inputToADaCGH.
+  ## In function distribute there is a similar check
+  if(.Platform$OS.type == "windows") {
+    warning("You are running Windows. Setting mc.cores = 1")
+    return(1)
+  } else {
+    return(detectCores())
+  } 
 }
 
 ## rdata.or.dataframe <- function(x) {
@@ -1114,6 +1131,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                   pattern = ffpattern)
     
     cat("\n   ...  directory reading: parallel reading of column names \n")
+    
     colnames <- unlist(mclapply(list.of.files,
                          function(x)
                                 scan(file.path(path, x),
@@ -1135,7 +1153,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                                    skip = 1),
                               vmode = "double",
                               pattern = ffpattern),
-                           mc.cores = detectCores())
+                           mc.cores = mcc()) ## detectCores())
     
     ## we do as in outToffdf2 to return an ffdf.
     ## Why an ffdf and not a list of ffs? Because
@@ -1208,7 +1226,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                            fields = fields,
                            skip = skip,
                            ffpattern = ffpattern,
-                           mc.cores = detectCores())
+                           mc.cores = mcc()) ##detectCores())
     
     ## we do as in outToffdf2 to return an ffdf.
     ## Why an ffdf and not a list of ffs? Because
