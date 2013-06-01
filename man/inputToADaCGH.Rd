@@ -39,8 +39,6 @@ inputToADaCGH(ff.or.RAM = "RAM",
     \code{\link[ff]{ff}}. The default is to create the "ff" files in the
     current working directory. }
 
-
-  
   \item{MAList}{The name of an object of class \code{MAList}
     (\code{\link[limma]{as.MAList}}) or \code{SegList} (e.g.,
     \code{\link[snapCGH]{dim.SegList}}). See vignnettes for these
