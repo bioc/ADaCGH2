@@ -1037,16 +1037,24 @@ consumption, we use \textit{ff} objects for intermediate storage.
 
 
 \subsubsection{Cutting the original file into one-column files}
-We provide a simple function, \texttt{cutFile}, to do this job. For instance
+We provide a simple function, \texttt{cutFile}, to do this job. For
+instance (note that this will NOT work under Windows, and thus we skip
+using \texttt{cutFile} under Windows, and use a directory where we have
+stored the files split by column)
 
 <<>>=
-fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
-                         full.names = TRUE, pattern = "inputEx.txt")
-dir.create("cuttedFileAndffs")
-setwd("cuttedFileAndffs")
-cutFile(fnametxt, 1, 2, 3)
-cuttedFileAndffs.dir <- getwd()
-setwd("../")
+if(.Platform$OS.type == "unix") {
+  fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
+                          full.names = TRUE, pattern = "inputEx.txt")
+  dir.create("cuttedFile")
+  setwd("cuttedFile")
+  cutFile(fnametxt, 1, 2, 3)
+  cuttedFile.dir <- getwd()
+  setwd("../")
+} else {
+  cuttedFile.dir <- system.file("example-datadir", 
+                                 package = "ADaCGH2")
+}
 @ 
 
 We create a new directory and carry out the file cutting there since the
@@ -1133,10 +1141,14 @@ contraints); see section \ref{very-large-example}.
 %%                       path = namepath)
 %% @ 
 
+%% (If we are using Windows, we cannot use \texttt{cutFile}; in this
+%% vignette, therefore, we will use a directory where we have placed the
+%% files split by column)
+
 
 <<>>=
 inputToADaCGH(ff.or.RAM = "ff",
-                      path = cuttedFileAndffs.dir)
+              path = cuttedFile.dir)
 @ 
 
 
@@ -1144,7 +1156,8 @@ We have used the previously cut files in this example. You can also check
 the files that live under the ``example-datadir'' directory and you will
 see six files with names starting with ``col'', which are the data files,
 and the files \texttt{"ID.txt"}, \texttt{"Chrom.txt"}, and
-\texttt{"Pos.txt"}.
+\texttt{"Pos.txt"}. (That is the directory we would use as input had we
+used Windows.)
 
 
 
