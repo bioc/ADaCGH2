@@ -1136,7 +1136,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                          function(x)
                                 scan(file.path(path, x),
                                      n = 1, what = "character"),
-                                mc.cores = detectCores()))
+                                mc.cores = mcc()))
 
     cat("\n   ...  directory reading: parallel reading of data columns \n")
     ## list.of.ff <- mclapply(list.of.files,
