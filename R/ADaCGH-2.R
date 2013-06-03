@@ -287,8 +287,8 @@ cutFile <- function(filename,
   }
   
   if(is.null(cols)) {
-    cols <- as.numeric(system(paste("head ", filename,
-                         " -n 1 | awk -F'[/", colsep,
+    cols <- as.numeric(system(paste("head -n 1 ", filename,
+                                    " | awk -F'[/", colsep,
                          "]' '{print NF}'", sep = ""), intern = TRUE))
     warning("Number of columns not specified. We guess they are ", cols)
   }
@@ -3340,20 +3340,20 @@ pChromPlot <- function(outRDataName,
   ##                          ...)
 
 
- null <- internalChromPlot(1,
-                           tableArrChrom = tableArrChrom,
-                           outRDataName = outRDataName,
-                           cghRDataName = cghRDataName,
-                           chromRDataName = chromRDataName,
-                           probenamesRDataName = probenamesRDataName,
-                           posRDataName = posRDataName,
-                           imgheight = imgheight,
-                           pixels.point = pixels.point,
-                           pch = pch,
-                           colors = colors,
-                           imagemap = imagemap,
-                           ff.object,
-                           ...)
+ ## null <- internalChromPlot(1,
+ ##                           tableArrChrom = tableArrChrom,
+ ##                           outRDataName = outRDataName,
+ ##                           cghRDataName = cghRDataName,
+ ##                           chromRDataName = chromRDataName,
+ ##                           probenamesRDataName = probenamesRDataName,
+ ##                           posRDataName = posRDataName,
+ ##                           imgheight = imgheight,
+ ##                           pixels.point = pixels.point,
+ ##                           pch = pch,
+ ##                           colors = colors,
+ ##                           imagemap = imagemap,
+ ##                           ff.object,
+ ##                           ...)
   
   null <- distribute(type = typeParall,
                      mc.cores = mc.cores,
@@ -3389,8 +3389,6 @@ internalChromPlot <- function(tableIndex,
                               imagemap,
                               ff.object,
                               ...) {
-
-
   ## nodeWhere("starting internalChromPlot")
   
   arrayIndex <- tableArrChrom[tableIndex, "ArrayNum"]
@@ -3410,7 +3408,6 @@ internalChromPlot <- function(tableIndex,
   cleanDataList <- expungeNA(cghdata)
   cghdata <- cleanDataList$x_clean
   res <- res[cleanDataList$pos_clean, , drop = FALSE]
-  
   
   ndata <- length(cghdata)
   col <- rep(colors[1], ndata)
@@ -3436,18 +3433,18 @@ internalChromPlot <- function(tableIndex,
   ##     " chromosome ", cnum, 
   ##     " positions ", chromPos, "\n")
   
-
   ccircle <- NULL
   chrwidth <- round(pixels.point * (ndata + .10 * ndata))
   chrwidth <- max(min(chrwidth, 1200), 800)
+  op <- par(xaxs = "i",
+            mar = c(5, 5, 5, 5), 
+            oma = c(0, 0, 0, 0),
+            ask = FALSE)
+  
   im2 <- imagemap3(nameChrIm,
                    height = imgheight, width = chrwidth,
                    ps = 12)
 
-  par(xaxs = "i")
-  par(mar = c(5, 5, 5, 5))
-  par(oma = c(0, 0, 0, 0))
-  
   if(ndata > 50000) {
     this.cex <- 0.1
   } else if (ndata > 10000) {
@@ -3484,7 +3481,7 @@ internalChromPlot <- function(tableIndex,
   }
   
   imClose3(im2)
-
+  par(op)
   rm(cghdata)
   rm(simplepos)
   rm(res)
@@ -4225,23 +4222,20 @@ imClose3 <- function (im) {
 imagemap3 <- function(filename,width=480,height=480,
                       title='Imagemap from R', ps = 12){
 ## copied from "imagemap" function in imagemap.R from B. Rowlingson
-  
-    png(filename = paste(filename,".png",sep=''),
-        width=width,
-        height=height,
-        pointsize = ps)	  
-	  
-    im <- list()
-    im$Device <- dev.cur()
-    im$Filename=filename
-    im$Height=height
-    im$Width=width
-    im$Objects <- list()
-    im$HTML <- list()
-    im$title <- title
-    
-    class(im) <- "imagemap"
-    im
+  png(filename = paste(filename,".png",sep=''),
+      width=width,
+      height=height,
+      pointsize = ps)	  
+  im <- list()
+  im$Device <- dev.cur()
+  im$Filename=filename
+  im$Height=height
+  im$Width=width
+  im$Objects <- list()
+  im$HTML <- list()
+  im$title <- title
+  class(im) <- "imagemap"
+  im
 }
 
 createIM2 <- function(im, file = "", imgTags = list(),
