@@ -3323,23 +3323,7 @@ pChromPlot <- function(outRDataName,
                                          chromRDataName)
   }
 
-  
-  ## null <- sfClusterApplyLB(tableArrChrom$Index,
-  ##                          internalChromPlot,
-  ##                          tableArrChrom = tableArrChrom,
-  ##                          outRDataName = outRDataName,
-  ##                          cghRDataName = cghRDataName,
-  ##                          chromRDataName = chromRDataName,
-  ##                          probenamesRDataName = probenamesRDataName,
-  ##                          posRDataName = posRDataName,
-  ##                          imgheight = imgheight,
-  ##                          pixels.point = pixels.point,
-  ##                          pch = pch,
-  ##                          colors = colors,
-  ##                          imagemap = imagemap,
-  ##                          ...)
-
-
+  ## for debugging
  ## null <- internalChromPlot(1,
  ##                           tableArrChrom = tableArrChrom,
  ##                           outRDataName = outRDataName,
@@ -3436,11 +3420,11 @@ internalChromPlot <- function(tableIndex,
   ccircle <- NULL
   chrwidth <- round(pixels.point * (ndata + .10 * ndata))
   chrwidth <- max(min(chrwidth, 1200), 800)
-  op <- par(xaxs = "i",
-            mar = c(5, 5, 5, 5), 
-            oma = c(0, 0, 0, 0),
-            ask = FALSE)
-  
+  ## Moved inside imagemap3
+  ## op <- par(xaxs = "i",
+  ##           mar = c(5, 5, 5, 5), 
+  ##           oma = c(0, 0, 0, 0),
+  ##           ask = FALSE)  
   im2 <- imagemap3(nameChrIm,
                    height = imgheight, width = chrwidth,
                    ps = 12)
@@ -3474,6 +3458,7 @@ internalChromPlot <- function(tableIndex,
     write(ccircle, file = paste("pngCoord_", nameChrIm, sep = ""),
           sep ="\t", ncolumns = 3)
     probeNames <- getNames(probenamesRDataName, chromPos)
+    probeNames <- probeNames[cleanDataList$pos_clean]
     if ( (ncol(ccircle)/length(probeNames)) != 1)
       stop("Serious problem: number of arrays does not match")
     write(probeNames, 
@@ -3481,7 +3466,7 @@ internalChromPlot <- function(tableIndex,
   }
   
   imClose3(im2)
-  par(op)
+  ## par(op). ## Nope. This is a png, and we always close it.
   rm(cghdata)
   rm(simplepos)
   rm(res)
@@ -3496,6 +3481,13 @@ internalChromPlot <- function(tableIndex,
   ## nodeWhere("internalChromPlot: end")
 
 }
+
+## The Python stuff. We used to have a call to .python.toMap.py.
+## For instance, see in 
+## ~/bzr-local-repos/adacgh-old/R-packages/ADaCGH/R/ADaCGH.R
+## but this is a mess with different OSs, etc.
+
+
 
 
 #######################################################
@@ -4221,11 +4213,24 @@ imClose3 <- function (im) {
 
 imagemap3 <- function(filename,width=480,height=480,
                       title='Imagemap from R', ps = 12){
+  typep <- ifelse(capabilities("cairo"), "cairo", "Xlib")
+  ## in case weird things happen
+  if(!length(typep)) typep <- "Xlib"
 ## copied from "imagemap" function in imagemap.R from B. Rowlingson
-  png(filename = paste(filename,".png",sep=''),
+  png(filename = paste(filename, ".png", sep=''),
       width=width,
       height=height,
-      pointsize = ps)	  
+      type = typep,
+      pointsize = ps)
+
+  op <- par(xaxs = "i")
+            ## mar = c(5, 5, 5, 5), 
+            ## oma = c(0, 0, 0, 0),
+  ## ask = FALSE)  
+  ## No, we do not restore this. This is a png
+  ## that will be closed.
+
+  
   im <- list()
   im$Device <- dev.cur()
   im$Filename=filename

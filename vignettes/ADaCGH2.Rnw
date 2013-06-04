@@ -910,6 +910,11 @@ pChromPlot(outRDataName = "hs_mad.out.RData",
 @ 
 
 
+Finally, we stop the workers and close the cluster
+<<>>=
+stopCluster(cl2)
+@ 
+
 \section{Example 3: \textit{ff} objects and forking}
 \label{ex-ff-fork}
 
@@ -1446,16 +1451,29 @@ available from Debian).
 
 As a reference for the size of the data set, the RData object with the
 1000 columns, when loaded into R in the PowerEdges, takes 13 minutes to
-load and uses a total of 46 GB (45.7 as reported by \texttt{gc}, and
-adding Ncells and Vcells, or 45.6 as reported by
-\texttt{object.size}). Note that this is not the result of the object
-being a data frame and having a column with identifiers (a factor),
-instead of being a matrix; a similarly sized matrix with just numeric data
-would be about 45.3 GB\footnote{A submatrix of those same data with 100
-  columns of data, i.e., a numeric matrix of, say, columns 101 to 200,
-  occupies 4.52 GB. Thus, a matrix with 1003 columns of that type of data
-  would occupy about 45.34 GB (4.52 * 1003/100 = 45.34); the difference of
-  300 MB is minute relative to the size of the matrix.}.
+load and uses a total of about 46 GB (45.7 from calls to \texttt{gc}
+before and after loading the object, and adding Ncells and Vcells, or 45.6
+as reported by \texttt{object.size}). Note that this is not the result of
+the object being a data frame and having a column with identifiers (a
+factor), instead of being a matrix; a similarly sized matrix with just the
+numeric data for the probes (i.e., without the first three columns of ID,
+chromosome, and location) has a size of 45.2 GB (therefore, the difference
+of 300 MB due to the first column, ID, being a factor with the identifiers, is
+minute relative to the size of the matrix).
+
+%% each column is about 0.045 GB, so a 1003 cols obj would have been
+%% 45.2 + 0.135 = 45.33. Thus, the factor takes an extra 300 MB.
+
+
+%% the data frame, without the first three columns, is 45.2 GB.
+% \footnote{A submatrix of those same data with 100
+%   columns of data, i.e., a numeric matrix of, say, columns 101 to 200,
+%   occupies 4.52 GB. Thus, a matrix with 1003 columns of that type of data
+%   would occupy about 45.34 GB (4.52 * 1003/100 = 45.34); the difference of
+%   300 MB is minute relative to the size of the matrix.}.
+
+
+
 
  %%             used    (Mb) gc trigger    (Mb)   max used    (Mb)
  %% Ncells    6272458   335.0    9532693   509.2    6273371   335.1
@@ -1721,6 +1739,11 @@ HaarSeg & Fork &64  & in-RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 \bibliographystyle{apalike}
 \bibliography{ADaCGH2}
 
+<<echo=FALSE>>=
+## try(closeAllConnections()) ## nope, breaks things
+Sys.sleep(1) ## I hope we do not need this
+@ 
+
 \end{document}
 
 
@@ -1831,3 +1854,11 @@ Execution halted
 
 
 so you are suggested to clean NAs before hand, or use text files as input.
+
+
+
+
+In windows, it crashes with a known problem
+https://www.stat.math.ethz.ch/pipermail/r-devel/2013-April/066493.html
+but see this
+https://stat.ethz.ch/pipermail/r-devel/2013-March/066126.html
