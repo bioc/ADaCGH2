@@ -421,7 +421,7 @@ distribute <- function(type, mc.cores, X, FUN, ..., silent = FALSE) {
              mc.cores = mc.cores, mc.silent = silent)
   } else if(type == "cluster") {
     ## we might need to do list(...)
-    clusterApply(NULL, X, FUN, ...)
+    parallel::clusterApply(NULL, X, FUN, ...)
   } else stop("distribute does not know this type")
 }
 
@@ -4098,7 +4098,7 @@ caughtOtherPackageError.Web <- function(message) {
 
 ## the next one substitutes snowfall.clean.quit.Web
 cluster.clean.quit.Web <- function() {
-  try(stopCluster(), silent = TRUE)
+  try(parallel::stopCluster(), silent = TRUE)
 }
 
 

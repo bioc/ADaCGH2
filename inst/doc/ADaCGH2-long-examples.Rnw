@@ -133,14 +133,14 @@ inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 
 ## initializing cluster
-cl2 <- makeCluster(4,"PSOCK")
-clusterSetRNGStream(cl2)
-setDefaultCluster(cl2) 
-clusterEvalQ(NULL, library("ADaCGH2"))
+cl2 <- parallel::makeCluster(4,"PSOCK")
+parallel::clusterSetRNGStream(cl2)
+parallel::setDefaultCluster(cl2) 
+parallel::clusterEvalQ(NULL, library("ADaCGH2"))
 
 wdir <- getwd()
-clusterExport(NULL, "wdir")
-clusterEvalQ(NULL, setwd(wdir))
+parallel::clusterExport(NULL, "wdir")
+parallel::clusterEvalQ(NULL, setwd(wdir))
 @
 
 
@@ -631,14 +631,15 @@ cluster. In this vignette, we will not execute the code below to remove
 the directory we created or the objects, in case you want to check them
 out or play around with them, but the code is below.
 
-To make sure there are no file permission problems, we also explicitly
-delete some of the "ff" files and objects (and we wait a few seconds to
-allow pending I/O operations to happen before we delete the directory).
+To make sure there are no file permission problems, we add code below to
+explicitly delete some of the "ff" files and objects (and we wait a few
+seconds to allow pending I/O operations to happen before we delete the
+directory).
 
 
 %% Fixme
 <<>>=
-stopCluster(cl2)
+parallel::stopCluster(cl2)
 @ 
 
 <<eval=FALSE>>=

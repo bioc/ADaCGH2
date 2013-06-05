@@ -833,22 +833,24 @@ four node cluster.
 
 <<>>=
 cl2 <- makeCluster(4,"PSOCK")
-clusterSetRNGStream(cl2)
-setDefaultCluster(cl2) 
-clusterEvalQ(NULL, library("ADaCGH2"))
+parallel::clusterSetRNGStream(cl2)
+parallel::setDefaultCluster(cl2) 
+parallel::clusterEvalQ(NULL, library("ADaCGH2"))
 
 wdir <- getwd()
-clusterExport(NULL, "wdir")
-clusterEvalQ(NULL, setwd(wdir))
+parallel::clusterExport(NULL, "wdir")
+parallel::clusterEvalQ(NULL, setwd(wdir))
 @ 
 
 The first two calls create a cluster and initialize the random number
-generator. The third expression sets the cluster just created as the
-default cluster. This is important: to simplify function calls, we do not
-pass the cluster name around, but rather expect a default cluster to be
-set up. The fourth line makes the \textbf{ADaCGH2} package available in
+generator\footnote{We use the version from package \textbf{parallel},
+  instead of the one from \textbf{BiocGenerics}, as the last one is still
+  experimental.}. The third expression sets the cluster just created as
+the default cluster. This is important: to simplify function calls, we do
+not pass the cluster name around, but rather expect a default cluster to
+be set up. The fourth line makes the \textbf{ADaCGH2} package available in
 all the nodes of the cluster (notice we did not need to do this with
-forking, as the child processes shared memory with the parent). 
+forking, as the child processes shared memory with the parent).
 
 
 The last three lines make sure the slave processes use the same directory
@@ -912,7 +914,7 @@ pChromPlot(outRDataName = "hs_mad.out.RData",
 
 Finally, we stop the workers and close the cluster
 <<>>=
-stopCluster(cl2)
+parallel::stopCluster(cl2)
 @ 
 
 \section{Example 3: \textit{ff} objects and forking}
