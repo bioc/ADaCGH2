@@ -832,7 +832,7 @@ four node cluster.
 
 
 <<>>=
-cl2 <- makeCluster(4,"PSOCK")
+cl2 <- parallel::makeCluster(4,"PSOCK")
 parallel::clusterSetRNGStream(cl2)
 parallel::setDefaultCluster(cl2) 
 parallel::clusterEvalQ(NULL, library("ADaCGH2"))
@@ -1864,3 +1864,32 @@ In windows, it crashes with a known problem
 https://www.stat.math.ethz.ch/pipermail/r-devel/2013-April/066493.html
 but see this
 https://stat.ethz.ch/pipermail/r-devel/2013-March/066126.html
+
+
+
+
+
+
+%%%%%%%%%%%%%% checking under windoze
+%%%%%%%%%%%%%  I can NOT do it: remember socket clusters do not work under VirtualBox.
+
+
+%% Install the devel version of R
+
+%% Install Rtools and Miktex
+
+%% Install the devel version of BioC
+%%     source("http://bioconductor.org/biocLite.R")
+%%     library(BiocInstaller)
+%%     useDevel()
+
+%% Install the dependencies. Either from BioC or from CRAN
+
+%% cp -a of the ADaCGH2 dir to the shared place
+%% inside windoze again, cp that to my home c:\Documents and Settings\Ramon
+
+%% Run as "c:\Archivos de programa\R\R-3.0.1\bin\R.exe" CMD build --keep-empty-dirs --no-resave-data ADaCGH2
+
+%% "c:\Archivos de programa\R\R-3.0.1\bin\R.exe" CMD check --force-multiarch --no-vignettes --timings ADaCGH2_2.1.0.tar.gz
+
+%% "c:\Archivos de programa\R\R-3.0.1\bin\R.exe" --build --merge-multiarch ADaCGH2_2.1.0.tar.gz

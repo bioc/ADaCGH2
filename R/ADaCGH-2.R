@@ -4213,23 +4213,16 @@ imClose3 <- function (im) {
 
 imagemap3 <- function(filename,width=480,height=480,
                       title='Imagemap from R', ps = 12){
-  typep <- ifelse(capabilities("cairo"), "cairo", "Xlib")
-  ## in case weird things happen
-  if(!length(typep)) typep <- "Xlib"
-## copied from "imagemap" function in imagemap.R from B. Rowlingson
+  ## copied from "imagemap" function in imagemap.R from B. Rowlingson
   png(filename = paste(filename, ".png", sep=''),
       width=width,
       height=height,
-      type = typep,
+      type = "cairo",
       pointsize = ps)
 
   op <- par(xaxs = "i")
-            ## mar = c(5, 5, 5, 5), 
-            ## oma = c(0, 0, 0, 0),
-  ## ask = FALSE)  
   ## No, we do not restore this. This is a png
   ## that will be closed.
-
   
   im <- list()
   im$Device <- dev.cur()

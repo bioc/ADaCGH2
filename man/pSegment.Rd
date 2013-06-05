@@ -534,15 +534,15 @@ haar.ff.fork
 ## for your hardware and use other types of clusters (e.g., MPI)
 ## if you want.
 
-cl2 <- makeCluster(4,"PSOCK")
-clusterSetRNGStream(cl2)
-setDefaultCluster(cl2) 
-clusterEvalQ(NULL, library("ADaCGH2"))
+cl2 <- parallel::makeCluster(4,"PSOCK")
+parallel::clusterSetRNGStream(cl2)
+parallel::setDefaultCluster(cl2) 
+parallel::clusterEvalQ(NULL, library("ADaCGH2"))
 ## The following is not really needed if you create the cluster AFTER
 ## changing directories. But better to be explicit.
 wdir <- getwd()
-clusterExport(NULL, "wdir")
-clusterEvalQ(NULL, setwd(wdir))
+parallel::clusterExport(NULL, "wdir")
+parallel::clusterEvalQ(NULL, setwd(wdir))
 
 
 
@@ -594,7 +594,7 @@ identical(haar.ff.cluster$outState[ , ],
 
 
 ### Explicitly stop cluster
-stopCluster(cl2)
+parallel::stopCluster(cl2)
 
 ### All objects (RData and ff) are left in this directory
 getwd()
