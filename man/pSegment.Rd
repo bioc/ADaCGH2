@@ -120,7 +120,8 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     type of files.}
   
   \item{merging}{Merging method; for most methods one of "MAD" or
-    "mergeLevels". For CBS (pSegmentDNAcopy),  GGHseg (pSegmentCGHseg), and Wavelets (as
+    "mergeLevels". For CBS (pSegmentDNAcopy),  GGHseg (pSegmentCGHseg),
+    HaarSeg (pSegmentHaarSeg), and Wavelets (as
     in Hsu et al. ---pSegmentWavelets)  also "none". This option
     does not apply to GLAD (which has its own merging-like approach). See
     details.}
@@ -280,11 +281,13 @@ however, is MAD, not mergeLevels).  Merging (using either of
 of Hsu et al.; please note that the later is an experimental feature
 implemented by us, and there is no study of its performance.
 
+
 In summary, for all segmentation methods (except GLAD) merging is
-available as either "mergeLevels" or "MAD". For DNAcopy, CGHseg, and
-wavelets as in Hsu et al., you can also choose no merging, though this
-will rarely be what you want (we offer this option to allow using
-the original authors' choices in their first descriptions of methods). 
+available as either "mergeLevels" or "MAD". For DNAcopy, CGHseg,
+HaarSeg, and wavelets as in Hsu et al., you can also choose no merging,
+though this will rarely be what you want (we offer this option to allow
+using the original authors' choices in their first descriptions of
+methods).
 
 
 When using mergeLevels, we map the results to states of "Alteration", so
@@ -471,7 +474,7 @@ pos.dat <- inputEx[, 3]
 
 ## Segment with HaarSeg
 haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
-                                   merging = "mergeLevels")
+                                   merging = "MAD")
 
 ## What does the output look like?
 lapply(haar.RAM.fork, head)
@@ -516,7 +519,7 @@ inputToADaCGH(ff.or.RAM = "ff",
 
 haar.ff.fork <- pSegmentHaarSeg("cghData.RData",
                                 "chromData.RData",
-                                 merging = "mergeLevels")
+                                 merging = "MAD")
 
 ## What does the output look like?
 haar.ff.fork
@@ -550,7 +553,7 @@ parallel::clusterEvalQ(NULL, setwd(wdir))
 
 haar.ff.cluster <- pSegmentHaarSeg("cghData.RData",
                                    "chromData.RData",
-                                   merging = "mergeLevels",
+                                   merging = "MAD",
                                    typeParall= "cluster")
 
 

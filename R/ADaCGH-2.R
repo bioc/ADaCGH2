@@ -1,4 +1,5 @@
-
+## TO-DO: If we knew there are no NAs, we could make things a lot faster
+## eliminating all calls to expungeNA and impunge.
 
 ## based on snapCGH, modfied by Oscar Rueda
 ## imputeMissing <- function(log2r, chrominfo = chrominfo.Mb,
@@ -270,11 +271,11 @@ cutFile <- function(filename,
   ## for systems with sh
 
   if(is.null(colsep)) {
-    c1 <- as.numeric(system(paste("head ", filename,
-                                  " -n 1 | awk -F'[/", " ",
+    c1 <- as.numeric(system(paste("head -n 1 ", filename,
+                                  " | awk -F'[/", " ",
                                   "]' '{print NF}'", sep = ""), intern = TRUE))
-    c2 <- as.numeric(system(paste("head ", filename,
-                                  " -n 1 | awk -F'[/", "\t",
+    c2 <- as.numeric(system(paste("head -n 1 ", filename,
+                                  " | awk -F'[/", "\t",
                                   "]' '{print NF}'", sep = ""), intern = TRUE))
     if( c1 == c2) {
       stop("Cannot guess column separator.")
@@ -2306,12 +2307,28 @@ internalHaarSeg <- function(index,
   rm(chr.start)
   rm(chromPos)
   gc()
-  if(merging == "MAD") {
+  if(merging == "none") {
+    haarout <- local(inpungeNA(haarout,
+                               cleanDataList$lx,
+                               cleanDataList$pos_clean,
+                               cleanDataList$nas))
+    state <- rep.int(0L, cleanDataList$lx)
+    rm(cleanDataList)
+    gc()
+    if(ff.out) {
+      gc()
+      return(ffListOut(haarout,
+                       state))
+    } else {
+      gc()
+      return(list(smoothed = haarout,
+                       state = state))
+    }
+  } else if(merging == "MAD") {
     mad.subj <- local(median(abs(xvalue - haarout))/0.6745)
     rm(xvalue)
     thresh <- mad.threshold * mad.subj
     ## nodeWhere("internalHaarSeg")
-
     haarout <- local(inpungeNA(haarout,
                                cleanDataList$lx,
                                cleanDataList$pos_clean,
@@ -2319,7 +2336,6 @@ internalHaarSeg <- function(index,
 
     rm(cleanDataList)
     gc()
-
     state <- local(ifelse( (abs(haarout) > thresh), 1, 0) *
                    sign(haarout))
       
@@ -2332,8 +2348,6 @@ internalHaarSeg <- function(index,
       return(list(smoothed = haarout,
                   state = as.integer(state)))
     }
-
-    
   } else if(merging == "mergeLevels") {
     outseg <- ourMerge(xvalue, haarout)
     haarout <- local(inpungeNA(outseg[, 1],

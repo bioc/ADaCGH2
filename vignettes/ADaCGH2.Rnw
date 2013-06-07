@@ -827,12 +827,13 @@ Cluster initialization uses the functions provided in
 \texttt{parallel}. In the example we will use a sockect cluster, since
 this is likely to run under a variety of operating systems and should not
 need any additional software. Note, however, that MPI can also be used (in
-fact, that is what we use in our servers). In this example we will use a
-four node cluster.
+fact, that is what we use in our servers). In this example we will use as
+many nodes as cores can be detected.
 
 
 <<>>=
-cl2 <- parallel::makeCluster(4,"PSOCK")
+number.of.nodes <- detectCores()
+cl2 <- parallel::makeCluster(number.of.nodes, "PSOCK")
 parallel::clusterSetRNGStream(cl2)
 parallel::setDefaultCluster(cl2) 
 parallel::clusterEvalQ(NULL, library("ADaCGH2"))
@@ -1536,13 +1537,17 @@ For the two tables below, the meaning of columns is as follows:
   \item[Method] The analysis method (either HaarSeg or CBS ---DNAcopy).
   \item[Fork/MPI] Whether forking (via \texttt{mclapply}) or MPI (using
     the facilities provided by package \textbf{Rmpi}, which are called
-    from package \textbf{snow}) are used to parallelize execution.
+    from package \textbf{snow}) are used to parallelize execution. The two
+    ``NP'' entries refer to non-parallelized execution, using the original
+    packages\footnote{The packages are DNAcopy, as available from
+      BioConductor, and the HaarSeg package, available from R-forge:
+      \url{https://r-forge.r-project.org/projects/haarseg/}}.
 \item[Cores] Number of cores, and machine. 64: 64 cores in a single node
   of the Dell PowerEdge C6145. 124: 124 cores, using both nodes of the
   Dell PowerEdge. 12: 12 cores in the Z800 HP Workstation.
-  \item[ff/in-RAM] If the data for the analysis was stored as an
-    \textit{ff} object, or as an RData data frame that was loaded 
-    before the analysis.
+\item[ff/RAM] If the data for the analysis had been stored as an
+  \textit{ff} object, or as a data frame inside an RData that was loaded
+  before the analysis.
   
 \end{description}
 
@@ -1570,14 +1575,17 @@ C6145 (64 cores).
     Directory to \textit{ff} & 1000 & 29 & 1.3 & 41.21 \\
     Directory to \textit{ff} (Coleonyx, 12 cores) & 1000 & 88 & 1.3 & 8.4 \\
     RData to \textit{ff} & 1000 & 29.6   &   169 & 168.3 \\
-    Directory to in-RAM & 1000 & 22 + 2\tnote{a} & 96 & NA. Output unusable for analysis \\
-    RData to in-RAM & 1000 & 22 + 2\tnote{b} &  139 & NA. Output unusable for analysis \\
+    Directory to data frame (RAM object) & 1000 & 22 + 2\tnote{a} & 96 & NA. Output unusable for analysis \\
+    RData to data frame (RAM object) & 1000 & 22 + 2\tnote{b} &  139 & NA. Output unusable for analysis \\
 
-Directory to in-RAM & 200 & 7.7 + 0.4\tnote{d} & 20 & 38 \\
+Directory to data frame (RAM object) & 200 & 7.7 + 0.4\tnote{c} & 20 & 38 \\
 Directory to \textit{ff} & 200 & 3.6 & 1.3 & 38 \\
 
+Directory to data frame (RAM object) & 100 & 8.7 + 0.3\tnote{d} & 10.5 & 30 \\
+Directory to \textit{ff} & 100 & 3.6 & 1.3 & 32 \\
+
 Directory to \textit{ff} & 50 & 3.2 & 1.3 & 28 \\
-Directory to in-RAM & 50 & 5.8 + 0.1\tnote{c} & 5.8 & 27 \\
+Directory to data frame (RAM object) & 50 & 5.8 + 0.1\tnote{e} & 5.8 & 27 \\
 
 %% I take several measyures in a few cases, and show the representative one
 
@@ -1587,11 +1595,15 @@ Directory to in-RAM & 50 & 5.8 + 0.1\tnote{c} & 5.8 & 27 \\
   \end{tabular}
 
   \begin{tablenotes}
-    \item[a] The 2 reflects the time needed to save the resulting RData
-    \item[b] The 2 reflects the time needed to save the resulting RData
-    \item[c] The 0.1 reflects the time  needed to save the resulting RData
-    \item[d] The 0.4 reflects the time  needed to save the resulting RData
-  \end{tablenotes}
+    {
+      \footnotesize
+    \item[a] The 2 reflects the time needed to save the resulting data frame to an RData file.
+    \item[b] The 2 reflects the time needed to save the resulting data frame to an RData file.
+    \item[c] The 0.4 reflects the time  needed to save the resulting data frame to an RData file.
+    \item[d] The 0.3 reflects the time  needed to save the resulting data frame to an RData file.
+    \item[e] The 0.1 reflects the time  needed to save the resulting data frame to an RData file.
+    }
+    \end{tablenotes}
 \end{threeparttable}
 \end{center}
 
@@ -1609,11 +1621,10 @@ Directory to in-RAM & 50 & 5.8 + 0.1\tnote{c} & 5.8 & 27 \\
 % Last column: could be a slight underestimate if a peak of
 % consumpt. between two samples.
 
+%\clearpage
 
 
-
-\clearpage
-
+%\thispagestyle{empty}
 \subsection{Analyzing data}
 \renewcommand{\arraystretch}{1.6}
 
@@ -1621,39 +1632,69 @@ Directory to in-RAM & 50 & 5.8 + 0.1\tnote{c} & 5.8 & 27 \\
   
 \begin{threeparttable}
 
-  \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{1.8cm}p{1.8cm}p{1.6cm}}
+  \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{1.95cm}p{1.8cm}p{1.6cm}}
     
     \hline
 
-Method& Fork /MPI & Cores & ff/in-RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
+Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
 
 \hline
 
 CBS&MPI &124  & ff & 1000 & 313 & 0.14 & 53 \\
 CBS&MPI&64& ff & 1000 & 545 & 0.14 & 51 \\
 CBS&Fork&64&ff&1000&339 & 0.136 & 41 \\
-&&&&&&&\\
+%% &&&&&&&\\
 HaarSeg & MPI &124  & ff & 1000 & 12.3 & 0.145 & 38.5 \\
 HaarSeg & MPI &64  & ff & 1000 & 9.5 & 0.145 & 38.5 \\
 HaarSeg & MPI &12 & ff & 1000 & 36 & 0.144 & 7.2 \\
-&&&&&&&\\
+%% &&&&&&&\\
 HaarSeg & Fork &64  & ff & 1000 & 8 & 0.136 & 35 \\
 HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
 &&&&&&&\\
 HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
 &&&&&&&\\
+HaarSeg\tnote{a} & Fork &64  &ff  & 100 & 1.2   &   0.133  &  24.5  \\
+CBS\tnote{a}    & Fork &64  &ff  & 100 & 55.9  &   0.132   &  35.3  \\
+
+% When we just replace NAs by 0: run-sequential-Haar.R
+% HaarSeg & NP &-  &RAM  & 100 & x   &  0.95 + 3.3 + 13.15   &  x\tnote{d}  \\
+HaarSeg & NP &-  &RAM  & 100 &  1.5 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
+CBS     & NP &-  &RAM  & 100 & x   &   x   &  x\tnote{d}  \\
+
+&&&&&&&\\
+
+
 HaarSeg & Fork &64  & ff & 50 & 0.5 & 0.133 & 20.6\\
-HaarSeg & Fork &64  & in-RAM & 50 & 0.7 + 2.5 + 0.850 \tnote{a}& 14.4 & 140\\
+HaarSeg & Fork &64  & RAM & 50 & 0.7 + 2.5 + 0.9\tnote{e}& 14.4 & 140\\
 HaarSeg & MPI &64  & ff & 50 & 0.63 & 0.14 & 24.6\\
 &&&&&&&\\
-HaarSeg & Fork &64  & in-RAM & 1000 & NA & NA & \textbf{Cannot allocate memory} \\
-HaarSeg & Fork &64  & in-RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
+HaarSeg & Fork &64  & RAM & 1000 & NA & NA & \textbf{Cannot allocate memory} \\
+HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 \hline
    
   \end{tabular}
 
   \begin{tablenotes}
-    \item[a] 0.7 + 2.5 + 0.850: load data, analyze, and save results.
+    {\footnotesize
+    \item[a] With option \texttt{merging = "none"} to make it comparable
+      to the canonical code in the original packages.
+
+     \item[b] 1.5 + 22.9 + 1.4: load data, analyze, and save results. Since
+      there are missing values in the data, and the original HaarSeg code
+      does not deal with missing values, we are forced to remove NAs
+      array-per-array, and make repeated calls to the function.
+      % , both o
+      %  which introduce an important penalty. We must do this to make
+      % analysis comparable to those of \texttt{pSegmentHaarSeg} that
+      % \textbf{always} checks, and allows, for missing values. 
+      If there are
+      no missing values in this data set, the total time of analysis
+      (i.e., sending the whole matrix at once and not checking nor
+      removing NAs) is 3.3 minutes.
+    \item[c] xx + xx + xx: load data, analyze, and save results.
+    \item[d] Since only one process, same as previous column.
+    \item[e] 0.7 + 2.5 + 0.9: load data, analyze, and save results.
+      }
   \end{tablenotes}
 
 \end{threeparttable}

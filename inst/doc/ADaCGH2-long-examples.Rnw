@@ -99,7 +99,7 @@ the same  results regardless of type of input and clustering.
 \section{Creating objects}
 We must ensure that we can run this vignette as stand alone. Thus, we load
 the package and create all necessary objects. This repeats work done in the
-main vignette.
+main vignette, but we will create a larger cluster here (12 nodes).
 
 
 We first try to move to the ``~/tmp'' directory, if it exists. If it does not,
@@ -133,7 +133,7 @@ inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 
 ## initializing cluster
-cl2 <- parallel::makeCluster(4,"PSOCK")
+cl2 <- parallel::makeCluster(12,"PSOCK")
 parallel::clusterSetRNGStream(cl2)
 parallel::setDefaultCluster(cl2) 
 parallel::clusterEvalQ(NULL, library("ADaCGH2"))

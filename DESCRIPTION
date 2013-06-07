@@ -1,6 +1,6 @@
 Package: ADaCGH2
 Version: 2.1.0
-Date: 2012-10-19
+Date: 2013-06-07 17:10
 Title: Analysis of data from aCGH experiments using parallel computing and ff objects
 Author: Ramon Diaz-Uriarte <rdiaz02@gmail.com>, Oscar M. Rueda <rueda.om@gmail.com>. Wavelet-based aCGH smoothing code from Li Hsu <lih@fhcrc.org> and Douglas Grove <dgrove@fhcrc.org>. Imagemap code from Barry Rowlingson <B.Rowlingson@lancaster.ac.uk>. HaarSeg code from Erez Ben-Yaacov; downloaded from <http://www.ee.technion.ac.il/people/YoninaEldar/Info/software/HaarSeg.htm>
 Maintainer: Ramon Diaz-Uriarte <rdiaz02@gmail.com>
@@ -12,8 +12,8 @@ Description: Analysis and plotting of array CGH data. Allows usage of
 	     Circular Binary Segementation, wavelet-based smoothing 
 	     (both as in Liu et al., and HaarSeg as in Ben-Yaacov and Eldar), 
 	     HMM, BioHMM, GLAD, CGHseg. Most computations are
-	     parallelized. 
+	     parallelized and use ff for storing data.
 biocViews: Microarray, CopyNumberVariants
 LazyLoad: Yes
 License: GPL (>= 3)
-URL: http://launchpad.net/adacgh, http://wavicgh.bioinfo.cnio.es
+URL: 
