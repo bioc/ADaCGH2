@@ -1115,6 +1115,13 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
     list.of.files <- setdiff(list.of.files,
                              to.exclude)
 
+    cat(paste("\n Note: Directory reading: we will be reading ",
+              length(list.of.files),
+              " files, including ID, Chrom, and Pos. \n",
+              " If this is not the correct number of files, stop this process",
+              "verify why  (did cutFiles work correctly? ",
+              "are you using a directory with other files?, etc) and run again.\n"))
+    
     cat("\n   ...  directory reading: reading the ID file \n")
     probeNames <- scan(file  = file.path(path, "ID.txt"),
                what = "character", skip = 1)
@@ -3312,6 +3319,7 @@ pChromPlot <- function(outRDataName,
                        imagemap = FALSE,
                        typeParall = "fork",
                        mc.cores = detectCores(),
+                       typedev = "default", 
                        ...) {
 
   type.of.data <- RAM.or.ff(cghRDataName)
@@ -3352,7 +3360,20 @@ pChromPlot <- function(outRDataName,
  ##                           imagemap = imagemap,
  ##                           ff.object,
  ##                           ...)
-  
+
+  if(! typedev %in% c("default", "cairo", "cairo-png", "Cairo") )
+    stop(" typedev not supporter")
+
+  if(typedev == "default") {
+    if(Sys.info()['sysname'] == "Darwin")
+      typedev <- "Cairo"
+    else
+      typedev <- "cairo"
+  }
+  if( (typedev == "Cairo") && !require("Cairo") )
+    stop("You selected Cairo as typedev, or you used default",
+         " in Mac OS, but the Cairo package is not available.")
+
   null <- distribute(type = typeParall,
                      mc.cores = mc.cores,
                      tableArrChrom$Index,
@@ -3369,6 +3390,7 @@ pChromPlot <- function(outRDataName,
                      colors = colors,
                      imagemap = imagemap,
                      ff.object,
+                     typedev,
                      ...)
 
 }
@@ -3386,6 +3408,7 @@ internalChromPlot <- function(tableIndex,
                               colors,
                               imagemap,
                               ff.object,
+                              typedev,
                               ...) {
   ## nodeWhere("starting internalChromPlot")
   
@@ -3441,6 +3464,7 @@ internalChromPlot <- function(tableIndex,
   ##           ask = FALSE)  
   im2 <- imagemap3(nameChrIm,
                    height = imgheight, width = chrwidth,
+                   type = typedev,
                    ps = 12)
 
   if(ndata > 50000) {
@@ -4226,14 +4250,22 @@ imClose3 <- function (im) {
 }
 
 imagemap3 <- function(filename,width=480,height=480,
+                      type,
                       title='Imagemap from R', ps = 12){
   ## copied from "imagemap" function in imagemap.R from B. Rowlingson
-  png(filename = paste(filename, ".png", sep=''),
-      width=width,
-      height=height,
-      type = "cairo",
-      pointsize = ps)
-
+  ## with added modification
+  if(type == "Cairo") {
+    CairoPNG(filename = paste(filename, ".png", sep=''),
+             width=width,
+             height=height,
+             pointsize = ps)
+  } else {
+    png(filename = paste(filename, ".png", sep=''),
+        width=width,
+        height=height,
+        type = type,
+        pointsize = ps)
+  }
   op <- par(xaxs = "i")
   ## No, we do not restore this. This is a png
   ## that will be closed.

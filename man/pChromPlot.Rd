@@ -22,6 +22,7 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
            imagemap = FALSE,
            typeParall = "fork",
            mc.cores = detectCores(),
+           typedev = "default",
            ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -120,8 +121,19 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
 }
 \item{mc.cores}{The number of cores used if \code{typeParall =
     "fork"}. See details in \code{\link[parallel]{mclapply}}}.
-  \item{...}{Additional arguments; not used.}
+
+\item{typedev}{The device type. One of "cairo", "cairo-png", "Cairo", or
+  "default". "Cairo" requires the Cairo package to be available, but
+  might work with headless Linux server without png support, and might
+  be a better choice with Mac OS. "default" chooses "Cairo" for Mac, and
+  "cairo" otherwise.}
+
+\item{...}{Additional arguments; not used.}
+
 }
+
+
+
 
 % \details{
 % %%  ~~ If necessary, more details than the description above ~~
@@ -167,14 +179,13 @@ pos.dat <- inputEx[, 3]
 
 ## Segment with HaarSeg
 haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
-                                   merging = "mergeLevels")
+                                   merging = "MAD")
 
 
 pChromPlot(haar.RAM.fork,
            cghRDataName = cgh.dat,
            chromRDataName = chrom.dat,
            posRDataName = pos.dat,
-           probenamesRDataName = probenames.dat,
            imgheight = 350)
 
 
@@ -182,7 +193,7 @@ pChromPlot(haar.RAM.fork,
 
 #####################################################
 ###
-### Using a cluster with ff objects
+### Using a cluster with ff objects and create imagemaps
 ###
 #####################################################
 
@@ -216,8 +227,8 @@ clusterEvalQ(NULL, setwd(wdir))
 fname <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
 
-tableChromArray <- inputToADaCGH(ff.or.RAM = "ff",
-                                         RDatafilename = fname)
+inputToADaCGH(ff.or.RAM = "ff",
+              RDatafilename = fname)
 
 
 
@@ -225,7 +236,7 @@ tableChromArray <- inputToADaCGH(ff.or.RAM = "ff",
 
 haar.ff.cluster <- pSegmentHaarSeg("cghData.RData",
                                    "chromData.RData",
-                                   merging = "mergeLevels",
+                                   merging = "MAD",
                                    typeParall= "cluster")
 
 ## Save the output (an ff object) and plot
@@ -239,6 +250,7 @@ pChromPlot(outRDataName = "haar.ff.cluster.out.RData",
            posRDataName = "posData.RData",
            probenamesRDataName = "probeNames.RData",
            imgheight = 350,
+           imagemap = TRUE,
            typeParall= "cluster")
 
 ### Explicitly stop cluster
@@ -273,6 +285,17 @@ Sys.sleep(2)
 
 }
 
+### PNGs are in this directory
+getwd()
+
+}
+
+\keyword{ hplot }
+\keyword{ IO }
+
+
+
+
 
 %% \dontrun{
 %% we used here files from older examples.
@@ -285,20 +308,6 @@ Sys.sleep(2)
 %%            imgheight = 350,
 %%            imagemap = TRUE)
 %% }
-
-### PNGs are in this directory
-getwd()
-
-
-}
-
-\keyword{ hplot }
-\keyword{ IO }
-
-
-
-
-
 
 
 

@@ -125,12 +125,12 @@ c("ID.txt", "Chrom.txt", "Pos.txt") \%in\% list.files(getwd())
 c("col_5.txt") \%in\% list.files(getwd())
 
 ## Read a white space separated file, and assign the first, second, and
-## third positions to ID, Chrom, and Position, but remove the sixth
+## third positions to ID, Chrom, and Position, but remove the fifth
 ## column
 
 fnametxt2 <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx-sp.txt")
-cutFile(fnametxt2, 1, 2, 3, delete.columns = 2)
+cutFile(fnametxt2, 1, 2, 3, delete.columns = 5)
 
 }
 }
