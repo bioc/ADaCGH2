@@ -4255,6 +4255,7 @@ imagemap3 <- function(filename,width=480,height=480,
   ## copied from "imagemap" function in imagemap.R from B. Rowlingson
   ## with added modification
   if(type == "Cairo") {
+    require(Cairo) ## in case we are running in a cluster
     CairoPNG(filename = paste(filename, ".png", sep=''),
              width=width,
              height=height,
