@@ -1004,7 +1004,7 @@ if(inherits(tableChromArray, "try-error")) {
 @ 
 
 
-\subsubsection{Data available as an R data frame}\label{input-as-df-cluster}
+\subsubsection{Data available as an R data frame}\label{input-as-df-ff-fork}
 Instead of accessing the RData file, we can directly use the data
 frame, as we did in section \ref{input-as-df-cluster}.
 
@@ -1565,7 +1565,7 @@ C6145 (64 cores).
 \begin{threeparttable}
   
 
-  \begin{tabular}{p{3cm}p{1.8cm}p{1.8cm}p{2.65cm}p{2.65cm}}
+  \begin{tabular}{p{3.52cm}p{1.8cm}p{1.8cm}p{2.65cm}p{3.4cm}}
  
     \hline
     &Columns & Wall time (minutes)& Max.\ mem.\ (\texttt{gc}), GB &
@@ -1621,18 +1621,16 @@ Directory to data frame (RAM object) & 50 & 5.8 + 0.1\tnote{e} & 5.8 & 27 \\
 % Last column: could be a slight underestimate if a peak of
 % consumpt. between two samples.
 
-%\clearpage
-
-
-%\thispagestyle{empty}
+\clearpage
 \subsection{Analyzing data}
-\renewcommand{\arraystretch}{1.6}
+\renewcommand{\arraystretch}{1.4}
+%\thispagestyle{empty}
 
 \begin{center}
   
 \begin{threeparttable}
 
-  \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{1.95cm}p{1.8cm}p{1.6cm}}
+  \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
     
     \hline
 
@@ -1643,11 +1641,11 @@ Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\t
 CBS&MPI &124  & ff & 1000 & 313 & 0.14 & 53 \\
 CBS&MPI&64& ff & 1000 & 545 & 0.14 & 51 \\
 CBS&Fork&64&ff&1000&339 & 0.136 & 41 \\
-%% &&&&&&&\\
+&&&&&&&\\
 HaarSeg & MPI &124  & ff & 1000 & 12.3 & 0.145 & 38.5 \\
 HaarSeg & MPI &64  & ff & 1000 & 9.5 & 0.145 & 38.5 \\
 HaarSeg & MPI &12 & ff & 1000 & 36 & 0.144 & 7.2 \\
-%% &&&&&&&\\
+&&&&&&&\\
 HaarSeg & Fork &64  & ff & 1000 & 8 & 0.136 & 35 \\
 HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
 &&&&&&&\\
@@ -1655,15 +1653,11 @@ HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
 &&&&&&&\\
 HaarSeg\tnote{a} & Fork &64  &ff  & 100 & 1.2   &   0.133  &  24.5  \\
 CBS\tnote{a}    & Fork &64  &ff  & 100 & 55.9  &   0.132   &  35.3  \\
-
 % When we just replace NAs by 0: run-sequential-Haar.R
 % HaarSeg & NP &-  &RAM  & 100 & x   &  0.95 + 3.3 + 13.15   &  x\tnote{d}  \\
 HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
 CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
-
 &&&&&&&\\
-
-
 HaarSeg & Fork &64  & ff & 50 & 0.5 & 0.133 & 20.6\\
 HaarSeg & Fork &64  & RAM & 50 & 0.7 + 2.5 + 0.9\tnote{e}& 14.4 & 140\\
 HaarSeg & MPI &64  & ff & 50 & 0.63 & 0.14 & 24.6\\
