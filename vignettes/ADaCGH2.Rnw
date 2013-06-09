@@ -1658,8 +1658,8 @@ CBS\tnote{a}    & Fork &64  &ff  & 100 & 55.9  &   0.132   &  35.3  \\
 
 % When we just replace NAs by 0: run-sequential-Haar.R
 % HaarSeg & NP &-  &RAM  & 100 & x   &  0.95 + 3.3 + 13.15   &  x\tnote{d}  \\
-HaarSeg & NP &-  &RAM  & 100 &  1.5 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
-CBS     & NP &-  &RAM  & 100 & x   &   x   &  x\tnote{d}  \\
+HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
+CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
 
 &&&&&&&\\
 
@@ -1679,7 +1679,7 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
     \item[a] With option \texttt{merging = "none"} to make it comparable
       to the canonical code in the original packages.
 
-     \item[b] 1.5 + 22.9 + 1.4: load data, analyze, and save results. Since
+     \item[b] 0.95 + 22.9 + 1.4: load data, analyze, and save results. Since
       there are missing values in the data, and the original HaarSeg code
       does not deal with missing values, we are forced to remove NAs
       array-per-array, and make repeated calls to the function.
@@ -1687,11 +1687,14 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
       %  which introduce an important penalty. We must do this to make
       % analysis comparable to those of \texttt{pSegmentHaarSeg} that
       % \textbf{always} checks, and allows, for missing values. 
-      If there are
-      no missing values in this data set, the total time of analysis
-      (i.e., sending the whole matrix at once and not checking nor
-      removing NAs) is 3.3 minutes.
-    \item[c] xx + xx + xx: load data, analyze, and save results.
+      If there are no missing values in this data set, the total time of
+      analysis (i.e., sending the whole matrix at once and not checking
+      for, nor removing, NAs) is 3.3 minutes.
+    \item[c] 0.95 + 1698 + 6.7: load data, analyze, and save results. The
+      analysis involves calling the \texttt{CNA} function to create the CNA object
+      (5.3 min), calling the \texttt{smooth.CNA} function to smooth the data
+      and detect outlier (83.2 minutes), and segmenting the data with the
+      \texttt{segment} function (1609.5 minutes).
     \item[d] Since only one process, same as previous column.
     \item[e] 0.7 + 2.5 + 0.9: load data, analyze, and save results.
       }
