@@ -578,13 +578,15 @@ but we set it here explicitly for clarity.
 
 
 <<>>=
-pChromPlot(haar.RAM.fork,
-           cghRDataName = cgh.dat,
-           chromRDataName = chrom.dat,
-           posRDataName = pos.dat,
-           probenamesRDataName = probenames.dat,
-           imgheight = 350,
-           typeParall = "fork")
+if(Sys.info()['sysname'] != "Darwin") {
+  pChromPlot(haar.RAM.fork,
+             cghRDataName = cgh.dat,
+             chromRDataName = chrom.dat,
+             posRDataName = pos.dat,
+             probenamesRDataName = probenames.dat,
+             imgheight = 350,
+             typeParall = "fork")
+}
 @ 
 
 
@@ -903,13 +905,15 @@ the results.
 <<>>=
 save(haar.ff.cluster, file = "hs_mad.out.RData", compress = FALSE)
 
-pChromPlot(outRDataName = "hs_mad.out.RData",
-           cghRDataName = "cghData.RData",
-           chromRDataName = "chromData.RData",
-           posRDataName = "posData.RData",
-           probenamesRDataName = "probeNames.RData",
-           imgheight = 350,
-           typeParall = "cluster")
+if(Sys.info()['sysname'] != "Darwin") {
+  pChromPlot(outRDataName = "hs_mad.out.RData",
+             cghRDataName = "cghData.RData",
+             chromRDataName = "chromData.RData",
+             posRDataName = "posData.RData",
+             probenamesRDataName = "probeNames.RData",
+             imgheight = 350,
+             typeParall = "cluster")
+}
 @ 
 
 
@@ -1225,14 +1229,16 @@ argument \texttt{typeParall}.
 
 <<>>=
 save(haar.ff.fork, file = "haar.ff.fork.RData", compress = FALSE)
+if(Sys.info()['sysname'] != "Darwin") {
 
-pChromPlot(outRDataName = "haar.ff.fork.RData",
-           cghRDataName = "cghData.RData",
-           chromRDataName = "chromData.RData",
-           posRDataName = "posData.RData",
-           probenamesRDataName = "probeNames.RData",
-           imgheight = 350,
-           typeParall = "fork")
+  pChromPlot(outRDataName = "haar.ff.fork.RData",
+             cghRDataName = "cghData.RData",
+             chromRDataName = "chromData.RData",
+             posRDataName = "posData.RData",
+             probenamesRDataName = "probeNames.RData",
+             imgheight = 350,
+             typeParall = "fork")
+}
 @ 
 
 \section{Input and output to/from other packages}
