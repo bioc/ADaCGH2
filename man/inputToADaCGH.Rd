@@ -20,7 +20,8 @@ inputToADaCGH(ff.or.RAM = "RAM",
                       excludefiles = NULL,
                       cloneinfosep = "\t",
                       cloneinfoquote = "\"",
-                      minNumPerChrom = 10)
+                      minNumPerChrom = 10,
+                      verbose = FALSE)
 
 }
 %- maybe also 'usage' for other objects documented here.
@@ -142,6 +143,10 @@ inputToADaCGH(ff.or.RAM = "RAM",
   \item{minNumPerChrom}{If any chromosome has fewer observations than
   minNumPerChrom the function will fail. This can help detect upstream
   pre-processing errors.}
+
+\item{verbose}{If TRUE, provide additional information that can be
+  useful to debug problems. Right now it provides the list of files that
+  will be read if using a directory. The default is FALSE.}
 
 }
 \details{

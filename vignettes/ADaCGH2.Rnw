@@ -1045,16 +1045,24 @@ consumption, we use \textit{ff} objects for intermediate storage.
 
 
 \subsubsection{Cutting the original file into one-column files}
-We provide a simple function, \texttt{cutFile}, to do this job. For
-instance (note that this will NOT work under Windows, and thus we skip
-using \texttt{cutFile} under Windows, and use a directory where we have
-stored the files split by column)
+We provide a simple function, \texttt{cutFile}, to do this job. Here we
+create a directory where we will place the one-column files (we first
+check that the directory does not exist\footnote{If it exists and contains
+files, \texttt{inputToADaCGH} will probably fail, as it is set to read all
+the files in the directory.}). Note that this will NOT work
+under Windows, and thus we skip using \texttt{cutFile} under Windows, and
+use a directory where we have stored the files split by column.
 
 <<>>=
 if(.Platform$OS.type == "unix") {
   fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                           full.names = TRUE, pattern = "inputEx.txt")
-  dir.create("cuttedFile")
+  if(file.exists("cuttedFile")) {
+    stop("The cuttedFile directory already exists.",
+         "Did you run this vignette from this directory before?",
+         "You will not want to do that, unless you modify the arguments",
+         "to inputToADaCGH below")
+  } else dir.create("cuttedFile")
   setwd("cuttedFile")
   cutFile(fnametxt, 1, 2, 3)
   cuttedFile.dir <- getwd()
@@ -1156,7 +1164,8 @@ contraints); see section \ref{very-large-example}.
 
 <<>>=
 inputToADaCGH(ff.or.RAM = "ff",
-              path = cuttedFile.dir)
+              path = cuttedFile.dir,
+              verbose = TRUE)
 @ 
 
 
@@ -1166,6 +1175,10 @@ see six files with names starting with ``col'', which are the data files,
 and the files \texttt{"ID.txt"}, \texttt{"Chrom.txt"}, and
 \texttt{"Pos.txt"}. (That is the directory we would use as input had we
 used Windows.)
+
+Note that, to provide additional information on what we are doing we are
+calling the function with the (non-default) \texttt{verbose = TRUE}, which
+will list all the files we will be reading.
 
 
 

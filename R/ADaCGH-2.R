@@ -1060,19 +1060,20 @@ setColClasses <- function(x) {
 ## FIXME!!: Where is the opening of the chrom position in the ff??
 ## I get a warning, from somewhere
 inputToADaCGH <- function(ff.or.RAM = "RAM",
-                                  robjnames = c("cgh.dat", "chrom.dat",
-                                    "pos.dat", "probenames.dat"),
-                                  ffpattern = paste(getwd(), "/", sep = ""),
-                                  MAList = NULL,
-                                  cloneinfo = NULL,
-                                  RDatafilename = NULL,
-                                  textfilename = NULL,
-                                  dataframe = NULL,
-                                  path = NULL,
-                                  excludefiles = NULL,
-                                  cloneinfosep = "\t",
-                                  cloneinfoquote = "\"",
-                                  minNumPerChrom = 10) {
+                          robjnames = c("cgh.dat", "chrom.dat",
+                            "pos.dat", "probenames.dat"),
+                          ffpattern = paste(getwd(), "/", sep = ""),
+                          MAList = NULL,
+                          cloneinfo = NULL,
+                          RDatafilename = NULL,
+                          textfilename = NULL,
+                          dataframe = NULL,
+                          path = NULL,
+                          excludefiles = NULL,
+                          cloneinfosep = "\t",
+                          cloneinfoquote = "\"",
+                          minNumPerChrom = 10,
+                          verbose = FALSE) {
 
 
   ## We could use eval(substitute or get(
@@ -1107,7 +1108,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
 
   if(!is.null(path)) {
 
-    list.of.files <- list.files(path)
+    list.of.files <- list.files(path, all.files = FALSE, include.dirs = FALSE)
     to.exclude <- c("ID.txt", "Chrom.txt", "Pos.txt")
 
     if(!is.null(excludefiles))
@@ -1117,10 +1118,20 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
 
     cat(paste("\n Note: Directory reading: we will be reading ",
               length(list.of.files),
-              " files, including ID, Chrom, and Pos. \n",
-              " If this is not the correct number of files, stop this process",
-              "verify why  (did cutFiles work correctly? ",
-              "are you using a directory with other files?, etc) and run again.\n"))
+              "\n files, including ID, Chrom, and Pos. \n",
+              "If this is not the correct number of files, \n",
+              "stop this process, verify why  (did cutFiles \n",
+              "work correctly? are you using a directory with\n",
+              "other files?, etc), and run again.\n"))
+    if(verbose) {
+      cat("\n      These are the files we will try to read:\n")
+      cat(paste(list.of.files, collapse = "\n"))
+      cat("\n")
+
+      ## If we really need info, do this
+      ## file.info(list.files(path, full.names = TRUE, all.files = TRUE,
+      ##      include.dirs = TRUE, recursive = TRUE))
+    }
     
     cat("\n   ...  directory reading: reading the ID file \n")
     probeNames <- scan(file  = file.path(path, "ID.txt"),
