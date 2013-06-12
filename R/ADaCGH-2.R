@@ -293,16 +293,20 @@ cutFile <- function(filename,
                          "]' '{print NF}'", sep = ""), intern = TRUE))
     warning("Number of columns not specified. We guess they are ", cols)
   }
-  
-  d1 <- cols %/% cores
-  rr <- cols %% cores
 
-  num.per.cores <- rep(d1, cores)
-  num.per.cores[1:rr] <- num.per.cores[1:rr] + 1
+  if(cols <= cores) {
+    start <- end <- 1:cols
+  } else {
+    d1 <- cols %/% cores
+    rr <- cols %% cores
+    
+    num.per.cores <- rep(d1, cores)
+    num.per.cores[1:rr] <- num.per.cores[1:rr] + 1
+    
+    end <- cumsum(num.per.cores)
+    start <- cumsum(c(1, num.per.cores[-cores]))
+  }
   
-  end <- cumsum(num.per.cores)
-  start <- cumsum(c(1, num.per.cores[-cores]))
-
   delim <- ifelse(colsep == "\t", " ", paste(" -d'", colsep, "' ", sep =""))
   commands <- paste(
     "for i in $(seq ", start, " ", end, "); do cut -f$i", delim,

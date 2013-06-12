@@ -1250,7 +1250,7 @@ expression data. The \texttt{MAList} object, from \textit{Limma} and
 \texttt{SegList} object, from \textit{snapCGH}, are commonly used to store
 aCGH information. The following examples illustrate the usage of the
 function \texttt{inputToADaCGH} to convert \texttt{MAList} and
-\texttt{SrgList} data into a format suitable for \textit{ADaCGH2}.
+\texttt{SegList} data into a format suitable for \textit{ADaCGH2}.
 
 
 We will start with objects produced by \textit{snapCGH}. The following
