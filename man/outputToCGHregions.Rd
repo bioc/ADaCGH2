@@ -129,8 +129,6 @@ if(require(CGHregions)) {
   regions1
 }
 
-
-
 ##################################
 #####
 ##### Using ff objects
@@ -183,69 +181,6 @@ setwd(originalDir)
 Sys.sleep(2)
 unlink("ADaCGH2_cghreg_example_tmp_dir", recursive = TRUE)
 Sys.sleep(2)
-
-
-
-
-
-% snowfallInit(universeSize = 2, typecluster = "SOCK")
-
-% ## To speed up R CMD check, we do not use inputEx1, but a much smaller
-% ## data set. When you try the examples, you might one to use
-% ## inputEx1 instead.
-
-% \dontrun{
-% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
-%                      full.names = TRUE, pattern = "inputEx1")
-% }
-
-
-% fname <- list.files(path = system.file("data", package = "ADaCGH2"),
-%                      full.names = TRUE, pattern = "inputEx2")
-
-
-% tableChromArray <- inputToADaCGH(filename = fname)
-
-% hs_mad.out <- pSegmentHaarSeg("cghData.RData",
-%                            "chromData.RData", merging = "MAD")
-
-% forcghr <- outputToCGHregions(hs_mad.out)
-% if(require(CGHregions)) {
-%   regions1 <- CGHregions(forcghr)
-%   regions1
-% }
-
-% ### Explicitly stop cluster
-% sfStop()
-
-
-% ### Clean up (DO NOT do this with objects you want to keep!!!)
-% load("chromData.RData")
-% load("posData.RData")
-% load("cghData.RData")
-
-% delete(cghData); rm(cghData)
-% delete(posData); rm(posData)
-% delete(chromData); rm(chromData)
-% unlink("chromData.RData")
-% unlink("posData.RData")
-% unlink("cghData.RData")
-% unlink("probeNames.RData")
-
-% lapply(hs_mad.out, delete)
-% rm(hs_mad.out)
-
-% ### Try to prevent problems in R CMD check
-% ### (As a regular user, most likely you do not need this)
-% Sys.sleep(2)
-% detach("package:rlecuyer", unload = TRUE)
-
-
-% ### Delete all files and temp dir
-% setwd(originalDir)
-% Sys.sleep(2)
-% unlink("ADaCGH2_cghreg_example_tmp_dir", recursive = TRUE)
-% Sys.sleep(2)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

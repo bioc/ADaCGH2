@@ -15,10 +15,10 @@ cutFile(filename,
         id.col,
         chrom.col,
         pos.col,
+        sep = "\t",
         cols = NULL, 
         cores = detectCores(),
         delete.columns = NULL,
-        colsep = NULL,
         fork = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -46,6 +46,15 @@ cutFile(filename,
   \item{cols}{The number of columns of the file. If not specified, we
     try to guess it. But guessing can be dangerous.}
 
+
+  \item{sep}{The field or column separator, similar to \code{sep} in
+    \code{read.table}, etc. The default is a tab. A space can be
+    specified as 'sep = " "'. If you use the default in, say,
+    \code{read.table}, which is 'sep = ""', then multiple
+    consecutive tab or space field separators are taken as one ---this
+    is also the behavior in \code{read.table} or awk, which is what we
+    use.}
+  
   \item{cores}{The number of processes to launch simultaneously. }
   
   \item{delete.columns}{The number of the columns (starting from 1) that
@@ -55,11 +64,6 @@ cutFile(filename,
     unwanted columns will mean that we are doing many unwanted calls to
     cut.}
 
-  \item{colsep}{The column separator, similar to \code{sep} in
-    \code{read.table}, etc. However, only a single character can be used
-    (e.g., you can use a single space and specify as " ", or a tab
-    specified as "\\t", or a comma as ",", etc). If NULL, we will try to
-    guess if it is either a tab or a space.}
 
   \item{fork}{Should we fork R processes, via mclapply, or just send
   several system commands from this R process. The default (FALSE) is
@@ -69,8 +73,8 @@ cutFile(filename,
 }
 \details{ This function is unlikely to work under Windows unless MinGW
   or similar are installed (and even then it might not work). This
-  function basically calls "cut" and "awk" using \code{system}, and
-  trying to divide all the job into as many cores as you specify
+  function basically calls "head" and "awk" using \code{system}, and
+  trying to divide all the jobs into as many cores as you specify
   (argument \code{cores}). %% There
   %% are many ways in which this function can fail.
 }
@@ -115,7 +119,7 @@ if(.Platform$OS.type == "unix") {
 
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
-cutFile(fnametxt, 1, 2, 3)
+cutFile(fnametxt, 1, 2, 3, sep = "\t")
 
 ## Verify we have ID, Chrom, Pos
 c("ID.txt", "Chrom.txt", "Pos.txt") \%in\% list.files(getwd())
@@ -130,7 +134,7 @@ c("col_5.txt") \%in\% list.files(getwd())
 
 fnametxt2 <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx-sp.txt")
-cutFile(fnametxt2, 1, 2, 3, delete.columns = 5)
+cutFile(fnametxt2, 1, 2, 3, sep = " ", delete.columns = 5)
 
 }
 }

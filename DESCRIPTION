@@ -1,6 +1,6 @@
 Package: ADaCGH2
 Version: 2.1.0
-Date: 2013-06-12 16:48
+Date: 2013-06-14 3:00
 Title: Analysis of data from aCGH experiments using parallel computing and ff objects
 Author: Ramon Diaz-Uriarte <rdiaz02@gmail.com>, Oscar M. Rueda <rueda.om@gmail.com>. Wavelet-based aCGH smoothing code from Li Hsu <lih@fhcrc.org> and Douglas Grove <dgrove@fhcrc.org>. Imagemap code from Barry Rowlingson <B.Rowlingson@lancaster.ac.uk>. HaarSeg code from Erez Ben-Yaacov; downloaded from <http://www.ee.technion.ac.il/people/YoninaEldar/Info/software/HaarSeg.htm>
 Maintainer: Ramon Diaz-Uriarte <rdiaz02@gmail.com>

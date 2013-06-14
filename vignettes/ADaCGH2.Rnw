@@ -578,15 +578,13 @@ but we set it here explicitly for clarity.
 
 
 <<>>=
-if(Sys.info()['sysname'] != "Darwin") {
-  pChromPlot(haar.RAM.fork,
-             cghRDataName = cgh.dat,
-             chromRDataName = chrom.dat,
-             posRDataName = pos.dat,
-             probenamesRDataName = probenames.dat,
-             imgheight = 350,
-             typeParall = "fork")
-}
+pChromPlot(haar.RAM.fork,
+           cghRDataName = cgh.dat,
+           chromRDataName = chrom.dat,
+           posRDataName = pos.dat,
+           probenamesRDataName = probenames.dat,
+           imgheight = 350,
+           typeParall = "fork")
 @ 
 
 
@@ -905,15 +903,13 @@ the results.
 <<>>=
 save(haar.ff.cluster, file = "hs_mad.out.RData", compress = FALSE)
 
-if(Sys.info()['sysname'] != "Darwin") {
-  pChromPlot(outRDataName = "hs_mad.out.RData",
-             cghRDataName = "cghData.RData",
-             chromRDataName = "chromData.RData",
-             posRDataName = "posData.RData",
-             probenamesRDataName = "probeNames.RData",
-             imgheight = 350,
-             typeParall = "cluster")
-}
+pChromPlot(outRDataName = "hs_mad.out.RData",
+           cghRDataName = "cghData.RData",
+           chromRDataName = "chromData.RData",
+           posRDataName = "posData.RData",
+           probenamesRDataName = "probeNames.RData",
+           imgheight = 350,
+           typeParall = "cluster")
 @ 
 
 
@@ -1068,7 +1064,7 @@ if(.Platform$OS.type == "unix") {
          "to inputToADaCGH below")
   } else dir.create("cuttedFile")
   setwd("cuttedFile")
-  cutFile(fnametxt, 1, 2, 3)
+  cutFile(fnametxt, 1, 2, 3, sep = "\t")
   cuttedFile.dir <- getwd()
   setwd("../")
 } else {
@@ -1117,7 +1113,7 @@ work under Windows.
 
 If you do not want to use \texttt{cutFile} you can use utilities provided
 by your operating system. The following is a very simple example of using
-\texttt{cut} under bash (which is similar to what we do internally in
+\texttt{cut} under bash (which is not unlike what we do internally in
 \texttt{cutFile}) to produce one-column files from a file called
 \texttt{Data.txt}, with 77 arrays/subjects, where cutting the data part is
 parallelized over four processors:
@@ -1229,16 +1225,14 @@ argument \texttt{typeParall}.
 
 <<>>=
 save(haar.ff.fork, file = "haar.ff.fork.RData", compress = FALSE)
-if(Sys.info()['sysname'] != "Darwin") {
 
-  pChromPlot(outRDataName = "haar.ff.fork.RData",
-             cghRDataName = "cghData.RData",
-             chromRDataName = "chromData.RData",
-             posRDataName = "posData.RData",
-             probenamesRDataName = "probeNames.RData",
-             imgheight = 350,
-             typeParall = "fork")
-}
+pChromPlot(outRDataName = "haar.ff.fork.RData",
+           cghRDataName = "cghData.RData",
+           chromRDataName = "chromData.RData",
+           posRDataName = "posData.RData",
+           probenamesRDataName = "probeNames.RData",
+           imgheight = 350,
+           typeParall = "fork")
 @ 
 
 \section{Input and output to/from other packages}

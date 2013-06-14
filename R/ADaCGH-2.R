@@ -263,37 +263,30 @@ cutFile <- function(filename,
                     id.col,
                     chrom.col,
                     pos.col,
+                    sep = "\t",
                     cols = NULL, 
                     cores = detectCores(),
                     delete.columns = NULL,
-                    colsep = NULL,
                     fork = FALSE) {
-  ## for systems with sh
 
-  if(is.null(colsep)) {
-    c1 <- as.numeric(system(paste("head -n 1 ", filename,
-                                  " | awk -F'[/", " ",
-                                  "]' '{print NF}'", sep = ""), intern = TRUE))
-    c2 <- as.numeric(system(paste("head -n 1 ", filename,
-                                  " | awk -F'[/", "\t",
-                                  "]' '{print NF}'", sep = ""), intern = TRUE))
-    if( c1 == c2) {
-      stop("Cannot guess column separator.")
-    } else {
-      if( c1 == 1 ) colsep <- "\t"
-      if( c2 == 1 ) colsep <- " "
-    }
-    warning("colsep (column separator) not specified. ",
-            "We guess it is ", ifelse(colsep == " ", "a space", "a tab"))
+  colsep <- sep ## for my own sanity
+
+  if(colsep == "") {
+    awksep <- "{FS = \" \"} "
+    warning('When sep = \"\" multiple consecutive field separators are taken as one')
+  } else if(colsep == " "){
+    awksep <- "{FS = \"[ ]\"} "
+  } else {
+    awksep <- paste("{FS = \"", colsep, "\"}", sep = "")
   }
   
   if(is.null(cols)) {
-    cols <- as.numeric(system(paste("head -n 1 ", filename,
-                                    " | awk -F'[/", colsep,
-                         "]' '{print NF}'", sep = ""), intern = TRUE))
+    awkline <- paste("awk 'BEGIN ", awksep, " ; {print NF}'")
+    cols <- as.numeric(system(paste("head -n 1 ", filename, " | ",
+                                    awkline, sep = ""), intern = TRUE))
     warning("Number of columns not specified. We guess they are ", cols)
   }
-
+  
   if(cols <= cores) {
     start <- end <- 1:cols
   } else {
@@ -307,10 +300,12 @@ cutFile <- function(filename,
     start <- cumsum(c(1, num.per.cores[-cores]))
   }
   
-  delim <- ifelse(colsep == "\t", " ", paste(" -d'", colsep, "' ", sep =""))
+  awkline <- paste("awk -v pos=\"$i\" 'BEGIN ", awksep,
+                   "; {print $pos > (\"col_\"pos\".txt\")}' ", sep = "")
+  
   commands <- paste(
-    "for i in $(seq ", start, " ", end, "); do cut -f$i", delim,
-    filename, " > col_$i.txt; done", sep = ""
+    "for i in $(seq ", start, " ", end, "); do ",
+    awkline, filename, " ; done", sep = ""
     )
 
   if(fork) {
@@ -336,8 +331,8 @@ cutFile <- function(filename,
   asc <- paste("mv col_", c(id.col, chrom.col, pos.col), ".txt ",
                c("ID.txt", "Chrom.txt", "Pos.txt"), sep = "")
   sapply(asc, function(x) system(x, ignore.stdout = TRUE))
-
-##  cat("You can now call 'inputToADaCGH' as follows")
+  
+  ##  cat("You can now call 'inputToADaCGH' as follows")
 }
 
 

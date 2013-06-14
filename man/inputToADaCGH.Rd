@@ -273,17 +273,6 @@ inputToADaCGH(ff.or.RAM = "RAM",
 inputToADaCGH(ff.or.RAM = "ff",
                       path = namepath)
 
-
-
-% FIXME: and RData -> RAM? This would be silly. But do something about it?
-% It works (seems to work)
-% inputToADaCGH(ff.or.RAM = "RAM",
-%                       RDatafilename = fnameRData)
-
-
-
-
-
 ### Clean up (DO NOT do this with objects you want to keep!!!)
 load("chromData.RData")
 load("posData.RData")
@@ -301,6 +290,7 @@ unlink("probeNames.RData")
 ### Running in a separate process. Only makes sense
 ### if returning ff objects (ff.or.RAM = "ff")
 ### This example will not work on Windows
+
 \dontrun{
 mcparallel(inputToADaCGH(ff.or.RAM = "ff",
                                  RDatafilename = fnameRData),
@@ -334,3 +324,14 @@ Sys.sleep(2)
 
 }
 \keyword{ IO }
+
+
+
+
+
+
+% FIXME: and RData -> RAM? This would be silly. But do something about it?
+% It works (seems to work)
+% inputToADaCGH(ff.or.RAM = "RAM",
+%                       RDatafilename = fnameRData)
+
