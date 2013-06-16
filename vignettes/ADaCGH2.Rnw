@@ -1048,13 +1048,16 @@ consumption, we use \textit{ff} objects for intermediate storage.
 We provide a simple function, \texttt{cutFile}, to do this job. Here we
 create a directory where we will place the one-column files (we first
 check that the directory does not exist\footnote{If it exists and contains
-files, \texttt{inputToADaCGH} will probably fail, as it is set to read all
-the files in the directory.}). Note that this will NOT work
-under Windows, and thus we skip using \texttt{cutFile} under Windows, and
-use a directory where we have stored the files split by column.
+  files, \texttt{inputToADaCGH} will probably fail, as it is set to read
+  all the files in the directory.}). Note that this will probably NOT work
+under Windows%% \footnote{Under Macs it might or might not work; in all of
+  %% the Macs we have access to it works, but not on the testing machine at
+  %% BioC}
+, and thus we skip using \texttt{cutFile} under Windows, and use a
+directory where we have stored the files split by column.
 
 <<>>=
-if(.Platform$OS.type == "unix") {
+if( .Platform$OS.type == "unix") {
   fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                           full.names = TRUE, pattern = "inputEx.txt")
   if(file.exists("cuttedFile")) {
@@ -1072,6 +1075,29 @@ if(.Platform$OS.type == "unix") {
                                  package = "ADaCGH2")
 }
 @ 
+
+
+
+%% <<>>=
+%% if( (.Platform$OS.type == "unix") && (Sys.info()['sysname'] != "Darwin") ) {
+%%   fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
+%%                           full.names = TRUE, pattern = "inputEx.txt")
+%%   if(file.exists("cuttedFile")) {
+%%     stop("The cuttedFile directory already exists.",
+%%          "Did you run this vignette from this directory before?",
+%%          "You will not want to do that, unless you modify the arguments",
+%%          "to inputToADaCGH below")
+%%   } else dir.create("cuttedFile")
+%%   setwd("cuttedFile")
+%%   cutFile(fnametxt, 1, 2, 3, sep = "\t")
+%%   cuttedFile.dir <- getwd()
+%%   setwd("../")
+%% } else {
+%%   cuttedFile.dir <- system.file("example-datadir", 
+%%                                  package = "ADaCGH2")
+%% }
+%% @ 
+
 
 We create a new directory and carry out the file cutting there since the
 upper level directory is already populated with other files we have been
@@ -1401,7 +1427,8 @@ particular, you probably do NOT want to use this function when
 \texttt{pSegment} has been called using \texttt{merging = "none"}.
 
 
-<<echo=FALSE>>=
+<<>>=
+## We are done with the executable code in the vignette.
 ## Restore the directory
 setwd(originalDir)
 @
@@ -1554,7 +1581,7 @@ For the two tables below, the meaning of columns is as follows:
     ``NP'' entries refer to non-parallelized execution, using the original
     packages\footnote{The packages are DNAcopy, as available from
       BioConductor, and the HaarSeg package, available from R-forge:
-      \url{https://r-forge.r-project.org/projects/haarseg/}}.
+      \url{https://r-forge.r-project.org/projects/haarseg/}; \cite{haar}}.
 \item[Cores] Number of cores, and machine. 64: 64 cores in a single node
   of the Dell PowerEdge C6145. 124: 124 cores, using both nodes of the
   Dell PowerEdge. 12: 12 cores in the Z800 HP Workstation.
@@ -1659,7 +1686,14 @@ HaarSeg & MPI &124  & ff & 1000 & 12.3 & 0.145 & 38.5 \\
 HaarSeg & MPI &64  & ff & 1000 & 9.5 & 0.145 & 38.5 \\
 HaarSeg & MPI &12 & ff & 1000 & 36 & 0.144 & 7.2 \\
 &&&&&&&\\
-HaarSeg & Fork &64  & ff & 1000 & 8 & 0.136 & 35 \\
+HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
+HaarSeg & Fork &20\tnote{f} & ff & 1000 & 17.4 & 0.142 & 10.0 \\
+HaarSeg & Fork &40\tnote{f}  & ff & 1000 & 10.2 & 0.142 & 17.5 \\
+HaarSeg & Fork &50\tnote{f}  & ff & 1000 & 8.8 & 0.142 & 21.7 \\
+
+&&&&&&&\\
+
+HaarSeg & Fork &64  & ff & 1000 & 7.9 & 0.14 & 27 \\
 HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
 &&&&&&&\\
 HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
@@ -1704,14 +1738,45 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
       \texttt{segment} function (1609.5 minutes).
     \item[d] Since only one process, same as previous column.
     \item[e] 0.7 + 2.5 + 0.9: load data, analyze, and save results.
+    \item[f] These examples have been run on the Dell Power Edges, but
+      changing the number of cores used.
       }
   \end{tablenotes}
 
 \end{threeparttable}
 \end{center}
 
-
 \clearpage
+
+
+%% \renewcommand{\arraystretch}{1.4}
+%% %\thispagestyle{empty}
+
+%% \begin{center}
+  
+%% \begin{table}
+%% \caption{Further benchmarks on the Dell Opterons, with varying numbers of
+%%   cores used}
+%%   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
+    
+%%     \hline
+
+%% Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
+
+%% \hline
+
+%% HaarSeg & Fork &64  & ff & 1000 & 8 & 0.136 & 35 \\
+%% HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
+%% \hline
+   
+%%   \end{tabular}
+
+%% \end{table}
+%% \end{center}
+
+%% \clearpage
+
+
 \subsection{Comments and recommended usage patterns}
 \label{commentsend}
 \begin{enumerate}

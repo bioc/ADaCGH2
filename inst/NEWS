@@ -1,3 +1,8 @@
+Changes in version 2.1.1 (2013-06-16)
+       - Many small changes and adaptations in vignette and help to get it
+       to work unded Win and Mac.
+       - Changes in cutFile to try and get it to run under Mac.
+
 Changes in version 2.1.0 (2013-05-30)
        - This is a major rewrite of a most of the code, has new
        functions, major changes in existing functions, new vignettes, etc.

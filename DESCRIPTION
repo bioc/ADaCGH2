@@ -1,10 +1,10 @@
 Package: ADaCGH2
-Version: 2.1.0
-Date: 2013-06-14 3:00
+Version: 2.1.1
+Date: 2013-06-16 10:37
 Title: Analysis of data from aCGH experiments using parallel computing and ff objects
 Author: Ramon Diaz-Uriarte <rdiaz02@gmail.com>, Oscar M. Rueda <rueda.om@gmail.com>. Wavelet-based aCGH smoothing code from Li Hsu <lih@fhcrc.org> and Douglas Grove <dgrove@fhcrc.org>. Imagemap code from Barry Rowlingson <B.Rowlingson@lancaster.ac.uk>. HaarSeg code from Erez Ben-Yaacov; downloaded from <http://www.ee.technion.ac.il/people/YoninaEldar/Info/software/HaarSeg.htm>
 Maintainer: Ramon Diaz-Uriarte <rdiaz02@gmail.com>
-Depends: R (>= 2.11.0), tilingArray, aCGH, waveslim, cluster, snapCGH,
+Depends: R (>= 2.15.0), tilingArray, aCGH, waveslim, cluster, snapCGH,
 	 ff, ffbase, parallel
 Suggests: GLAD, DNAcopy, CGHregions, Cairo
 Enhances: Rmpi
