@@ -1603,7 +1603,7 @@ C6145 (64 cores).
 
 \begin{center}
 \begin{threeparttable}
-  
+  \caption{Time and memory usage when reading data}    
 
   \begin{tabular}{p{3.52cm}p{1.8cm}p{1.8cm}p{2.65cm}p{3.4cm}}
  
@@ -1670,7 +1670,7 @@ Directory to data frame (RAM object) & 50 & 5.8 + 0.1\tnote{e} & 5.8 & 27 \\
   
 \begin{threeparttable}
 
-  \caption{Time and memory usage with default options}    
+  \caption{Time and memory usage of segmentation with default options}    
   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
 
     \hline
@@ -1755,9 +1755,9 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 \begin{center}
 \begin{threeparttable}
 
-  \caption{Time and memory usage without merging and comparison with
-    non-parallized executions. These examples have all been run on the
-    Dell Power Edges.}    
+  \caption{Time and memory usage of segmentation without merging and
+    comparison with non-parallized executions. These examples have all
+    been run on the Dell Power Edges.}
   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
 
     \hline
@@ -1819,7 +1819,7 @@ CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{
 
 
 
-
+\clearpage
 
 
 
