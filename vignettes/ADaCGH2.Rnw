@@ -1050,20 +1050,42 @@ create a directory where we will place the one-column files (we first
 check that the directory does not exist\footnote{If it exists and contains
   files, \texttt{inputToADaCGH} will probably fail, as it is set to read
   all the files in the directory.}). Note that this will probably NOT work
-under Windows%% \footnote{Under Macs it might or might not work; in all of
-  %% the Macs we have access to it works, but not on the testing machine at
-  %% BioC}
+under Windows\footnote{Under Macs it might or might not work; in all of
+  the Macs we have tried it, it works, but not on the testing machine at
+  BioC.}
 , and thus we skip using \texttt{cutFile} under Windows, and use a
 directory where we have stored the files split by column.
 
+% <<>>=
+% if( .Platform$OS.type == "unix") {
+%   fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
+%                           full.names = TRUE, pattern = "inputEx.txt")
+%   if(file.exists("cuttedFile")) {
+%     stop("The cuttedFile directory already exists.",
+%          "Did you run this vignette from this directory before?",
+%          "You will not want to do that, unless you modify the arguments",
+%          "to inputToADaCGH below")
+%   } else dir.create("cuttedFile")
+%   setwd("cuttedFile")
+%   cutFile(fnametxt, 1, 2, 3, sep = "\t")
+%   cuttedFile.dir <- getwd()
+%   setwd("../")
+% } else {
+%   cuttedFile.dir <- system.file("example-datadir", 
+%                                  package = "ADaCGH2")
+% }
+% @ 
+
+
+
 <<>>=
-if( .Platform$OS.type == "unix") {
+if( (.Platform$OS.type == "unix") && (Sys.info()['sysname'] != "Darwin") ) {
   fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                           full.names = TRUE, pattern = "inputEx.txt")
   if(file.exists("cuttedFile")) {
-    stop("The cuttedFile directory already exists.",
-         "Did you run this vignette from this directory before?",
-         "You will not want to do that, unless you modify the arguments",
+    stop("The cuttedFile directory already exists. ",
+         "Did you run this vignette from this directory before? ",
+         "You will not want to do that, unless you modify the arguments ",
          "to inputToADaCGH below")
   } else dir.create("cuttedFile")
   setwd("cuttedFile")
@@ -1075,28 +1097,6 @@ if( .Platform$OS.type == "unix") {
                                  package = "ADaCGH2")
 }
 @ 
-
-
-
-%% <<>>=
-%% if( (.Platform$OS.type == "unix") && (Sys.info()['sysname'] != "Darwin") ) {
-%%   fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
-%%                           full.names = TRUE, pattern = "inputEx.txt")
-%%   if(file.exists("cuttedFile")) {
-%%     stop("The cuttedFile directory already exists.",
-%%          "Did you run this vignette from this directory before?",
-%%          "You will not want to do that, unless you modify the arguments",
-%%          "to inputToADaCGH below")
-%%   } else dir.create("cuttedFile")
-%%   setwd("cuttedFile")
-%%   cutFile(fnametxt, 1, 2, 3, sep = "\t")
-%%   cuttedFile.dir <- getwd()
-%%   setwd("../")
-%% } else {
-%%   cuttedFile.dir <- system.file("example-datadir", 
-%%                                  package = "ADaCGH2")
-%% }
-%% @ 
 
 
 We create a new directory and carry out the file cutting there since the
@@ -1670,8 +1670,9 @@ Directory to data frame (RAM object) & 50 & 5.8 + 0.1\tnote{e} & 5.8 & 27 \\
   
 \begin{threeparttable}
 
+  \caption{Time and memory usage with default options}    
   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
-    
+
     \hline
 
 Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
@@ -1681,29 +1682,31 @@ Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\t
 CBS&MPI &124  & ff & 1000 & 313 & 0.14 & 53 \\
 CBS&MPI&64& ff & 1000 & 545 & 0.14 & 51 \\
 CBS&Fork&64&ff&1000&339 & 0.136 & 41 \\
+CBS&Fork&12&ff&1000&1181.1 & 0.142 & xx \\
+
 &&&&&&&\\
 HaarSeg & MPI &124  & ff & 1000 & 12.3 & 0.145 & 38.5 \\
 HaarSeg & MPI &64  & ff & 1000 & 9.5 & 0.145 & 38.5 \\
 HaarSeg & MPI &12 & ff & 1000 & 36 & 0.144 & 7.2 \\
-&&&&&&&\\
-HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
-HaarSeg & Fork &20\tnote{f} & ff & 1000 & 17.4 & 0.142 & 10.0 \\
-HaarSeg & Fork &40\tnote{f}  & ff & 1000 & 10.2 & 0.142 & 17.5 \\
-HaarSeg & Fork &50\tnote{f}  & ff & 1000 & 8.8 & 0.142 & 21.7 \\
-
-&&&&&&&\\
-
 HaarSeg & Fork &64  & ff & 1000 & 7.9 & 0.14 & 27 \\
 HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
 &&&&&&&\\
+% HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
+% HaarSeg & Fork &20\tnote{f} & ff & 1000 & 17.4 & 0.142 & 10.0 \\
+% HaarSeg & Fork &40\tnote{f}  & ff & 1000 & 10.2 & 0.142 & 17.5 \\
+% HaarSeg & Fork &50\tnote{f}  & ff & 1000 & 8.8 & 0.142 & 21.7 \\
+
+&&&&&&&\\
+
+&&&&&&&\\
 HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
 &&&&&&&\\
-HaarSeg\tnote{a} & Fork &64  &ff  & 100 & 1.2   &   0.133  &  24.5  \\
-CBS\tnote{a}    & Fork &64  &ff  & 100 & 55.9  &   0.132   &  35.3  \\
+% HaarSeg\tnote{a} & Fork &64  &ff  & 100 & 1.2   &   0.133  &  24.5  \\
+% CBS\tnote{a}    & Fork &64  &ff  & 100 & 55.9  &   0.132   &  35.3  \\
 % When we just replace NAs by 0: run-sequential-Haar.R
 % HaarSeg & NP &-  &RAM  & 100 & x   &  0.95 + 3.3 + 13.15   &  x\tnote{d}  \\
-HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
-CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
+% HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
+% CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
 &&&&&&&\\
 HaarSeg & Fork &64  & ff & 50 & 0.5 & 0.133 & 20.6\\
 HaarSeg & Fork &64  & RAM & 50 & 0.7 + 2.5 + 0.9\tnote{e}& 14.4 & 140\\
@@ -1719,6 +1722,76 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
     {\footnotesize
     \item[a] With option \texttt{merging = "none"} to make it comparable
       to the canonical code in the original packages.
+
+    %  \item[b] 0.95 + 22.9 + 1.4: load data, analyze, and save results. Since
+    %   there are missing values in the data, and the original HaarSeg code
+    %   does not deal with missing values, we are forced to remove NAs
+    %   array-per-array, and make repeated calls to the function.
+    %   % , both o
+    %   %  which introduce an important penalty. We must do this to make
+    %   % analysis comparable to those of \texttt{pSegmentHaarSeg} that
+    %   % \textbf{always} checks, and allows, for missing values. 
+    %   If there are no missing values in this data set, the total time of
+    %   analysis (i.e., sending the whole matrix at once and not checking
+    %   for, nor removing, NAs) is 3.3 minutes.
+    % \item[c] 0.95 + 1698 + 6.7: load data, analyze, and save results. The
+    %   analysis involves calling the \texttt{CNA} function to create the CNA object
+    %   (5.3 min), calling the \texttt{smooth.CNA} function to smooth the data
+    %   and detect outlier (83.2 minutes), and segmenting the data with the
+    %   \texttt{segment} function (1609.5 minutes).
+    \item[d] Since only one process, same as previous column.
+    \item[e] 0.7 + 2.5 + 0.9: load data, analyze, and save results.
+    % \item[f] These examples have been run on the Dell Power Edges, but
+    %   changing the number of cores used.
+    }
+  \end{tablenotes}
+
+\end{threeparttable}
+\end{center}
+
+\clearpage
+
+
+\begin{center}
+\begin{threeparttable}
+
+  \caption{Time and memory usage without merging and comparison with
+    non-parallized executions. These examples have all been run on the
+    Dell Power Edges.}    
+  \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
+
+    \hline
+
+Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
+
+\hline
+
+HaarSeg & Fork &10  & ff & 1000 &23.5 & 0.142 & 5.9 \\
+HaarSeg & Fork &20 & ff & 1000 & 12.3 & 0.137 & 10.0 \\
+HaarSeg & Fork &40  & ff & 1000 & 7.4 & 0.142 & 17.6 \\
+HaarSeg & Fork &50  & ff & 1000 & 6.7 & 0.139 & 21.2 \\
+HaarSeg & Fork & 64  & ff & 1000 & 6.4 & 0.142 & 26.9 \\
+
+&&&&&&&\\
+
+% CBS & Fork &10  & ff & 1000 &xxxx & xxxxx & xxx \\
+CBS & Fork &20 & ff & 1000 & 939.8 & 0.135 & 14.9 \\
+CBS & Fork &40  & ff & 1000 & 513.5 & 0.136 & 27.0 \\
+CBS & Fork &50  & ff & 1000 & 438.6 & 0.142 & 33.1 \\
+CBS & Fork & 64  & ff & 1000 & 350.3 & 0.142 & 41.3 \\
+
+&&&&&&&\\
+
+
+HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
+CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
+
+\hline
+   
+  \end{tabular}
+
+  \begin{tablenotes}
+    {\footnotesize
 
      \item[b] 0.95 + 22.9 + 1.4: load data, analyze, and save results. Since
       there are missing values in the data, and the original HaarSeg code
@@ -1736,17 +1809,18 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
       (5.3 min), calling the \texttt{smooth.CNA} function to smooth the data
       and detect outlier (83.2 minutes), and segmenting the data with the
       \texttt{segment} function (1609.5 minutes).
-    \item[d] Since only one process, same as previous column.
-    \item[e] 0.7 + 2.5 + 0.9: load data, analyze, and save results.
-    \item[f] These examples have been run on the Dell Power Edges, but
-      changing the number of cores used.
+    % \item[f] These examples have been run on the Dell Power Edges, but
+    %   changing the number of cores used.
       }
   \end{tablenotes}
 
 \end{threeparttable}
 \end{center}
 
-\clearpage
+
+
+
+
 
 
 %% \renewcommand{\arraystretch}{1.4}

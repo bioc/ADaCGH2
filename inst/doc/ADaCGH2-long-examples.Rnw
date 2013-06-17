@@ -170,24 +170,26 @@ parallel::clusterEvalQ(NULL, setwd(wdir))
 
 
 <<>>=
-cbs.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat)
+cbs.mergel.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat, 
+                                            merging = "mergeLevels")
 cbs.mad.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat,merging = "MAD")
 cbs.none.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat, merging = "none")
 
-hmm.RAM.fork <- pSegmentHMM(cgh.dat, chrom.dat, merging = "mergeLevels")
+hmm.mergel.RAM.fork <- pSegmentHMM(cgh.dat, chrom.dat, merging = "mergeLevels")
 hmm.mad.RAM.fork <- pSegmentHMM(cgh.dat, chrom.dat, merging = "MAD")
 
-
-hs.ml.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+hs.mergel.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
                              merging = "mergeLevels")
 hs.mad.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
                              merging = "MAD")
+hs.none.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "none")
 
 
 glad.RAM.fork <- pSegmentGLAD(cgh.dat, chrom.dat)
 
 
-biohmm.RAM.fork <- pSegmentBioHMM(cgh.dat,
+biohmm.mergel.RAM.fork <- pSegmentBioHMM(cgh.dat,
                                 chrom.dat,
                                 pos.dat,
                                 merging = "mergeLevels")
@@ -201,7 +203,7 @@ biohmm.mad.bic.RAM.fork <- pSegmentBioHMM(cgh.dat,
                                             merging = "MAD",
                                             aic.or.bic = "BIC")
 
-cghseg.merge.RAM.fork <- pSegmentCGHseg(cgh.dat,
+cghseg.mergel.RAM.fork <- pSegmentCGHseg(cgh.dat,
                                           chrom.dat,
                                           merging = "mergeLevels")
 
@@ -214,7 +216,7 @@ cghseg.none.RAM.fork <- pSegmentCGHseg(cgh.dat,
                                          merging = "none")
 
 
-waves.merge.RAM.fork <- pSegmentWavelets(cgh.dat,
+waves.mergel.RAM.fork <- pSegmentWavelets(cgh.dat,
                            chrom.dat, merging = "mergeLevels")
 waves.mad.RAM.fork <- pSegmentWavelets(cgh.dat,
                                          chrom.dat, merging = "MAD")
@@ -246,7 +248,8 @@ contain the \textit{ff} objects).
 
 <<>>=
 
-cbs.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+cbs.mergel.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+                                  merging = "mergeLevels",
                                   typeParall = "cluster")
 cbs.mad.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData",
                                       merging = "MAD",
@@ -255,7 +258,7 @@ cbs.none.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData",
                                        merging = "none", 
                                        typeParall = "cluster")
 
-hmm.ff.cluster <- pSegmentHMM("cghData.RData", "chromData.RData", 
+hmm.mergel.ff.cluster <- pSegmentHMM("cghData.RData", "chromData.RData", 
                               merging = "mergeLevels", 
                               typeParall = "cluster")
 hmm.mad.ff.cluster <- pSegmentHMM("cghData.RData", "chromData.RData", 
@@ -263,18 +266,20 @@ hmm.mad.ff.cluster <- pSegmentHMM("cghData.RData", "chromData.RData",
                                   typeParall = "cluster")
 
 
-hs.ml.ff.cluster <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+hs.mergel.ff.cluster <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
                              merging = "mergeLevels", 
                                     typeParall = "cluster")
 hs.mad.ff.cluster <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
                              merging = "MAD", typeParall = "cluster")
+hs.none.ff.cluster <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                             merging = "none", typeParall = "cluster")
 
 
 glad.ff.cluster <- pSegmentGLAD("cghData.RData", "chromData.RData", 
                                 typeParall = "cluster")
 
 
-biohmm.ff.cluster <- pSegmentBioHMM("cghData.RData",
+biohmm.mergel.ff.cluster <- pSegmentBioHMM("cghData.RData",
                                 "chromData.RData",
                                 "posData.RData",
                                 merging = "mergeLevels", 
@@ -291,7 +296,7 @@ biohmm.mad.bic.ff.cluster <- pSegmentBioHMM("cghData.RData",
                                             aic.or.bic = "BIC", 
                                             typeParall = "cluster")
 
-cghseg.merge.ff.cluster <- pSegmentCGHseg("cghData.RData",
+cghseg.mergel.ff.cluster <- pSegmentCGHseg("cghData.RData",
                                           "chromData.RData",
                                           merging = "mergeLevels", 
                                           typeParall = "cluster")
@@ -307,7 +312,7 @@ cghseg.none.ff.cluster <- pSegmentCGHseg("cghData.RData",
                                          typeParall = "cluster")
 
 
-waves.merge.ff.cluster <- pSegmentWavelets("cghData.RData",
+waves.mergel.ff.cluster <- pSegmentWavelets("cghData.RData",
                                            "chromData.RData", 
                                            merging = "mergeLevels", 
                                            typeParall = "cluster")
@@ -341,7 +346,8 @@ The main difference with section \ref{allex-ff-cluster} is the argument
 
 
 <<>>=
-cbs.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+cbs.mergel.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
+                                      merging = "mergeLevels",
                                   typeParall = "fork")
 cbs.mad.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData",
                                    merging = "MAD",
@@ -349,24 +355,25 @@ cbs.mad.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData",
 cbs.none.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
                                     merging = "none", typeParall = "fork")
 
-hmm.ff.fork <- pSegmentHMM("cghData.RData", "chromData.RData", 
+hmm.mergel.ff.fork <- pSegmentHMM("cghData.RData", "chromData.RData", 
                            merging = "mergeLevels", typeParall = "fork")
 
 hmm.mad.ff.fork <- pSegmentHMM("cghData.RData", "chromData.RData", 
                                merging = "MAD", typeParall = "fork")
 
 
-hs.ml.ff.fork <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+hs.mergel.ff.fork <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
                              merging = "mergeLevels", typeParall = "fork")
 hs.mad.ff.fork <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
                              merging = "MAD", typeParall = "fork")
-
+hs.none.ff.fork <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                             merging = "none", typeParall = "fork")
 
 glad.ff.fork <- pSegmentGLAD("cghData.RData", "chromData.RData", 
                              typeParall = "fork")
 
 
-biohmm.ff.fork <- pSegmentBioHMM("cghData.RData",
+biohmm.mergel.ff.fork <- pSegmentBioHMM("cghData.RData",
                                 "chromData.RData",
                                 "posData.RData",
                                 merging = "mergeLevels", 
@@ -383,7 +390,7 @@ biohmm.mad.bic.ff.fork <- pSegmentBioHMM("cghData.RData",
                                             aic.or.bic = "BIC", 
                                          typeParall = "fork")
 
-cghseg.merge.ff.fork <- pSegmentCGHseg("cghData.RData",
+cghseg.mergel.ff.fork <- pSegmentCGHseg("cghData.RData",
                                           "chromData.RData",
                                           merging = "mergeLevels", 
                                        typeParall = "fork")

@@ -73,8 +73,12 @@ cutFile(filename,
 }
 \details{ This function is unlikely to work under Windows unless MinGW
   or similar are installed (and even then it might not work). This
-  function basically calls "head" and "awk" using \code{system}, and
-  trying to divide all the jobs into as many cores as you specify
+  function should work under Mac OS, and it does in the machines we've
+  tried it, but it seems not to work on the BioC testing machine.
+
+  
+  This function basically calls "head" and "awk" using \code{system},
+  and trying to divide all the jobs into as many cores as you specify
   (argument \code{cores}). %% There
   %% are many ways in which this function can fail.
 }
@@ -114,8 +118,8 @@ cutFile(filename,
 ## Read a tab separated file, and assign the first,
 ## second, and third positions to ID, Chrom, and Position
 
-if(.Platform$OS.type == "unix") {
-## This will not work in Windows
+if( (.Platform$OS.type == "unix") && (Sys.info()['sysname'] != "Darwin") ) {
+## This will not work in Windows, and might, or might not, work under Mac
 
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
