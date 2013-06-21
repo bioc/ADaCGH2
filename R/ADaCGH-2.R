@@ -1117,7 +1117,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
 
     cat(paste("\n Note: Directory reading: we will be reading ",
               length(list.of.files),
-              "\n files, including ID, Chrom, and Pos. \n",
+              "\n files, not including ID, Chrom, and Pos. \n",
               "If this is not the correct number of files, \n",
               "stop this process, verify why  (did cutFiles \n",
               "work correctly? are you using a directory with\n",
@@ -1958,7 +1958,7 @@ internalGLAD <- function(index, cghRDataName, chromRDataName,
 }
 
 pSegmentDNAcopy <- function(cghRDataName, chromRDataName,
-                            merging = "mergeLevels",
+                            merging = "MAD", ## used to be "mergeLevels",
                             mad.threshold = 3,
                             smooth = TRUE,
                             alpha=0.01, nperm=10000,
@@ -5741,3 +5741,5 @@ my.usr2png <- function(xy, imWidth, imHeight) {
 ## unix.time(tmp <- mclapply(1:10000, f2, x, mc.cores = 64 ))
 
 ## unix.time(tmp <- mclapply(1:10000, f2, x, mc.cores = 10 )) 
+
+## Note: VanLoo et al., 2010, use a variant of CGHexplorer.

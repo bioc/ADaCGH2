@@ -23,7 +23,7 @@
 \usepackage[latin1]{inputenc}
 \title{Analysis of data from aCGH experiments using parallel computing and
 ff objects: long list of examples}
-\author{Ram\'on D\'{\i}az-Uriarte$^{1}$, Daniel Rico$^{2}$, and Oscar M.\ Rueda$^{3}$}
+\author{Ram\'on D\'{\i}az-Uriarte$^{1}$}
 
 \begin{document}
 \maketitle
@@ -33,13 +33,7 @@ ff objects: long list of examples}
 Universidad Autonoma de Madrid
 Instituto de Investigaciones Biomedicas ``Alberto Sols'' (UAM-CSIC), Madrid
 (SPAIN).
-2. Structural Computational Biology Group. 
-Spanish National Cancer Center (CNIO), Madrid
-(SPAIN).
-3. Cancer Research UK
-Cambridge Research Institute
-Cambridge, UK
-{\tt rdiaz02@gmail.com}, {\tt drico@cnio.es}, {\tt Oscar.Rueda@cancer.org.uk}
+{\tt rdiaz02@gmail.com}
 \end{center}
 
 \tableofcontents

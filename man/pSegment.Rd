@@ -20,7 +20,7 @@
 
 \usage{
 
-pSegmentDNAcopy(cghRDataName, chromRDataName, merging = "mergeLevels",
+pSegmentDNAcopy(cghRDataName, chromRDataName, merging = "MAD",
                 mad.threshold = 3, smooth = TRUE,
                 alpha=0.01, nperm=10000,
                 p.method = "hybrid",
@@ -241,15 +241,14 @@ you can use both \code{typeParall = "cluster"} and \code{typeParall =
 
 
 
-For HMM, BioHMM, and CGHseg, the first part of the analysis is conducted
-parallelizing over array by chromosome (because the methods are slow
-and/or very memmory consuming). The final step (merging), however, is
-carried out over array (it is a step that must be carried
+For HMM, BioHMM, CGHseg, and Wavelets, the first part of the analysis is
+conducted parallelizing over array by chromosome (because the methods
+are slow and/or very memory consuming). The final step (merging),
+however, is carried out over array (it is a step that must be carried
 array-wise). For all other methods, we have parallelized over arrays:
-the extra communication overheads of the much finer-grain
+the extra communication overheads of the much finer-grained
 parallelization of array by chromosome are rarely justified with these
 methods.
-
 
 
 % We have parallelized all computations by array (in contrast to former
@@ -267,19 +266,26 @@ so use "ADaCGH2:::piccardsKO" to see it) function "piccardsKO".
 
 
 
+For BioHMM and HMM the smoothed results are merged, by default by the
+mergeLevels algorithm, as recommended in \cite{Willenbrock and
+Fridlyand, 2005}. For DNAcopy the default used to be mergeLevels,
+following the above recommendations, but we are now using MAD by
+default, as it is much faster and it is unclear that mergeLevels is the
+right approach with the type of data available today. Your mileage might
+vary and you probably will want to try both on some test data and check which
+makes more sense.
 
-For DNAcopy, BioHMM and HMM the smoothed results are merged, by default
-by the mergeLevels algorithm, as recommended in \cite{Willenbrock and
-Fridlyand, 2005}. Merging is also done in GLAD (with GLAD's own merging
-algorithm). For HaarSeg, calling/merging is carried out using MAD,
-following page i141 of Ben-Yaacov and Eldar, section 2.3, "Determining
-aberrant intervals": a MAD (per their definition) is computed and any
-segment with absolute value larger than mad.threshold * MAD is
-considered aberrant.  Merging is also performed for CGHseg (the default,
-however, is MAD, not mergeLevels).  Merging (using either of
-"mergeLevels" or "MAD") can also be used with the wavelet-based method
-of Hsu et al.; please note that the later is an experimental feature
-implemented by us, and there is no study of its performance.
+
+Merging is also done in GLAD (with GLAD's own merging algorithm). For
+HaarSeg, calling/merging is carried out using MAD, following page i141
+of Ben-Yaacov and Eldar, section 2.3, "Determining aberrant intervals":
+a MAD (per their definition) is computed and any segment with absolute
+value larger than mad.threshold * MAD is considered aberrant.  Merging
+is also performed for CGHseg (the default, however, is MAD, not
+mergeLevels).  Merging (using either of "mergeLevels" or "MAD") can also
+be used with the wavelet-based method of Hsu et al.; please note that
+the later is an experimental feature implemented by us, and there is no
+study of its performance.
 
 
 In summary, for all segmentation methods (except GLAD) merging is

@@ -1434,7 +1434,7 @@ setwd(originalDir)
 @
 
 
-\section{A (non-runnable) example with a large data set and a comparison
+\section{(Non-runnable) Examples with large data sets and a comparison
   of approaches}
 \label{very-large-example}
 
@@ -1445,32 +1445,36 @@ preferred approaches for analyzing very large data sets.
 \subsection{Data set and hardware}
 \label{sec:data-set-hardware}
 
-We use a simulated data set that contains 6,067,433 rows and 1000 columns
-of data; these are, thus, data for an array with 6 million probes and data
-for 1000 subjects. In some examples shown below, we use smaller subsets of
-the same data (with only 200 or 50 columns). There are 421,000 missing
-values per data column. The ASCII file with the data is about 96 GB and
-the RData for those same data is 46 GB (without compression; 41 GB with
-the standard R compression). We will analyze the full data set with 1000
-columns, and some smaller versions of that data set (with 200 and 50 data
-columns).
+We will use a simulated data set that contains 6,067,433 rows and 1000
+columns of data; these are, thus, data for an array with 6 million probes
+and data for 1000 subjects. In some examples shown below, we use smaller
+subsets of the same data (with only 200 or 50 columns) and in some cases
+we will use a larger data set with 2000 subjects. There are 421,000
+missing values per data column. The ASCII file with the data for the 1000
+column data is about 96 GB\footnote{All sizes are computed from the
+  reported size in bytes or megabytes, using 1024, or powers of 1024, as
+  denominator.} and the RData for those same data is 46 GB (without
+compression; 41 GB with the standard R compression); in a freshly started
+R session, loading the RData will use 46 GB (as reported by
+\texttt{gc()}). We will analyze the full data set with 1000 columns, and
+some smaller versions of that data set (with 200 and 50 data columns).
 
 
 
 
 The examples below were run on a Dell PowerEdge C6145 chasis with two
 nodes. Each node has 4 AMD Opteron 6276 processors; since each processor
-has 16 cores, each node has 64 cores. Each node has 256 GB RAM. Both nodes
-are connected by Infiniband (40Gb/s).  For the data presented here, when
-using a single node, the data live on an xfs partition of a RAID0 array of
-SAS disks (15000 rpm) that are local to the node doing the
-computations. When using the two nodes, the data live on that same local
-SAS drive, which is seen by the other node using a simple NFS setup (we
-have also used distributed file systems, such as FhGFS, but they have
-tended to be a lot slower in these experiments; your mileage might
-vary). Therefore, in the table entries below, executions using both nodes
-will indicate ``124 cores'' \footnote{124 is not a typo; it is 124, even
-  if the total number of cores is $128 = 64 * 2$. This is due to the
+has 16 cores, each node has 64 cores. One node has 256 GB RAM and the
+other 398 GB of RAM. Both nodes are connected by Infiniband (40Gb/s).  For
+the data presented here, when using a single node, the data live on an xfs
+partition of a RAID0 array of SAS disks (15000 rpm) that are local to the
+node doing the computations. When using the two nodes, the data live on
+that same local SAS drive, which is seen by the other node using a simple
+NFS setup (we have also used distributed file systems, such as FhGFS, but
+they have tended to be a lot slower in these experiments; your mileage
+might vary). Therefore, in the table entries below, executions using both
+nodes will indicate ``124 cores'' \footnote{124 is not a typo; it is 124,
+  even if the total number of cores is $128 = 64 * 2$. This is due to the
   following documented issue with Open MPI and Infiniband:
   \url{http://www.open-mpi.org/community/lists/users/2011/07/17003.php},
   and since $128^2 = 16384$, we are hitting the limit, and we have not had
@@ -1487,10 +1491,13 @@ for reading data) or by the number 12 in the column for number of cores.
 
 In both systems, the operating system is Debian GNU/Linux (a mixture of
 Debian testing and Debian unstable). The Dell PowerEdge nodes were running
-version R-2.15.1 as available from the Debian repository (v.\
-2.15.1-5). The Xeon workstation was running R-2.15.1, patched version
-(2012-10-02 r60861), compiled from sources. Open MPI is version 1.4.3-2 (as
-available from Debian).
+version R-2.15.1 as available from the Debian repository (v.\ 2.15.1-5)
+or, later, R-3.0.1, patched (different releases, as available through May
+and June of 2013), and compiled from sources. The Xeon workstation was
+running R-2.15.1, patched version (2012-10-02 r60861), compiled from
+sources or, later R-3.0.1, patched (different releases, as available
+through May and June of 2013). Open MPI is version 1.4.3-2 (as available
+from Debian).
 
 As a reference for the size of the data set, the RData object with the
 1000 columns, when loaded into R in the PowerEdges, takes 13 minutes to
@@ -1611,12 +1618,23 @@ C6145 (64 cores).
     &Columns & Wall time (minutes)& Max.\ mem.\ (\texttt{gc}), GB &
     Max.\ $\Sigma$ mem., GB\\
 \hline
-    Txt file to \textit{ff} & 1000 & 2630 & 1.3 & NA (not calculated) \\
-    Directory to \textit{ff} & 1000 & 29 & 1.3 & 41.21 \\
-    Directory to \textit{ff} (Coleonyx, 12 cores) & 1000 & 88 & 1.3 & 8.4 \\
-    RData to \textit{ff} & 1000 & 29.6   &   169 & 168.3 \\
-    Directory to data frame (RAM object) & 1000 & 22 + 2\tnote{a} & 96 & NA. Output unusable for analysis \\
-    RData to data frame (RAM object) & 1000 & 22 + 2\tnote{b} &  139 & NA. Output unusable for analysis \\
+
+
+Directory to \textit{ff} & 2000 & 13.9 & 1.3 & 39.1 \\ %% I get times from 9
+                                        %% to 34
+Directory to \textit{ff} & 1000 & 6.1 & 1.3 & 41.21 \\
+Directory to \textit{ff} & 500 & 4.6 & 1.3 & 39.7 \\ %% can go from 4.5
+                                        %% to 10
+%% huge variability depending on how full the disk is and, I guess,
+%% fragmentation and if files are close to each other on disk
+Directory to \textit{ff} (Coleonyx, 12 cores) & 1000 & 88 & 1.3 & 8.4 \\
+
+Txt file to \textit{ff} & 1000 & 2630 & 1.3 & NA (not calculated) \\
+
+
+RData to \textit{ff} & 1000 & 29.6   &   169 & 168.3 \\
+Directory to data frame (RAM object) & 1000 & 22 + 2\tnote{a} & 96 & NA. Output unusable for analysis \\
+RData to data frame (RAM object) & 1000 & 22 + 2\tnote{b} &  139 & NA. Output unusable for analysis \\
 
 Directory to data frame (RAM object) & 200 & 7.7 + 0.4\tnote{c} & 20 & 38 \\
 Directory to \textit{ff} & 200 & 3.6 & 1.3 & 38 \\
@@ -1681,15 +1699,21 @@ Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\t
 
 CBS&MPI &124  & ff & 1000 & 313 & 0.14 & 53 \\
 CBS&MPI&64& ff & 1000 & 545 & 0.14 & 51 \\
+
+
 CBS&Fork&64&ff&1000&339 & 0.136 & 41 \\
-CBS&Fork&12&ff&1000&1181.1 & 0.142 & xx \\
+CBS&Fork&12&ff&1000&1184.0 & 0.142 & 13.8 \\
+CBS&Fork&64&ff&500&185.8 & 0.133 & 41 \\
 
 &&&&&&&\\
 HaarSeg & MPI &124  & ff & 1000 & 12.3 & 0.145 & 38.5 \\
 HaarSeg & MPI &64  & ff & 1000 & 9.5 & 0.145 & 38.5 \\
 HaarSeg & MPI &12 & ff & 1000 & 36 & 0.144 & 7.2 \\
+HaarSeg & Fork &64  & ff & 2000 & 18.7 & 0.15 & 28.4 \\
+HaarSeg & Fork &12  & ff & 2000 & 57.4 & 0.16 & 10.1 \\ 
 HaarSeg & Fork &64  & ff & 1000 & 7.9 & 0.14 & 27 \\
 HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
+HaarSeg & Fork &64  & ff & 500 & 4.6 & 0.13 & 26 \\
 &&&&&&&\\
 % HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
 % HaarSeg & Fork &20\tnote{f} & ff & 1000 & 17.4 & 0.142 & 10.0 \\
@@ -1720,8 +1744,8 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 
   \begin{tablenotes}
     {\footnotesize
-    \item[a] With option \texttt{merging = "none"} to make it comparable
-      to the canonical code in the original packages.
+    %% \item[a] With option \texttt{merging = "none"} to make it comparable
+    %%   to the canonical code in the original packages.
 
     %  \item[b] 0.95 + 22.9 + 1.4: load data, analyze, and save results. Since
     %   there are missing values in the data, and the original HaarSeg code
@@ -1765,7 +1789,7 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
 
 \hline
-
+HaarSeg & Fork &64  & ff & 100 & 1.2   &   0.13  &  24.5  \\
 HaarSeg & Fork &10  & ff & 1000 &23.5 & 0.142 & 5.9 \\
 HaarSeg & Fork &20 & ff & 1000 & 12.3 & 0.137 & 10.0 \\
 HaarSeg & Fork &40  & ff & 1000 & 7.4 & 0.142 & 17.6 \\
@@ -1774,7 +1798,16 @@ HaarSeg & Fork & 64  & ff & 1000 & 6.4 & 0.142 & 26.9 \\
 
 &&&&&&&\\
 
-% CBS & Fork &10  & ff & 1000 &xxxx & xxxxx & xxx \\
+HaarSeg & Fork &10  & ff & 2000 &49.7 & 0.16 & 8.0 \\
+HaarSeg & Fork &20  & ff & 2000 & 26.3 & 0.16 & 11.9 \\
+HaarSeg & Fork &40  & ff & 2000 & 15.4& 0.16 & 19.5 \\
+HaarSeg & Fork &50  & ff & 2000 & 13.3& 0.16 & 23.2 \\
+HaarSeg & Fork &64  & ff & 2000 & 11.9& 0.16 & 28.4 \\
+
+
+&&&&&&&\\
+CBS    & Fork & 64 & ff  & 100  & 55.9  &   0.13   &  35.3  \\
+CBS & Fork &10  & ff & 1000 &1855.4 & 0.135 & 8.6 \\
 CBS & Fork &20 & ff & 1000 & 939.8 & 0.135 & 14.9 \\
 CBS & Fork &40  & ff & 1000 & 513.5 & 0.136 & 27.0 \\
 CBS & Fork &50  & ff & 1000 & 438.6 & 0.142 & 33.1 \\
@@ -1913,6 +1946,25 @@ CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{
   single data frame simultaneously from multiple processes, compared to
   loading exactly just one column independently in each process, and/or
   repeated cache misses.
+  
+  
+\item \texttt{inputToADaCGH} (i.e., transforming a directory of files into
+  \textit{ff} objects) can be severely affected, of course, by other
+  processes accessing the disk. More generally, since with
+  \texttt{inputToADaCGH} several processes can try to access different
+  files at once (we are trying to parallelize the reading of data), issues
+  such as type of file system, configuration and type of RAID, amount of
+  free space, etc, can have an effect on all heavy I/O operations.  For
+  example, when reading a set of 2000 files, the time differences in a set
+  of benchmarks varied between 9 and 34 minutes. The only difference
+  between the runs we could find being that in the 34 minute runs, we had
+  added about 60 GB worth of files after creating/copying the text files,
+  and before reading, and the disk was about 64\% full. Note also that, as
+  a general rule, it is better if the newly created \textit{ff} files from
+  \texttt{inputToADaCGH} are written to an empty directory, and if the
+  working directory for segmentation analysis is another empty directory
+  if you are using \texttt{ff} objects.
+  
   
 \end{enumerate}
 
