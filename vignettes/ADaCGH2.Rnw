@@ -1700,7 +1700,8 @@ Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\t
 CBS&MPI &124  & ff & 1000 & 313 & 0.14 & 53 \\
 CBS&MPI&64& ff & 1000 & 545 & 0.14 & 51 \\
 
-
+CBS    & Fork & 64 & ff  & 2000 & 705.3 & 0.16 & 45.7 \\ 
+CBS    & Fork & 12 & ff  & 2000 & 2414.4 & 0.15 & 19.3 \\
 CBS&Fork&64&ff&1000&339 & 0.136 & 41 \\
 CBS&Fork&12&ff&1000&1184.0 & 0.142 & 13.8 \\
 CBS&Fork&64&ff&500&185.8 & 0.133 & 41 \\
@@ -1713,25 +1714,21 @@ HaarSeg & Fork &64  & ff & 2000 & 18.7 & 0.15 & 28.4 \\
 HaarSeg & Fork &12  & ff & 2000 & 57.4 & 0.16 & 10.1 \\ 
 HaarSeg & Fork &64  & ff & 1000 & 7.9 & 0.14 & 27 \\
 HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
+HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
 HaarSeg & Fork &64  & ff & 500 & 4.6 & 0.13 & 26 \\
 &&&&&&&\\
-% HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
+% 
+HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
 % HaarSeg & Fork &20\tnote{f} & ff & 1000 & 17.4 & 0.142 & 10.0 \\
 % HaarSeg & Fork &40\tnote{f}  & ff & 1000 & 10.2 & 0.142 & 17.5 \\
 % HaarSeg & Fork &50\tnote{f}  & ff & 1000 & 8.8 & 0.142 & 21.7 \\
 
-&&&&&&&\\
-
-&&&&&&&\\
-HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
-&&&&&&&\\
 % HaarSeg\tnote{a} & Fork &64  &ff  & 100 & 1.2   &   0.133  &  24.5  \\
 % CBS\tnote{a}    & Fork &64  &ff  & 100 & 55.9  &   0.132   &  35.3  \\
 % When we just replace NAs by 0: run-sequential-Haar.R
 % HaarSeg & NP &-  &RAM  & 100 & x   &  0.95 + 3.3 + 13.15   &  x\tnote{d}  \\
 % HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
 % CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
-&&&&&&&\\
 HaarSeg & Fork &64  & ff & 50 & 0.5 & 0.133 & 20.6\\
 HaarSeg & Fork &64  & RAM & 50 & 0.7 + 2.5 + 0.9\tnote{e}& 14.4 & 140\\
 HaarSeg & MPI &64  & ff & 50 & 0.63 & 0.14 & 24.6\\
@@ -1773,7 +1770,30 @@ HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 \end{threeparttable}
 \end{center}
 
-\clearpage
+
+%% time and memory, haar seg, with increasing num. cols in 64 cores
+%% h2 <- rbind(c(50, 0.5, 20.6), 
+%%             c(200, 2.3, 28.6), 
+%%             c(500, 4.6, 26), 
+%%             c(1000, 7.9, 27), 
+%%             c(2000, 18.7, 28.4))
+
+%% plot(h2[, 2] ~ h2[, 1])
+%% plot(h2[, 3] ~ h2[, 1])
+
+%% time and memory, cbs and haar, with 2000 arrays, as cores change
+%% t.c <- c(717, 857, 1007, 1879, 3771)
+%% m.c <- c(42, 35.3, 29, 16.5, 11.1)
+%% x <- c(64, 50, 40, 20, 10)
+%% plot(t.c ~ x)
+%% plot(m.c ~ x)
+%% t.h <- c(12, 13, 15.4, 26.3, 49.7)
+%% m.h <- c(28, 23, 19.5, 11.9, 8)
+%% plot(m.h ~ x)
+%% plot(t.h ~ x)
+            
+
+%\clearpage
 
 
 \begin{center}
@@ -1812,6 +1832,13 @@ CBS & Fork &20 & ff & 1000 & 939.8 & 0.135 & 14.9 \\
 CBS & Fork &40  & ff & 1000 & 513.5 & 0.136 & 27.0 \\
 CBS & Fork &50  & ff & 1000 & 438.6 & 0.142 & 33.1 \\
 CBS & Fork & 64  & ff & 1000 & 350.3 & 0.142 & 41.3 \\
+
+&&&&&&&\\
+CBS & Fork &10  & ff & 2000 &3770.9 & 0.15 & 11.1 \\
+CBS & Fork &20 & ff & 2000 & 1878.8 & 0.16 & 16.5 \\
+CBS & Fork &40  & ff & 2000 & 1007.0 & 0.15 & 28.8 \\
+CBS & Fork &50  & ff & 2000 & 857.1 & 0.16 & 35.3 \\
+CBS & Fork & 64  & ff & 2000 & 717.3 & 0.163 & 41.9 \\
 
 &&&&&&&\\
 
