@@ -137,7 +137,7 @@ The following is the meaning of some terms we will use repeatedly.
   
   Somewhat similar to what the documentation of the \texttt{ff} package
   does, we refer to these objects, that reside in memory, as RAM
-  objects. Technically, a given data frame, for instance, need to be in
+  objects. Technically, a given data frame, for instance, need not be in
   RAM in a particular moment (that actual memory page might have been
   swapped to disk). Regardless, the object is accessed as any other object
   which resides in memory.  Likewise, note that \textit{ff} also have a
