@@ -1465,7 +1465,7 @@ some smaller versions of that data set (with 200 and 50 data columns).
 The examples below were run on a Dell PowerEdge C6145 chasis with two
 nodes. Each node has 4 AMD Opteron 6276 processors; since each processor
 has 16 cores, each node has 64 cores. One node has 256 GB RAM and the
-other 398 GB of RAM. Both nodes are connected by Infiniband (40Gb/s).  For
+other 384 GB of RAM. Both nodes are connected by Infiniband (40Gb/s).  For
 the data presented here, when using a single node, the data live on an xfs
 partition of a RAID0 array of SAS disks (15000 rpm) that are local to the
 node doing the computations. When using the two nodes, the data live on
@@ -1588,7 +1588,7 @@ For the two tables below, the meaning of columns is as follows:
     ``NP'' entries refer to non-parallelized execution, using the original
     packages\footnote{The packages are DNAcopy, as available from
       BioConductor, and the HaarSeg package, available from R-forge:
-      \url{https://r-forge.r-project.org/projects/haarseg/}; \cite{haar}}.
+      \url{https://r-forge.r-project.org/projects/haarseg/}; \cite{haar-package}}.
 \item[Cores] Number of cores, and machine. 64: 64 cores in a single node
   of the Dell PowerEdge C6145. 124: 124 cores, using both nodes of the
   Dell PowerEdge. 12: 12 cores in the Z800 HP Workstation.
