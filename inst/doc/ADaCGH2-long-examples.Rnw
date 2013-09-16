@@ -21,6 +21,12 @@
 %\usetikzlibrary{arrows,shapes,positioning}
 
 \usepackage[latin1]{inputenc}
+
+%% <<style, eval=TRUE, echo=FALSE, results=tex>>=
+%% BiocStyle::latex()
+%% @
+
+
 \title{Analysis of data from aCGH experiments using parallel computing and
 ff objects: long list of examples}
 \author{Ram\'on D\'{\i}az-Uriarte$^{1}$}
@@ -132,10 +138,14 @@ cl2 <- parallel::makeCluster(number.of.nodes,"PSOCK")
 parallel::clusterSetRNGStream(cl2)
 parallel::setDefaultCluster(cl2) 
 parallel::clusterEvalQ(NULL, library("ADaCGH2"))
+## verify we are using the right version of ADaCGH2
+parallel::clusterEvalQ(NULL, 
+                       library(help = ADaCGH2)$info[[1]][[2]])
 
 wdir <- getwd()
 parallel::clusterExport(NULL, "wdir")
 parallel::clusterEvalQ(NULL, setwd(wdir))
+
 @
 
 

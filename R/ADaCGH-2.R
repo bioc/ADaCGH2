@@ -143,47 +143,53 @@ names.formals.changepoints.1.18 <- c("genomdat",
                                      "ngrid",
                                      "tol")
 
+names.formals.changepoints <- names.formals.changepoints.1.18
+
+## cat("Setting adacgh_changepoints to DNAcopy:::changepoints\n")
+adacgh_changepoints <- DNAcopy:::changepoints
+## cat("Setting adacgh_trimmed.variance to DNAcopy:::trimmed.variance\n")
+adacgh_trimmed.variance <- DNAcopy:::trimmed.variance
+
 ## in v.1.18.0 we take advantage weights has default of NULL in changepoints
 
+### this no longer makes sense, as always version is >= 1.17
 vDNAcopy <- package_version(packageDescription("DNAcopy")$Version)
-if (vDNAcopy >= "1.17.1")
-  {
-    cat("Setting adacgh_changepoints to DNAcopy:::changepoints\n")
-    adacgh_changepoints <- DNAcopy:::changepoints
-    cat("Setting adacgh_trimmed.variance to DNAcopy:::trimmed.variance\n")
-    adacgh_trimmed.variance <- DNAcopy:::trimmed.variance
-  } else {
-    cat("Setting adacgh_changepoints to changepoints\n")
-    adacgh_changepoints <- changepoints
-    cat("Setting adacgh_trimmed.variance to trimmed.variance\n")
-    adacgh_trimmed.variance <- trimmed.variance
-  }
+## if (vDNAcopy >= "1.17.1")
+##   {
+##     cat("Setting adacgh_changepoints to DNAcopy:::changepoints\n")
+##     adacgh_changepoints <- DNAcopy:::changepoints
+##     cat("Setting adacgh_trimmed.variance to DNAcopy:::trimmed.variance\n")
+##     adacgh_trimmed.variance <- DNAcopy:::trimmed.variance
+##   } else {
+##     cat("Setting adacgh_changepoints to changepoints\n")
+##     adacgh_changepoints <- changepoints
+##     cat("Setting adacgh_trimmed.variance to trimmed.variance\n")
+##     adacgh_trimmed.variance <- trimmed.variance
+##   }
 
-if(vDNAcopy >= "1.18.0") {
-  names.formals.changepoints <- names.formals.changepoints.1.18
-} else {
-  names.formals.changepoints <- names.formals.changepoints.1.17
-}
 
 if(!identical(names.formals.changepoints, names(formals(adacgh_changepoints)))) {
   m1 <- "Arguments to DNAcopy function changepoints have changed.\n"
   m2 <- "Either your version of DNAcopy is newer than ours, or older.\n"
-  m3 <- "If your version is different from 1.18.0 or 1.19.0 o 1.20.0\n please let us know of this problem.\n"
-  m4 <- "We are assuming you are using DNAcopy version 1.18.0 or 1.19.0 or 1.20.0,\n"
+  m3 <- "If your version is different from 1.18.0 to 1.35.0\n please let us know of this problem.\n"
+  m4 <- "We are assuming you are using DNAcopy version from 1.18.0 to 1.35.0,\n"
   m6 <- paste("Your version of DNAcopy is ", packageDescription("DNAcopy")$Version, ".\n")
   mm <- paste(m1, m2, m3, m4, m5, m6)
   stop(mm)
 }
 
 
-## As of v. 1.12 at least snapCGH finally has a namespace. So now we have
-## to do
+## As of v. 1.12 at least snapCGH finally has a namespace. So now we do
+## myfit.model <- snapCGH::fit.model
+## but use the call explicitly below.
 
-if(package_version(packageDescription("snapCGH")$Version) > "1.11") {
-  myfit.model <- snapCGH:::fit.model
-} else {
-  myfit.model <- fit.model
-}
+## No longer needed, as at least using v. 1.31.0
+
+## if(package_version(packageDescription("snapCGH")$Version) > "1.11") {
+##   myfit.model <- snapCGH::fit.model
+## } else {
+##   myfit.model <- fit.model
+## }
 
 
 ## becasue even if fit.model is documented, it is NOT exported.
@@ -421,7 +427,8 @@ distribute <- function(type, mc.cores, X, FUN, ..., silent = FALSE) {
              mc.cores = mc.cores, mc.silent = silent)
   } else if(type == "cluster") {
     ## we might need to do list(...)
-    parallel::clusterApply(NULL, X, FUN, ...)
+##      parallel::clusterApply(NULL, X, FUN, ...)
+      clusterApply(NULL, X, FUN, ...)
   } else stop("distribute does not know this type")
 }
 
@@ -1388,9 +1395,9 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
   }
   if(usingfftmp) {
     ## this should be unneeded, and caught when reading
-    if((vmode(chromData) != "ushort") | (min.ff(chromData) < 1) )
+    if((vmode(chromData) != "ushort") | (min.ff(chromData) < 1) ) ## min.ff is from ffbase
       caughtUserError2("Chromosome is NOT a positive (ushort) integer!! \n")
-    if(max.ff(chromData)> 65000)
+    if(max.ff(chromData)> 65000) ## max.ff is from ffbase
       caughtUserError2("Chromosome has more than 65000 levels!!\n")
   } else {  
     if(!all(is.wholeposnumber(inputData[, 2])))
@@ -1790,18 +1797,7 @@ pSegmentGLAD <- function(cghRDataName, chromRDataName,
   ## stop.na.inf(chrom.numeric)
   ## warn.too.few.in.chrom(chrom.numeric)
 
-  require("GLAD") || stop("Package not loaded: GLAD")
-  ## To deal with both forking and cluster, this is done in slaves directly.
-  ## if(typeParall == "cluster")
-  ##   clusterEvalQ(NULL, library("GLAD"))
-
-  ## sfLibrary("GLAD", character.only = TRUE)
-
-  ## nameCgh <- getffObj(cghRDataName, silent = TRUE)
-  ## arrayNames <- colnames(get(nameCgh))
-  ## narrays <- ncol(get(nameCgh))
-  ## nvalues <- nrow(get(nameCgh))
-  ## close(get(nameCgh))
+##  require("GLAD") || stop("Package not loaded: GLAD")
 
 
   type.of.data <- RAM.or.ff(cghRDataName)
@@ -1820,17 +1816,9 @@ pSegmentGLAD <- function(cghRDataName, chromRDataName,
     nameCgh <- getffObjNoOpen(cghRDataName, silent = TRUE)
     arrayNames <- colnames(get(nameCgh))
     narrays <- ncol(get(nameCgh))
-##    nvalues <- nrow(get(nameCgh))
-    ## close(get(nameCgh))
-    ## nameChrom <- getffObj(chromRDataName, silent = TRUE)
-    ## rle.chr <- intrle(as.integer(get(nameChrom)[]))
-    ## close(get(nameChrom)) 
-
   } else {
     arrayNames <- colnames(cghRDataName)
     narrays <- ncol(cghRDataName)
-##    nvalues <- nrow(cghRDataName)
-    ## rle.chr <- intrle(as.integer(chromRDataName))
   }
 
 
@@ -1884,7 +1872,7 @@ internalGLAD <- function(index, cghRDataName, chromRDataName,
 
   ff.out <- ff.object ## for now, leave like this
 
-  require("GLAD")
+##  require("GLAD")
 
   if(ff.object) {
     lrv <- getCGHValue(cghRDataName, index)
@@ -1923,12 +1911,14 @@ internalGLAD <- function(index, cghRDataName, chromRDataName,
 
   ## GLAD produces lots of gratuitous output. Capture it
   ## to ignore it
+  ## We use daglad.  It seems the recommended one, as seen from the message when loading it.
   tmp <- capture.output(
-                        outglad <- try(daglad(tmpf, deltaN = deltaN,
-                                              forceGL = forceGL,
-                                              deletion = deletion,
-                                              amplicon = amplicon,
-                                              verbose = FALSE))
+      outglad <- try(daglad.profileCGH(tmpf, deltaN = deltaN,
+                                       forceGL = forceGL,
+                                       deletion = deletion,
+                                       amplicon = amplicon,
+                                       verbose = FALSE,
+                                       smoothfunc = "haarseg"))
   )
   
   rm(tmpf)
@@ -1993,12 +1983,17 @@ pSegmentDNAcopy <- function(cghRDataName, chromRDataName,
   merge.thresMin = 0.05
   merge.thresMax = 0.5
   
-  getbdry <- DNAcopy:::getbdry
-  
+##  getbdry <- DNAcopy::getbdry
+
+  ## taken directly from DNAcopy::segment
   if (nperm == 10000 & alpha == 0.01 & eta == 0.05) {
-    sbdry <- default.DNAcopy.bdry
+      ## if (!exists("default.DNAcopy.bdry")) 
+      ##     data(default.DNAcopy.bdry, package = "DNAcopy", 
+      ##          envir = environment())
+      sbdry <- DNAcopy::default.DNAcopy.bdry
   } else {
     max.ones <- floor(nperm * alpha) + 1
+##    sbdry <- DNAcopy::getbdry(eta, nperm, max.ones)
     sbdry <- getbdry(eta, nperm, max.ones)
   }
   sbn <- length(sbdry)
@@ -2821,13 +2816,19 @@ BioHMMWrapper <- function(logratio, Pos, aic.or.bic, ff.out) {
   Pos <- Pos[cleanDataList$pos_clean]
   
   n <- length(ydat)
-  
-  res <- try(myfit.model(sample = 1, chrom = 1, dat = matrix(ydat, ncol = 1),
-                         datainfo = data.frame(Name = 1:n, Chrom = rep(1, n),
+
+  ## res <- try(snapCGH::fit.model(sample = 1, chrom = 1, dat = matrix(ydat, ncol = 1),
+  ##                               datainfo = data.frame(Name = 1:n, Chrom = rep(1, n),
+  ##                                   Position = Pos),
+  ##                               aic = ifelse(aic.or.bic == "AIC", TRUE, FALSE),
+  ##                               bic = ifelse(aic.or.bic == "BIC", TRUE, FALSE)
+  ##                               ))
+  res <- try(fit.model(sample = 1, chrom = 1, dat = matrix(ydat, ncol = 1),
+                       datainfo = data.frame(Name = 1:n, Chrom = rep(1, n),
                            Position = Pos),
-                         aic = ifelse(aic.or.bic == "AIC", TRUE, FALSE),
-                         bic = ifelse(aic.or.bic == "BIC", TRUE, FALSE)
-                         ))
+                       aic = ifelse(aic.or.bic == "AIC", TRUE, FALSE),
+                       bic = ifelse(aic.or.bic == "BIC", TRUE, FALSE)
+                       ))
   rm(Pos)
   rm(ydat)
 
@@ -3008,9 +3009,11 @@ internalCGHseg <- function(tableIndex, tableArrChrom, cghRDataName, CGHseg.thres
   ##                               maxseg = ifelse(is.null(maxseg), n/2, maxseg),
   ##                               maxk = ifelse(is.null(maxk), n, maxk))
 
-  obj1 <- tilingArray:::segment(y,
-                                maxseg = n/2,
-                                maxk = n)
+  ## now using ::, not :::
+  ## Nope, now in importFrom
+  obj1 <- segment(y,
+                  maxseg = n/2,
+                  maxk = n)
 
   optk <- piccardsKO(obj1@logLik, n, CGHseg.thres)
   ## if (verbose) {
@@ -3665,14 +3668,15 @@ ourMerge <- function(observed, predicted,
                      merge.thresMax = 0.5) {
 
     ## cat("\n        Starting merge \n")
+    ## We used to use mergeLevelsB, but no longer necessary
     segmentus2 <-
-      mergeLevelsB(vecObs  = observed,
-                   vecPred = predicted,
-                   pv.thres = merge.pv.thresh,
-                   ansari.sign = merge.ansari.sign,
-                   thresMin = merge.thresMin,
-                   thresMax = merge.thresMax,
-                   verbose = 0)$vecMerged
+      mergeLevels(vecObs  = observed,
+                  vecPred = predicted,
+                  pv.thres = merge.pv.thresh,
+                  ansari.sign = merge.ansari.sign,
+                  thresMin = merge.thresMin,
+                  thresMax = merge.thresMax,
+                  verbose = 0)$vecMerged
     
     classes.ref <- which.min(abs(unique(segmentus2)))
     classes.ref <- unique(segmentus2)[classes.ref]
@@ -4146,7 +4150,8 @@ caughtOtherPackageError.Web <- function(message) {
 
 ## the next one substitutes snowfall.clean.quit.Web
 cluster.clean.quit.Web <- function() {
-  try(parallel::stopCluster(), silent = TRUE)
+##  try(parallel::stopCluster(), silent = TRUE)
+  try(stopCluster(), silent = TRUE)
 }
 
 
@@ -4316,381 +4321,155 @@ createIM2 <- function(im, file = "", imgTags = list(),
 
 
 
-##### This is straight from aCGH, but fixing the problem of wilcox.text(exact = T)
+##### This is straight from package aCGH, but fixing the problem of wilcox.text(exact = T)
 
-mergeLevelsB <- function(vecObs, vecPred,
-                         pv.thres=0.0001, ansari.sign=0.05, thresMin=0.05,
-                         thresMax=0.5,verbose=1,scale=TRUE){
+## mergeLevelsB <- function(vecObs, vecPred,
+##                          pv.thres=0.0001, ansari.sign=0.05, thresMin=0.05,
+##                          thresMax=0.5,verbose=1,scale=TRUE){
 
-  ## Check if supplied thresholds are valid
-  if(thresMin>thresMax){cat("Error, thresMax should be equal to or larger than thresMin\n");return()}
+##   ## Check if supplied thresholds are valid
+##   if(thresMin>thresMax){cat("Error, thresMax should be equal to or larger than thresMin\n");return()}
 
 
-# Initializing threshold and threshold vector for keeping track of thresholds
-thresAbs=thresMin
-sq<-numeric()
+## # Initializing threshold and threshold vector for keeping track of thresholds
+## thresAbs=thresMin
+## sq<-numeric()
 
-#initializing threshold index (threshold count)
-j=0
+## #initializing threshold index (threshold count)
+## j=0
 
-#initializing ansari p-values to keep track of ansari p-values for each threshold in sq
-ansari=numeric()
+## #initializing ansari p-values to keep track of ansari p-values for each threshold in sq
+## ansari=numeric()
 
-# Initialize levels count
-lv=numeric()
+## # Initialize levels count
+## lv=numeric()
 
-# Set backtracking flag. Start with flag=0 indicating significance not yet reached, backtracking not begun
-flag=0
+## # Set backtracking flag. Start with flag=0 indicating significance not yet reached, backtracking not begun
+## flag=0
 
-# If thresMin=thresMax, fixed threshold is used and we set flag=2, only one run of the algoritm with initial thresMin
-if(thresMin==thresMax){flag=2}
+## # If thresMin=thresMax, fixed threshold is used and we set flag=2, only one run of the algoritm with initial thresMin
+## if(thresMin==thresMax){flag=2}
 
-# Evaluate optimum steps for algorithm
-else {
- l.step <- signif((thresMax-thresMin)/10,1)
- s.step <- signif((thresMax-thresMin)/200,1)
-}
+## # Evaluate optimum steps for algorithm
+## else {
+##  l.step <- signif((thresMax-thresMin)/10,1)
+##  s.step <- signif((thresMax-thresMin)/200,1)
+## }
 
-while (1){
+## while (1){
 
-  # Print current threshold if verbose is 1 or larger
-  if(verbose>=1){cat("\nCurrent thresAbs: ",thresAbs,"\n")}
+##   # Print current threshold if verbose is 1 or larger
+##   if(verbose>=1){cat("\nCurrent thresAbs: ",thresAbs,"\n")}
 
-  j=j+1
+##   j=j+1
 
-  # Save current threshold
-  sq[j]<-thresAbs
+##   # Save current threshold
+##   sq[j]<-thresAbs
 
-  # temporary predicted values (to be updated)
-  vecPredNow=vecPred
+##   # temporary predicted values (to be updated)
+##   vecPredNow=vecPred
 
-  #unmissing unique segment medians
-  mnNow=unique(vecPred)
-  mnNow=mnNow[!is.na(mnNow)]
+##   #unmissing unique segment medians
+##   mnNow=unique(vecPred)
+##   mnNow=mnNow[!is.na(mnNow)]
 
-  #continuing indicator otherwise get out of the loop
-  cont=0
+##   #continuing indicator otherwise get out of the loop
+##   cont=0
 
-  while(cont==0 & length(mnNow)>1) {
+##   while(cont==0 & length(mnNow)>1) {
 
-        mnNow=sort(mnNow)  #currennt sorted vector of means
-        n <- length(mnNow)  # number of means in mnNow
+##         mnNow=sort(mnNow)  #currennt sorted vector of means
+##         n <- length(mnNow)  # number of means in mnNow
 
-        # Print current number of levels (n) if verbose is 2 or larger
-        if(verbose>=2){ cat("\r",n,":",length(unique(vecPred)),"\t")}
+##         # Print current number of levels (n) if verbose is 2 or larger
+##         if(verbose>=2){ cat("\r",n,":",length(unique(vecPred)),"\t")}
 
-        # Get distances translated to copy number differences
-        # Only distances to closest levels
-        if(scale){d<-(2*2^mnNow)[-n]-(2*2^mnNow)[-1]}
-        else{d<-(mnNow)[-n]-(mnNow)[-1]}
+##         # Get distances translated to copy number differences
+##         # Only distances to closest levels
+##         if(scale){d<-(2*2^mnNow)[-n]-(2*2^mnNow)[-1]}
+##         else{d<-(mnNow)[-n]-(mnNow)[-1]}
 
-        #order distance between means with the closest on top and corresponding indices
-        dst<-cbind(abs(d)[order(abs(d))],(2:n)[order(abs(d))],(1:(n-1))[order(abs(d))])
+##         #order distance between means with the closest on top and corresponding indices
+##         dst<-cbind(abs(d)[order(abs(d))],(2:n)[order(abs(d))],(1:(n-1))[order(abs(d))])
 
-        #for each pair of means
-        for (i in 1:nrow(dst))  {
-                #set continuity index to "NOT continue" (=1)
-                cont=1
-                #test for combining of the two segment means
-                out=combine.funcB(diff=dst[i,1],vecObs, vecPredNow, mnNow, mn1=mnNow[dst[i,2]], mn2=mnNow[dst[i,3]], pv.thres=pv.thres, thresAbs=if(scale){2*2^thresAbs-2}else{thresAbs})
-                #if combine?
-                if (out$pv > pv.thres) {
+##         #for each pair of means
+##         for (i in 1:nrow(dst))  {
+##                 #set continuity index to "NOT continue" (=1)
+##                 cont=1
+##                 #test for combining of the two segment means
+##                 out=combine.funcB(diff=dst[i,1],vecObs, vecPredNow, mnNow, mn1=mnNow[dst[i,2]], mn2=mnNow[dst[i,3]], pv.thres=pv.thres, thresAbs=if(scale){2*2^thresAbs-2}else{thresAbs})
+##                 #if combine?
+##                 if (out$pv > pv.thres) {
 
-                       #set continuity index to "YES" (=0) and break out of the current pairs loop
-                       cont=0
+##                        #set continuity index to "YES" (=0) and break out of the current pairs loop
+##                        cont=0
 
-                       #update predicted values and segments
-                       vecPredNow=out$vecPredNow
-                       mnNow=out$mnNow
-                       break
-                 }                
-          }               
- }
+##                        #update predicted values and segments
+##                        vecPredNow=out$vecPredNow
+##                        mnNow=out$mnNow
+##                        break
+##                  }                
+##           }               
+##  }
 
-### When done merging for a given threshold, test for significance ####
-        ansari[j]=my.ansari.test(sort(vecObs-vecPredNow), sort(vecObs-vecPred))$p.value
-  if(is.na(ansari[j])){ansari[j]=0} # If too many numbers for test to be performed, a 0 is returned, resulting in no merging (please use fixed threshold to get any merging)
-  lv[j]=length(mnNow) # get number of levels
+## ### When done merging for a given threshold, test for significance ####
+##         ansari[j]=ansari.test(sort(vecObs-vecPredNow), sort(vecObs-vecPred))$p.value
+##   if(is.na(ansari[j])){ansari[j]=0} # If too many numbers for test to be performed, a 0 is returned, resulting in no merging (please use fixed threshold to get any merging)
+##   lv[j]=length(mnNow) # get number of levels
 
-### If backtracking flag=2, the merging is stopped at this thresMax (or fixed threshold) ###
-  if(flag==2){ break }
+## ### If backtracking flag=2, the merging is stopped at this thresMax (or fixed threshold) ###
+##   if(flag==2){ break }
 
-  # If p.value is less than the significance threshold, set backtracking flag=1 (backtracking on)
-  if(ansari[j]<ansari.sign){
-                        flag=1
-  }
+##   # If p.value is less than the significance threshold, set backtracking flag=1 (backtracking on)
+##   if(ansari[j]<ansari.sign){
+##                         flag=1
+##   }
 
         
-### If backtracking is on, a smaller threshold is attempted ####
-        if (flag){
+## ### If backtracking is on, a smaller threshold is attempted ####
+##         if (flag){
 
-        # Stop if backtracking is on and p.value is higher than sign threshold or threshold is less or equal to thresMin
-        if (ansari[j]>ansari.sign | thresAbs == thresMin){
+##         # Stop if backtracking is on and p.value is higher than sign threshold or threshold is less or equal to thresMin
+##         if (ansari[j]>ansari.sign | thresAbs == thresMin){
 
-#        # Don't merge at all if all tested threshold including thresMin is significant
-#                         if (ansari[j] <= ansari.sign) {
-#                                 vecPredNow=vecPred
-#                                 mnNow=unique(vecPred)
-#                                 mnNow=mnNow[!is.na(mnNow)]
-#                         }
+## #        # Don't merge at all if all tested threshold including thresMin is significant
+## #                         if (ansari[j] <= ansari.sign) {
+## #                                 vecPredNow=vecPred
+## #                                 mnNow=unique(vecPred)
+## #                                 mnNow=mnNow[!is.na(mnNow)]
+## #                         }
                                                   
-        break
-        }
+##         break
+##         }
 
-      # Attempt smaller threshold
-        else {
-        thresAbs=signif(thresAbs-s.step,3)
+##       # Attempt smaller threshold
+##         else {
+##         thresAbs=signif(thresAbs-s.step,3)
 
-        # Set threshold to thresMin as a minimum
-        if (thresAbs <= thresMin){ thresAbs = thresMin }
-      }
-        }
+##         # Set threshold to thresMin as a minimum
+##         if (thresAbs <= thresMin){ thresAbs = thresMin }
+##       }
+##         }
         
 
-### Increase threshold if backtracking is not on ###
-        else {thresAbs=thresAbs+l.step}
+## ### Increase threshold if backtracking is not on ###
+##         else {thresAbs=thresAbs+l.step}
 
-#### Control step so function won't keep running, max threshold = thresMax and if sign not reached, threshold = thresMax ###
-          if (thresAbs >= thresMax){
-        thresAbs=thresMax
-                    flag=2
-          }
+## #### Control step so function won't keep running, max threshold = thresMax and if sign not reached, threshold = thresMax ###
+##           if (thresAbs >= thresMax){
+##         thresAbs=thresMax
+##                     flag=2
+##           }
 
-} # End while
-
-
-# Return list of results
-return(list(vecMerged=vecPredNow,mnNow=mnNow,sq=sq,ansari=ansari))
-}
+## } # End while
 
 
+## # Return list of results
+## return(list(vecMerged=vecPredNow,mnNow=mnNow,sq=sq,ansari=ansari))
+## }
 
 
 
-my.ansari.test <- function (x, ...) {
-UseMethod("ansari.test")
-}
-
-my.ansari.test.default <-
-function (x, y, alternative = c("two.sided", "less", "greater"),
-exact = NULL, conf.int = FALSE, conf.level = 0.95, ...)
-{
-
-  ##R_pansari and R_qansari are in stats namespace
-  thisR_pansari <- stats:::R_pansari
-  thisR_qansari <- stats:::R_qansari
-  
- alternative <- match.arg(alternative)
- if (conf.int) {
-   if (!((length(conf.level) == 1) && is.finite(conf.level) &&
-     (conf.level > 0) && (conf.level < 1)))
-     stop("'conf.level' must be a single number between 0 and 1")
- }
- DNAME <- paste(deparse(substitute(x)), "and", deparse(substitute(y)))
- x <- x[complete.cases(x)]
- y <- y[complete.cases(y)]
- m <- length(x)
- if (m < 1)
-   stop("not enough 'x' observations")
- n <- length(y)
- if (n < 1)
-   stop("not enough 'y' observations")
- N <- m + n
- r <- rank(c(x, y))
- STATISTIC <- sum(pmin(r, N - r + 1)[seq_along(x)])
- TIES <- (length(r) != length(unique(r)))
- if (is.null(exact))
-   exact <- ((m < 50) && (n < 50))
- if (exact && !TIES) {
-   pansari <- function(q, m, n) {
-     .C(thisR_pansari, as.integer(length(q)), p = as.double(q),
-       as.integer(m), as.integer(n))$p
-   }
-   PVAL <- switch(alternative, two.sided = {
-     if (STATISTIC > ((m + 1)^2%/%4 + ((m * n)%/%2)/2))
-       p <- 1 - pansari(STATISTIC - 1, m, n)
-     else p <- pansari(STATISTIC, m, n)
-     min(2 * p, 1)
-   }, less = 1 - pansari(STATISTIC - 1, m, n), greater =
-pansari(STATISTIC,
-     m, n))
-   if (conf.int) {
-     qansari <- function(p, m, n) {
-       .C(thisR_qansari, as.integer(length(p)), q = as.double(p),
-        as.integer(m), as.integer(n))$q
-     }
-     alpha <- 1 - conf.level
-     x <- sort(x)
-     y <- sort(y)
-     ab <- function(sig) {
-       rab <- rank(c(x/sig, y))
-       sum(pmin(rab, N - rab + 1)[seq_along(x)])
-     }
-     ratio <- outer(x, y, "/")
-     aratio <- ratio[ratio >= 0]
-     sigma <- sort(aratio)
-     cci <- function(alpha) {
-       u <- absigma - qansari(alpha/2, m, n)
-       l <- absigma - qansari(1 - alpha/2, m, n)
-       uci <- NULL
-       lci <- NULL
-       if (length(u[u >= 0]) == 0 || length(l[l > 0]) ==
-        0) {
-        warning("samples differ in location: cannot compute
-confidence set, returning NA")
-        return(c(NA, NA))
-       }
-       if (is.null(uci)) {
-        u[u < 0] <- NA
-        uci <- min(sigma[which(u == min(u, na.rm = TRUE))])
-       }
-       if (is.null(lci)) {
-        l[l <= 0] <- NA
-        lci <- max(sigma[which(l == min(l, na.rm = TRUE))])
-       }
-       if (uci > lci) {
-        l <- absigma - qansari(alpha/2, m, n)
-        u <- absigma - qansari(1 - alpha/2, m, n)
-        u[u < 0] <- NA
-        uci <- min(sigma[which(u == min(u, na.rm = TRUE))])
-        l[l <= 0] <- NA
-        lci <- max(sigma[which(l == min(l, na.rm = TRUE))])
-       }
-       c(uci, lci)
-     }
-     cint <- if (length(sigma) < 1) {
-       warning("cannot compute confidence set, returning NA")
-       c(NA, NA)
-     }
-     else {
-       absigma <- sapply(sigma + c(diff(sigma)/2,
-sigma[length(sigma)] *
-        1.01), ab)
-       switch(alternative, two.sided = {
-        cci(alpha)
-       }, greater = {
-        c(cci(alpha * 2)[1], Inf)
-       }, less = {
-        c(0, cci(alpha * 2)[2])
-       })
-     }
-     attr(cint, "conf.level") <- conf.level
-     u <- absigma - qansari(0.5, m, n)
-     sgr <- sigma[u <= 0]
-     if (length(sgr) == 0)
-       sgr <- NA
-     else sgr <- max(sgr)
-     sle <- sigma[u > 0]
-     if (length(sle) == 0)
-       sle <- NA
-     else sle <- min(sle)
-     ESTIMATE <- mean(c(sle, sgr))
-   }
- }
- else {
-   EVEN <- ((N%%2) == 0)
-   normalize <- function(s, r, TIES, m = length(x), n = length(y)) {
-##########################################
-## Here is the problem: length(x) returns an integer
-m <- as.double(m)
-n <- as.double(n)
-##########################################
-     z <- if (EVEN)
-       s - m * (N + 2)/4
-     else s - m * (N + 1)^2/(4 * N)
-     if (!TIES) {
-       SIGMA <- if (EVEN)
-        sqrt((m * n * (N + 2) * (N - 2))/(48 * (N -
-         1)))
-       else sqrt((m * n * (N + 1) * (3 + N^2))/(48 *
-        N^2))
-     }
-     else {
-       r <- rle(sort(pmin(r, N - r + 1)))
-       SIGMA <- if (EVEN)
-        sqrt(m * n * (16 * sum(r$lengths * r$values^2) -
-         N * (N + 2)^2)/(16 * N * (N - 1)))
-       else sqrt(m * n * (16 * N * sum(r$lengths * r$values^2) -
-        (N + 1)^4)/(16 * N^2 * (N - 1)))
-     }
-     z/SIGMA
-   }
-   p <- pnorm(normalize(STATISTIC, r, TIES))
-   PVAL <- switch(alternative, two.sided = 2 * min(p, 1 -
-     p), less = 1 - p, greater = p)
-   if (conf.int && !exact) {
-     alpha <- 1 - conf.level
-     ab2 <- function(sig, zq) {
-       r <- rank(c(x/sig, y))
-       s <- sum(pmin(r, N - r + 1)[seq_along(x)])
-       TIES <- (length(r) != length(unique(r)))
-       normalize(s, r, TIES, length(x), length(y)) -
-        zq
-     }
-     srangepos <- NULL
-     srangeneg <- NULL
-     if (length(x[x > 0]) && length(y[y > 0]))
-       srangepos <- c(min(x[x > 0], na.rm = TRUE)/max(y[y >
-        0], na.rm = TRUE), max(x[x > 0], na.rm = TRUE)/min(y[y >
-        0], na.rm = TRUE))
-     if (length(x[x <= 0]) && length(y[y < 0]))
-       srangeneg <- c(min(x[x <= 0], na.rm = TRUE)/max(y[y <
-        0], na.rm = TRUE), max(x[x <= 0], na.rm = TRUE)/min(y[y <
-        0], na.rm = TRUE))
-     if (any(is.infinite(c(srangepos, srangeneg)))) {
-       warning("cannot compute asymptotic confidence set or estimator")
-       conf.int <- FALSE
-     }
-     else {
-       ccia <- function(alpha) {
-        statu <- ab2(srange[1], zq = qnorm(alpha/2))
-        statl <- ab2(srange[2], zq = qnorm(alpha/2,
-         lower.tail = FALSE))
-        if (statu > 0 || statl < 0) {
-         warning("samples differ in location: cannot compute confidence set, returning NA")
-         return(c(NA, NA))
-        }
-        u <- uniroot(ab2, srange, tol = 1e-04, zq =
-qnorm(alpha/2))$root
-        l <- uniroot(ab2, srange, tol = 1e-04, zq = qnorm(alpha/2,
-         lower.tail = FALSE))$root
-        sort(c(u, l))
-       }
-       srange <- range(c(srangepos, srangeneg), na.rm = FALSE)
-       cint <- switch(alternative, two.sided = {
-        ccia(alpha)
-       }, greater = {
-        c(ccia(alpha * 2)[1], Inf)
-       }, less = {
-        c(0, ccia(alpha * 2)[2])
-       })
-       attr(cint, "conf.level") <- conf.level
-       statu <- ab2(srange[1], zq = 0)
-       statl <- ab2(srange[2], zq = 0)
-       if (statu > 0 || statl < 0) {
-        ESTIMATE <- NA
-        warning("cannot compute estimate, returning NA")
-       }
-       else ESTIMATE <- uniroot(ab2, srange, tol = 1e-04,
-        zq = 0)$root
-     }
-   }
-   if (exact && TIES) {
-     warning("cannot compute exact p-value with ties")
-     if (conf.int)
-       warning("cannot compute exact confidence intervals with ties")
-   }
- }
- names(STATISTIC) <- "AB"
- RVAL <- list(statistic = STATISTIC, p.value = PVAL, null.value =
-              c(`ratio of scales` = 1),
-   alternative = alternative, method = "Ansari-Bradley test",
-   data.name = DNAME)
- if (conf.int)
-   RVAL <- c(RVAL, list(conf.int = cint, estimate = c(`ratio of scales` = ESTIMATE)))
- class(RVAL) <- "htest"
- return(RVAL)
-}
 
 
 
@@ -4702,41 +4481,41 @@ qnorm(alpha/2))$root
 
 #################################
 
-
-combine.funcB <- function(diff,vecObs, vecPredNow, mnNow, mn1, mn2, pv.thres=0.0001, thresAbs=0)
-{ 
-  #observed values in the first segment
-        vec1=vecObs[which(vecPredNow==mn1)]
-  #observed values in the second segment
-        vec2=vecObs[which(vecPredNow==mn2)]
+## was called by mergeLevelsB. No longer needed
+## combine.funcB <- function(diff,vecObs, vecPredNow, mnNow, mn1, mn2, pv.thres=0.0001, thresAbs=0)
+## { 
+##   #observed values in the first segment
+##         vec1=vecObs[which(vecPredNow==mn1)]
+##   #observed values in the second segment
+##         vec2=vecObs[which(vecPredNow==mn2)]
         
-  #if difference between segment medians does not exceed thresAbs, then set pv=1
-        if (diff<=thresAbs) {
-                pv=1
-        }
-  #otherwise test for difference in mean based on observed values
-        else {
-                if((length(vec1) > 10 & length(vec2) > 10) | sum(length(vec1),length(vec2))>100){
-                        pv=wilcox.test(vec1,vec2)$p.value
-                }
-                else{pv=wilcox.test(vec1,vec2,exact=TRUE)$p.value  }       #/10^max(mn1,mn2)
-                if(length(vec1) <= 3 | length(vec2) <= 3){pv=0}         
-        }
-        index.merged<-numeric()
-  #if p-value exceeds pv.thres
-        if (pv > pv.thres)      {
-    #combine observed values
-                vec=c(vec1,vec2)
-    # Index values to be updated
-                index.merged=which((vecPredNow==mn1) | (vecPredNow==mn2))               
-    #update predicted values by median of the observed values
-                vecPredNow[index.merged]=median(vec, na.rm=TRUE)
-    #update segment medians  median of the observed values and remove one of the duplicates
-                mnNow[which((mnNow==mn1) | (mnNow==mn2))]=median(vec, na.rm=TRUE)
-                mnNow=unique(mnNow)
-        }
-        list(mnNow=mnNow, vecPredNow=vecPredNow, pv=pv)
-}
+##   #if difference between segment medians does not exceed thresAbs, then set pv=1
+##         if (diff<=thresAbs) {
+##                 pv=1
+##         }
+##   #otherwise test for difference in mean based on observed values
+##         else {
+##                 if((length(vec1) > 10 & length(vec2) > 10) | sum(length(vec1),length(vec2))>100){
+##                         pv=wilcox.test(vec1,vec2)$p.value
+##                 }
+##                 else{pv=wilcox.test(vec1,vec2,exact=TRUE)$p.value  }       #/10^max(mn1,mn2)
+##                 if(length(vec1) <= 3 | length(vec2) <= 3){pv=0}         
+##         }
+##         index.merged<-numeric()
+##   #if p-value exceeds pv.thres
+##         if (pv > pv.thres)      {
+##     #combine observed values
+##                 vec=c(vec1,vec2)
+##     # Index values to be updated
+##                 index.merged=which((vecPredNow==mn1) | (vecPredNow==mn2))               
+##     #update predicted values by median of the observed values
+##                 vecPredNow[index.merged]=median(vec, na.rm=TRUE)
+##     #update segment medians  median of the observed values and remove one of the duplicates
+##                 mnNow[which((mnNow==mn1) | (mnNow==mn2))]=median(vec, na.rm=TRUE)
+##                 mnNow=unique(mnNow)
+##         }
+##         list(mnNow=mnNow, vecPredNow=vecPredNow, pv=pv)
+## }
 
 #########################################
 
@@ -4817,79 +4596,79 @@ stop.na.inf <- function(x) {
 ## cghE1[1:10, 5:7] <- NA
 ## imputed.x <- my.impute.lowess(cghE1[1:40, 5:7], rep(1, 40))
 
-
-my.impute.lowess <- function (x,
-                              chrom.numeric,
-                              Clone = NULL,
-                              Pos = NULL,
-                              chrominfo = human.chrom.info.Jul03,
-                              maxChrom = 23,
-                              smooth = 0.1)
-{
-  ## BEWARE: Pos MUST be in kilobases!!!
-  if(is.null(Clone)) Clone <- 1:length(chrom.numeric)
-  if(is.null(Pos)) Pos <- Clone
-  aCGH.obj <- create.aCGH(data.frame(x),
-                          data.frame(Clone = Clone,
-                                     Chrom = chrom.numeric,
-                                     kb = Pos))
+## This function has not been used in years
+## my.impute.lowess <- function (x,
+##                               chrom.numeric,
+##                               Clone = NULL,
+##                               Pos = NULL,
+##                               chrominfo = human.chrom.info.Jul03,
+##                               maxChrom = 23,
+##                               smooth = 0.1)
+## {
+##   ## BEWARE: Pos MUST be in kilobases!!!
+##   if(is.null(Clone)) Clone <- 1:length(chrom.numeric)
+##   if(is.null(Pos)) Pos <- Clone
+##   aCGH.obj <- create.aCGH(data.frame(x),
+##                           data.frame(Clone = Clone,
+##                                      Chrom = chrom.numeric,
+##                                      kb = Pos))
   
-    data.imp <- log2.ratios <- log2.ratios(aCGH.obj)
-    clones.info <- clones.info(aCGH.obj)
-    uniq.chrom <- unique(clones.info$Chrom)
-    for (j in uniq.chrom[uniq.chrom <= maxChrom]) {
-        cat("Processing chromosome ", j, "\n")
-        centr <- chrominfo$centromere[j]
-        indl <- which(clones.info$Chrom == j & clones.info$kb <
-            centr)
-        indr <- which(clones.info$Chrom == j & clones.info$kb >
-            centr)
-        kbl <- clones.info$kb[indl]
-        kbr <- clones.info$kb[indr]
-        for (i in 1:ncol(log2.ratios)) {
-            if (length(indl) > 0) {
-                vecl <- log2.ratios[indl, i]
-                ind <- which(!is.na(vecl))
-                if (length(ind) > 1)
-                  data.imp[indl, i][-ind] <- approx(lowess(kbl[ind],
-                    vecl[ind], f = smooth), xout = kbl[-ind])$y
-            }
-            if (length(indr) > 0) {
-                vecr <- log2.ratios[indr, i]
-                ind <- which(!is.na(vecr))
-                if (length(ind) > 0)
-                  data.imp[indr, i][-ind] <- approx(lowess(kbr[ind],
-                    vecr[ind], f = smooth), xout = kbr[-ind])$y
-            }
-        }
-    }
-    prop.miss <- apply(data.imp, 2, prop.na)
-    if (max(prop.miss, na.rm = TRUE) > 0) {
-        for (i in 1:ncol(data.imp)) {
-            vec <- data.imp[, i]
-            ind <- which(is.na(vec))
-            if (length(ind) > 0) {
-                vec[ind] <- sapply(ind, function(i) {
-                  chr <- clones.info$Chrom[i]
-                  kb <- clones.info$kb[i]
-                  if (kb >= chrominfo$centromere[chr])
-                    median(vec[clones.info$Chrom == chr & clones.info$kb >=
-                      chrominfo$centromere[chr]], na.rm = TRUE)
-                  else median(vec[clones.info$Chrom == chr &
-                    clones.info$kb < chrominfo$centromere[chr]],
-                    na.rm = TRUE)
-                })
-                vec[is.na(vec)] <- 0
-                data.imp[, i] <- vec
-            }
-        }
-    }
-    prop.miss <- apply(data.imp, 2, prop.na)
-    if (max(prop.miss) > 0)
-        print(paste("Missing values still remain in samples ",
-            which(prop.miss > 0)))
-    data.imp
-}
+##     data.imp <- log2.ratios <- log2.ratios(aCGH.obj)
+##     clones.info <- clones.info(aCGH.obj)
+##     uniq.chrom <- unique(clones.info$Chrom)
+##     for (j in uniq.chrom[uniq.chrom <= maxChrom]) {
+##         cat("Processing chromosome ", j, "\n")
+##         centr <- chrominfo$centromere[j]
+##         indl <- which(clones.info$Chrom == j & clones.info$kb <
+##             centr)
+##         indr <- which(clones.info$Chrom == j & clones.info$kb >
+##             centr)
+##         kbl <- clones.info$kb[indl]
+##         kbr <- clones.info$kb[indr]
+##         for (i in 1:ncol(log2.ratios)) {
+##             if (length(indl) > 0) {
+##                 vecl <- log2.ratios[indl, i]
+##                 ind <- which(!is.na(vecl))
+##                 if (length(ind) > 1)
+##                   data.imp[indl, i][-ind] <- approx(lowess(kbl[ind],
+##                     vecl[ind], f = smooth), xout = kbl[-ind])$y
+##             }
+##             if (length(indr) > 0) {
+##                 vecr <- log2.ratios[indr, i]
+##                 ind <- which(!is.na(vecr))
+##                 if (length(ind) > 0)
+##                   data.imp[indr, i][-ind] <- approx(lowess(kbr[ind],
+##                     vecr[ind], f = smooth), xout = kbr[-ind])$y
+##             }
+##         }
+##     }
+##     prop.miss <- apply(data.imp, 2, prop.na)
+##     if (max(prop.miss, na.rm = TRUE) > 0) {
+##         for (i in 1:ncol(data.imp)) {
+##             vec <- data.imp[, i]
+##             ind <- which(is.na(vec))
+##             if (length(ind) > 0) {
+##                 vec[ind] <- sapply(ind, function(i) {
+##                   chr <- clones.info$Chrom[i]
+##                   kb <- clones.info$kb[i]
+##                   if (kb >= chrominfo$centromere[chr])
+##                     median(vec[clones.info$Chrom == chr & clones.info$kb >=
+##                       chrominfo$centromere[chr]], na.rm = TRUE)
+##                   else median(vec[clones.info$Chrom == chr &
+##                     clones.info$kb < chrominfo$centromere[chr]],
+##                     na.rm = TRUE)
+##                 })
+##                 vec[is.na(vec)] <- 0
+##                 data.imp[, i] <- vec
+##             }
+##         }
+##     }
+##     prop.miss <- apply(data.imp, 2, prop.na)
+##     if (max(prop.miss) > 0)
+##         print(paste("Missing values still remain in samples ",
+##             which(prop.miss > 0)))
+##     data.imp
+## }
 
 
 the.time.with.ms <- function() {

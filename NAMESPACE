@@ -13,9 +13,13 @@ export("pSegmentDNAcopy",
        "inputToADaCGH",
        "outputToCGHregions",
        "cutFile")
-       ## "tempdir2",
-       ## "convertAndSave")
 
-
-
-
+importFrom("parallel", clusterApply, mclapply, stopCluster)
+importFrom("DNAcopy", getbdry)
+importFrom("tilingArray", segment)
+importFrom("snapCGH", fit.model)
+importFrom("aCGH", mergeLevels, create.aCGH, find.hmm.states, "hmm<-")
+importFrom("GLAD", daglad.profileCGH)
+importFrom("waveslim", modwt, imodwt)
+importFrom("cluster", pam)
+importFrom("ffbase", min.ff, max.ff)

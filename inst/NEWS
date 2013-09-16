@@ -1,3 +1,15 @@
+Changes in version 2.1.5 (2013-09-16)
+       - Fixed typos.
+       - Minimized usage of ":::", removed unused functions for Ansari,
+       and some assignemts that no longer made sense (all packages now
+       have namespaces).
+       - Minimize "Depends" and use "Suggests" and "Imports" in
+       DESCRIPTION with "importFrom" in NAMESPACE.
+       - No longer using our own mergeLevels, since identical to the ones
+       in aCGH package.
+       - GLAD uses now the recommended fastest option (smoothfunc=haarseg).
+
+
 Changes in version 2.1.4 (2013-07-01)
        - Fixed missing entry in bib of vignette.
 

@@ -8,8 +8,8 @@
 \usepackage{amsmath}
 \usepackage[authoryear,round]{natbib}
 \usepackage{threeparttable}
-\usepackage{hyperref}
 \usepackage{array}
+\usepackage{hyperref}
 \usepackage{geometry}
 \geometry{verbose,a4paper,tmargin=23mm,bmargin=26mm,lmargin=28mm,rmargin=28mm}
 
@@ -20,9 +20,20 @@
 %\usetikzlibrary{arrows,shapes,positioning}
 
 \usepackage[latin1]{inputenc}
+
+
 \title{Analysis of data from aCGH experiments using parallel computing and
 ff objects}
 \author{Ramon Diaz-Uriarte$^{1}$, Daniel Rico$^{2}$, and Oscar M.\ Rueda$^{3}$}
+
+
+%% Remember to add BiocStyle to Suggests
+%%
+%% I get lots of problems, so will try later.
+%% <<style, eval=TRUE, echo=FALSE, results=tex>>=
+%% BiocStyle::latex()
+%% @
+
 
 \begin{document}
 \maketitle
@@ -733,7 +744,7 @@ environments and/or long running processes.
 We can try dealing with the above problems by executing the conversion to
 \textit{ff} in a separate R process that is spawned exclusively just for
 the conversion. For instance, we could use the \texttt{mcparallel}
-function (from package \textbf{paralle}) and do:
+function (from package \textbf{parallel}) and do:
 
 <<eval=FALSE>>=
 mcparallel(inputToADaCGH(ff.or.RAM = "ff",
@@ -1285,6 +1296,8 @@ original, limma MAList object). \texttt{MA2} is of type \texttt{SegList}.
 
 
 <<>>=
+require("limma")
+require("snapCGH")
 datadir <- system.file("testdata", package = "snapCGH")
 targets <- readTargets("targets.txt", path = datadir)
 RG1 <- read.maimages(targets$FileName, path = datadir, source = "genepix")
