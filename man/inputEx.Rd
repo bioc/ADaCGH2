@@ -2,6 +2,8 @@
 \docType{data}
 \alias{inputEx}
 \alias{inputEx-sp}
+\alias{inputEx.nona}
+
 \title{A fictitious aCGH data set}
 \description{
   A fictitious aCGH data set.

@@ -2005,6 +2005,9 @@ CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{
   working directory for segmentation analysis is another empty directory
   if you are using \texttt{ff} objects.
   
+\item Reordering data takes time (a lot if you do not use \textit{ff}
+  objects) and can use a lot of memory. So it is much better if input data are
+  already ordered (by Chromosome and Position within Chromosome).
   
 \end{enumerate}
 

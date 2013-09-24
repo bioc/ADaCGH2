@@ -13,7 +13,7 @@
 
 \usage{
 pChromPlot(outRDataName, cghRDataName, chromRDataName,
-           probenamesRDataName,
+           probenamesRDataName = NULL,
            posRDataName = NULL,
            imgheight = 500,
            pixels.point = 3,
@@ -23,6 +23,7 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
            typeParall = "fork",
            mc.cores = detectCores(),
            typedev = "default",
+           certain_noNA = FALSE,
            ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -74,7 +75,8 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
     the probe names or the RAM object. Function
     \code{\link{inputToADaCGH}} produces these type of
     files. (Note even if this is an RData file stored on disk, this
-    is not an ff file.)  }
+    is not an ff file.)  This won't be needed unless you set
+    \code{imagemap = TRUE}.}
 
 
   \item{imgheight}{
@@ -127,6 +129,13 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
   might work with headless Linux server without png support, and might
   be a better choice with Mac OS. "default" chooses "Cairo" for Mac, and
   "cairo" otherwise.}
+
+\item{certain_noNA}{Are you certain, absolutely sure, your data contain
+  no missing values? (Default is FALSE). If you are, you can achieve
+  considerable speed ups by setting it to TRUE. See the help for this
+  option in  \code{\link{pSegment}}. Of course, if you are setting it to
+  true, the object you pass with the output, \code{outRDataName}, must
+  have been generated using \code{certain_noNA}.}
 
 \item{...}{Additional arguments; not used.}
 

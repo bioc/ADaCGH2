@@ -31,6 +31,7 @@ pSegmentDNAcopy(cghRDataName, chromRDataName, merging = "MAD",
                 undo.prune=0.05, undo.SD=3,
                 typeParall = "fork",
                 mc.cores = detectCores(),
+                certain_noNA = FALSE,
                 ...)
 
 pSegmentHaarSeg(cghRDataName, chromRDataName,
@@ -42,13 +43,16 @@ pSegmentHaarSeg(cghRDataName, chromRDataName,
                 haarEndLevel = 5,
                 typeParall = "fork",
                 mc.cores = detectCores(),
+                certain_noNA = FALSE,
                 ...)
 
 pSegmentHMM(cghRDataName, chromRDataName,
             merging = "mergeLevels", mad.threshold = 3,
             aic.or.bic = "AIC",
             typeParall = "fork",
-            mc.cores = detectCores(),...)
+            mc.cores = detectCores(),
+            certain_noNA = FALSE,
+            ...)
 
 
 
@@ -57,12 +61,14 @@ pSegmentBioHMM(cghRDataName, chromRDataName, posRDataName,
                aic.or.bic = "AIC",
                typeParall = "fork",
                mc.cores = detectCores(),
+               certain_noNA = FALSE,
                ...)
 
 pSegmentCGHseg(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                merging = "MAD", mad.threshold = 3,
                typeParall = "fork",
                mc.cores = detectCores(),
+               certain_noNA = FALSE,
                ...)
 
 
@@ -73,6 +79,8 @@ pSegmentGLAD(cghRDataName, chromRDataName,
              amplicon = 1,
              typeParall = "fork",
              mc.cores = detectCores(),
+             certain_noNA = FALSE,
+             GLADdetails = FALSE,
              ...)
 
 
@@ -82,7 +90,9 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
                  minMergeDiff = 0.05,
                  thrLvl = 3, initClusterLevels = 10,
                  typeParall = "fork",
-                 mc.cores = detectCores(),...)
+                 mc.cores = detectCores(),
+                 certain_noNA = FALSE,
+                 ...)
 
 
 
@@ -145,9 +155,17 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
 \item{mc.cores}{The number of cores used if \code{typeParall =
     "fork"}. See details in \code{\link[parallel]{mclapply}}}.
 
+\item{certain_noNA}{Are you certain, absolutely sure, your data contain
+  no missing values? (Default is FALSE). If you are, you can achieve
+  considerable speed ups by setting it to TRUE. But if you set it to
+  TRUE and you are wrong, some methods will fail (some with harder
+  to understand error messages) and, even worse, other methods might
+  appear to work (but give incorrect results). You've been warned.}
+
   \item{smooth}{For DNAcopy only. If TRUE (default) carry out smoothing as
     explained in \code{\link[DNAcopy]{smooth.CNA}}.}
 
+  
   \item{alpha}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
   \item{nperm}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
   \item{p.method}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
@@ -195,7 +213,11 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
   \item{deltaN}{Only for GLAD. See \option{deltaN} in \code{\link[GLAD]{daglad}}.}
   \item{forceGL}{Only for GLAD. See \option{forceGL} in \code{\link[GLAD]{daglad}}.}
   \item{deletion}{Only for GLAD. See \option{deletion} in \code{\link[GLAD]{daglad}}.}
-  \item{amplicon}{Only for GLAD. See \option{amplicon} in \code{\link[GLAD]{daglad}}.}
+  \item{amplicon}{Only for GLAD. See \option{amplicon} in
+    \code{\link[GLAD]{daglad}}.}
+  \item{GLADdetails}{Only for GLAD. If set to TRUE the function returns
+  verbose output about where it is along the execution. This option
+  (setting it to FALSE) is likely to become hard-coded in the future.}
   
 
 
@@ -248,7 +270,8 @@ however, is carried out over array (it is a step that must be carried
 array-wise). For all other methods, we have parallelized over arrays:
 the extra communication overheads of the much finer-grained
 parallelization of array by chromosome are rarely justified with these
-methods.
+methods and, in the case of GLAD, would require modifying the original C
+code. 
 
 
 % We have parallelized all computations by array (in contrast to former
@@ -264,6 +287,9 @@ the key step of choosing the optimal number of segments (see p. 13 in
 Picard et al, 2005). We implement the author's method in our (internal,
 so use "ADaCGH2:::piccardsKO" to see it) function "piccardsKO".
 
+
+When using GLAD, we use the HaarSeg approach. This is the same as using
+the \code{daglad} function with argument \code{smoothfunc = "haarseg"}.
 
 
 For BioHMM and HMM the smoothed results are merged, by default by the

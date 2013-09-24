@@ -1,3 +1,8 @@
+## For GLAD: add verbose option, and turn the cat("\DEBUG) into something
+## more useful such as cat("pSegment verbose output: )
+## So replace the cat(whatever by if(verbose) cat(whatever-new
+
+
 ## TO-DO: If we knew there are no NAs, we could make things a lot faster
 ## eliminating all calls to expungeNA and impunge.
 
@@ -1146,7 +1151,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
     cat("\n   ...  directory reading: reading the chromosome file \n")
     chromData <- ff(scan(file  = file.path(path, "Chrom.txt"),
                      what = integer(), skip = 1),
-                vmode = "ushort",
+                vmode = "short",
                 pattern = ffpattern)
 
     cat("\n   ...  directory reading: reading the Positions file \n")
@@ -1235,7 +1240,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                      comment.char = "#",
                      sep = "\t",
                      skip = skip)[[2]],
-                vmode = "ushort",
+                vmode = "short",
                 pattern = ffpattern)
 
     cat("\n   ...  textfile reading: (parallel) reading of remaining columns \n")
@@ -1329,6 +1334,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
     }
 
     ## We will remove NAs in Position or Chromosome, if those exist.
+    ## NOTE: we never check NAs in Position or Chromosome if reading from txt file
     na.remove <- which(is.na(inputData[ , 3]) | is.na(inputData[, 2]))
     if(length(na.remove)) {
       cat("\n   ... missing values in Position or Chromosome; removing those rows \n")
@@ -1394,16 +1400,18 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                              minNumPerChrom, " observations.\n That is not allowed.\n"))
   }
   if(usingfftmp) {
-    ## this should be unneeded, and caught when reading
-    if((vmode(chromData) != "ushort") | (min.ff(chromData) < 1) ) ## min.ff is from ffbase
-      caughtUserError2("Chromosome is NOT a positive (ushort) integer!! \n")
-    if(max.ff(chromData)> 65000) ## max.ff is from ffbase
-      caughtUserError2("Chromosome has more than 65000 levels!!\n")
+    ## this should be unneeded, and caught when reading?
+      ## we will catch non-numeric; but > 32768 will just flip around
+      ## and become negative
+    if( min.ff(chromData) < 1 ) ## min.ff is from ffbase
+      caughtUserError2("Chromosome is NOT a positive integer (or has values > 32000) \n")
+    if(max.ff(chromData)> 30000) ## max.ff is from ffbase
+      caughtUserError2("Chromosome has more than 30000 levels!!\n")
   } else {  
     if(!all(is.wholeposnumber(inputData[, 2])))
       caughtUserError2("Chromosome is NOT a positive integer!!\n")
-    if(max(inputData[, 2]) > 65000)
-      caughtUserError2("Chromosome has more than 65000 levels!!\n")
+    if(max(inputData[, 2]) > 30000)
+      caughtUserError2("Chromosome has more than 30000 levels!!\n")
   }
 
 
@@ -1539,7 +1547,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
     ##   chromData <- inputData[[2]]
     ## } else {
     if(!usingfftmp) {
-      chromData <- ff(as.integer(inputData[, 2]), vmode = "ushort",
+      chromData <- ff(as.integer(inputData[, 2]), vmode = "short",
                       pattern = ffpattern)
     }
     close(chromData)
@@ -1789,6 +1797,8 @@ pSegmentGLAD <- function(cghRDataName, chromRDataName,
                          amplicon = 1,
                          typeParall = "fork",
                          mc.cores = detectCores(),
+                         certain_noNA = FALSE,
+                         GLADdetails = FALSE,
                          ...) {
 
   ## check appropriate class of objects
@@ -1844,7 +1854,9 @@ pSegmentGLAD <- function(cghRDataName, chromRDataName,
                       forceGL,
                       deletion,
                       amplicon,
-                      ff.object)
+                      ff.object,
+                      certain_noNA,
+                      GLADdetails)
   
   ## a hack to avoid sfClusterApply from catching the error and aborting
   te <- unlist(unlist(lapply(outsf, function(x) inherits(x, "my-try-error"))))
@@ -1866,7 +1878,9 @@ internalGLAD <- function(index, cghRDataName, chromRDataName,
                          forceGL,
                          deletion,
                          amplicon,
-                         ff.object) {
+                         ff.object,
+                         certain_noNA,
+                         GLADdetails) {
 ##  cghvalues <- getCGHval(cghRDataName, index)
 ##  chromvalues <- getChromval(chromRDataName)
 
@@ -1882,13 +1896,29 @@ internalGLAD <- function(index, cghRDataName, chromRDataName,
     Chromosome <- chromRDataName
   }
 
-  cleanDataList <- expungeNA(lrv)
-  LogRatio <- cleanDataList$x_clean
+  
+  ## if(certain_noNA) {
+  ##     cat("\n Using certain_noNA \n")
+  ##     LogRatio <- lrv
+  ## } else {
+  ##     cleanDataList <- expungeNA(lrv)
+  ##     LogRatio <- cleanDataList$x_clean
+  ## }
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(lrv)
+      lrv <- cleanDataList$x_clean
+      Chromosome <- Chromosome[cleanDataList$pos_clean]
+  }
 
+  cat("\n  GLAD details: creating profileCGH \n")
+  ## tmpf <- list(profileValues = data.frame(
+  ##                  LogRatio = LogRatio,
+  ##                  PosOrder = seq_len(length(LogRatio)),
+  ##                  Chromosome = Chromosome[cleanDataList$pos_clean]))
   tmpf <- list(profileValues = data.frame(
-                   LogRatio = LogRatio,
-                   PosOrder = seq_len(length(LogRatio)),
-                   Chromosome = Chromosome[cleanDataList$pos_clean]))
+                   LogRatio = lrv,
+                   PosOrder = seq_len(length(lrv)),
+                   Chromosome = Chromosome))
 
 
   
@@ -1905,47 +1935,570 @@ internalGLAD <- function(index, cghRDataName, chromRDataName,
   ##                  Chromosome = chromRDataName))
   ## }
 
-  rm(LogRatio)
+  ## rm(LogRatio)
   gc()
   class(tmpf) <- "profileCGH"
 
+
+  if(GLADdetails) cat("\n  GLAD details: finished creating profileCGH \n")
+  
   ## GLAD produces lots of gratuitous output. Capture it
   ## to ignore it
   ## We use daglad.  It seems the recommended one, as seen from the message when loading it.
+  ## tmp <- capture.output(
+  ##     ## outglad <- try(daglad.profileCGH(tmpf, deltaN = deltaN,
+  ##     ##                                  forceGL = forceGL,
+  ##     ##                                  deletion = deletion,
+  ##     ##                                  amplicon = amplicon,
+  ##     ##                                  verbose = FALSE,
+  ##     ##                                  smoothfunc = "haarseg"))
+  ##     outglad <- try(daglad.ADa.1(tmpf, deltaN = deltaN,
+  ##                                 forceGL = forceGL,
+  ##                                 deletion = deletion,
+  ##                                 amplicon = amplicon,
+  ##                                 verbose = FALSE,
+  ##                                 smoothfunc = "haarseg"))
+
+  ##     )
+
+
+  if(GLADdetails) cat("\n  GLAD details: ****** calling daglad \n")
+
   tmp <- capture.output(
-      outglad <- try(daglad.profileCGH(tmpf, deltaN = deltaN,
-                                       forceGL = forceGL,
-                                       deletion = deletion,
-                                       amplicon = amplicon,
-                                       verbose = FALSE,
-                                       smoothfunc = "haarseg"))
-  )
+      outglad <- try(daglad.ADa.1(tmpf, deltaN = deltaN,
+                                  forceGL = forceGL,
+                                  deletion = deletion,
+                                  amplicon = amplicon,
+                                  verbose = FALSE,
+                                  smoothfunc = "haarseg",
+                                  GLADdetails = GLADdetails))
+      )
+
+  if(GLADdetails) cat("\n  GLAD details: ***** finished calling daglad \n")
+
   
   rm(tmpf)
   rm(tmp)
+  ##   rm(tmp) ## FIXME: put back in place and all the capturing output if
+  ##   not using verbose option
+
+  
   gc()
+
   ## nodeWhere("internalGLAD")
   if(inherits(outglad, "try-error")) {
-    ## a hack to avoid sfClusterApply from catching the error and aborting
-    class(outglad) <- "my-try-error"
-    return(outglad)
+      ## a hack to avoid sfClusterApply from catching the error and aborting
+      class(outglad) <- "my-try-error"
+      return(outglad)
   } else { ## no errors.
-    smoothed <- local(inpungeNA(outglad$profileValues$Smoothing,
-                          cleanDataList$lx, cleanDataList$pos_clean,
-                          cleanDataList$nas))
-    state <- local(inpungeNA(outglad$profileValues$ZoneGNL,
-               cleanDataList$lx, cleanDataList$pos_clean,
-               cleanDataList$nas))
-
-    gc()
-    if(ff.out) {
-      return(ffListOut(smoothed, state))
-    } else {
-      return(list(smoothed = smoothed,
-                  state = as.integer(state)))
-    }
+      if(GLADdetails) cat("\n  GLAD details: creating return objects \n")
+      if(certain_noNA) {
+          if(ff.out) {
+              return(ffListOut(outglad$profileValues$Smoothing,
+                               outglad$profileValues$ZoneGNL))
+          } else {
+              return(list(smoothed = outglad$profileValues$Smoothing,
+                          state = as.integer(outglad$profileValues$ZoneGNL)))
+          }
+      } else {
+          smoothed <- local(inpungeNA(outglad$profileValues$Smoothing,
+                                      cleanDataList$lx, cleanDataList$pos_clean,
+                                      cleanDataList$nas))
+          state <- local(inpungeNA(outglad$profileValues$ZoneGNL,
+                                   cleanDataList$lx, cleanDataList$pos_clean,
+                                   cleanDataList$nas))
+          gc()
+          if(ff.out) {
+              return(ffListOut(smoothed, state))
+          } else {
+              return(list(smoothed = smoothed,
+                          state = as.integer(state)))
+          }
+      }
   }
 }
+
+daglad.ADa.1 <- function (profileCGH, mediancenter = FALSE, normalrefcenter = FALSE, 
+                       genomestep = FALSE, OnlySmoothing = FALSE, OnlyOptimCall = FALSE, 
+                       smoothfunc = "lawsglad", lkern = "Exponential", model = "Gaussian", 
+                       qlambda = 0.999, bandwidth = 10, sigma = NULL, base = FALSE, 
+                       round = 2, lambdabreak = 8, lambdaclusterGen = 40, param = c(d = 6), 
+                       alpha = 0.001, msize = 2, method = "centroid", nmin = 1, 
+                       nmax = 8, region.size = 2, amplicon = 1, deletion = -5, deltaN = 0.1, 
+                       forceGL = c(-0.15, 0.15), nbsigma = 3, MinBkpWeight = 0.35, 
+                       DelBkpInAmp = TRUE, DelBkpInDel = TRUE, CheckBkpPos = TRUE, 
+                       assignGNLOut = TRUE, breaksFdrQ = 1e-04, haarStartLevel = 1, 
+                       haarEndLevel = 5, weights.name = NULL, verbose = FALSE, GLADdetails = TRUE, ...) 
+{
+
+    ### Most code removals are really inocuous if not removed; they do
+    ### nothing. The possible exception is the reordering of probes.
+
+    if(GLADdetails) cat("\n GLAD details: starting daglad \n")
+    IQRdiff <- function(y) IQR(diff(y))/1.908
+    profileCGH$alpha <- alpha
+    profileCGH$msize <- msize
+    profileCGH$amplicon <- amplicon
+    profileCGH$deletion <- deletion
+    profileCGH$deltaN <- deltaN
+    profileCGH$method <- method
+    profileCGH$lambdaclusterGen <- lambdaclusterGen
+    profileCGH$nmax <- nmax
+    profileCGH$nmin <- nmin
+    profileCGH$forceGL <- forceGL
+    profileCGH$nbsigma <- nbsigma
+    profileCGH$smoothfunc <- smoothfunc
+    profileCGH$lambdabreak <- lambdabreak
+    profileCGH$param <- param
+    profileCGH$NbProbes <- length(profileCGH$profileValues[["PosOrder"]])
+    profileCGH$TooSmall <- FALSE
+    ## if (verbose) 
+    ##     print("daglad - step CheckData")
+    ## CheckData(profileCGH, bandwidth = bandwidth, smoothfunc = smoothfunc, 
+    ##     weights.name = weights.name, OnlyOptimCall = OnlyOptimCall)
+    ## if (base == TRUE) {
+    ##     if (!require(aws)) {
+    ##         stop("Error in daglad: the aws package is required to use these function. The aws package can be installed from http://www.r-project.org")
+    ##     }
+    ## }
+    ## if ((msize > region.size) & (region.size != 0)) 
+    ##     stop("Error in daglad: msize must be lower than region.size")
+    ## if (smoothfunc == "lawsglad" & model != "Gaussian") 
+    ##     stop("Error in daglad: for lawsglad, only Gaussian model is available")
+    ## if (smoothfunc == "lawsglad" & base == TRUE)
+    ##        stop("Error in daglad: for lawsglad it is not possible to use the option base=TRUE. Choose laws smoothfunc instead.")
+    ## if (smoothfunc != "lawsglad" && smoothfunc != "haarseg") {
+    ##     print(paste("You have chosen smoothfunc=", smoothfunc))
+    ##     print(paste("Choose smoothfunc=lawsglad or smoothfunc=haarseg if you want the process runs faster"))
+    ## }
+
+    if(GLADdetails) cat("\n GLAD details: bebore inputfields \n")
+
+    inputfields <- names(profileCGH$profileValues)
+##    if (!OnlyOptimCall) {
+        excdudefields <- c("Level", "OutliersAws", "OutliersMad", 
+            "OutliersTot", "Breakpoints", "Smoothing", "NormalRef", 
+            "ZoneGNL")
+    ## }
+    ## else {
+    ##     excdudefields <- c("Level", "OutliersAws", "OutliersMad", 
+    ##         "OutliersTot", "Breakpoints", "Region", "NormalRef", 
+    ##         "ZoneGNL")
+    ## }
+    fieldstodel <- intersect(inputfields, excdudefields)
+    ## if (length(fieldstodel) > 0) {
+    ##     print("Error in daglad: the following fields must be removed from profileValues before starting the function:")
+    ##     print(fieldstodel)
+    ##     stop()
+    ## }
+
+    ## We have the data already ordered!!!
+    ## Doing this could lead to a huge speed penalty!!!
+    ## profileCGH$profileValues <- profileCGH$profileValues[order(profileCGH$profileValues[["Chromosome"]], 
+    ##     profileCGH$profileValues[["PosOrder"]]), ]
+    ## if (OnlyOptimCall) {
+    ##     new.fields <- c("NewPosOrder", "OutliersAws", "Region", 
+    ##         "Level", "Breakpoints", "MinPosOrder", "MaxPosOrder", 
+    ##         "OutliersMad", "OutliersTot", "NextLogRatio", "NormalRange", 
+    ##         "ZoneGen", "ZoneGNL")
+    ##     smoothfunc <- "haarseg"
+    ## }
+    ## else {
+
+    
+    new.fields <- c("NewPosOrder", "Smoothing", "OutliersAws", 
+                    "Region", "Level", "Breakpoints", "MinPosOrder", 
+                    "MaxPosOrder", "OutliersMad", "OutliersTot", "NextLogRatio", 
+                    "NormalRange", "ZoneGen", "ZoneGNL")
+    ##    }
+    nb.new.fields <- length(new.fields)
+    ## if (smoothfunc == "haarseg") {
+    profileCGH$profileValues <- as.list(profileCGH$profileValues)
+    profileCGH$profileValues[new.fields] <- lapply(as.list(rep(profileCGH$NbProbes, 
+                                                               nb.new.fields)), numeric)
+    ## }
+    ## else {
+    ##     profileCGH$profileValues[new.fields] <- 0
+    ## }
+
+    if(GLADdetails) cat("\n GLAD details: NewPosOrder et al \n")
+
+    profileCGH$profileValues[["NewPosOrder"]] <- profileCGH$profileValues[["PosOrder"]]
+    profileCGH$profileValues[["PosOrder"]] <- 1:profileCGH$NbProbes
+    ## if (mediancenter) {
+    ##     med <- median(profileCGH$profileValues[["LogRatio"]])
+    ##     profileCGH$profileValues[["LogRatio"]] <- profileCGH$profileValues[["LogRatio"]] - 
+    ##         med
+    ## }
+
+    if(GLADdetails) cat("\n GLAD details: before chrBreakpoints \n")
+
+    ## print("Smoothing for each Chromosome")
+    profileCGH <- chrBreakpoints(profileCGH, smoothfunc = smoothfunc, 
+                                 OnlyOptimCall = OnlyOptimCall, base = base, sigma = sigma, 
+                                 bandwidth = bandwidth, lkern = lkern, model = model, 
+                                 qlambda = qlambda, round = round, verbose = verbose, 
+                                 breaksFdrQ = breaksFdrQ, haarStartLevel = haarStartLevel, 
+                                 haarEndLevel = haarEndLevel, weights.name = weights.name)
+    profileCGH$SigmaC <- profileCGH$Sigma
+    profileCGH$Sigma <- NULL
+    ## if (OnlySmoothing) {
+    ##     junk.fields <- c("NewPosOrder", "OutliersAws", "MinPosOrder", 
+    ##         "MaxPosOrder", "OutliersMad", "OutliersTot", "NextLogRatio", 
+    ##         "NormalRange", "ZoneGen", "ZoneGNL")
+    ##     profileCGH$profileValues <- as.data.frame(profileCGH$profileValues[setdiff(names(profileCGH$profileValues), 
+    ##         junk.fields)])
+    ##     return(profileCGH)
+    ## }
+    ## if (genomestep) {
+    ##     profileCGH <- dogenomestep(profileCGH, nb.new.fields = nb.new.fields, 
+    ##         new.fields = new.fields, smoothfunc = smoothfunc, 
+    ##         lkern = lkern, model = model, qlambda = qlambda, 
+    ##         bandwidth = bandwidth, sigma = sigma, base = FALSE, 
+    ##         round = round, lambdabreak = lambdabreak, lambdaclusterGen = lambdaclusterGen, 
+    ##         param = param, alpha = alpha, msize = msize, method = method, 
+    ##         nmin = nmin, nmax = nmax, amplicon = amplicon, deletion = deletion, 
+    ##         deltaN = deltaN, forceGL = forceGL, nbsigma = nbsigma, 
+    ##         MinBkpWeight = MinBkpWeight, DelBkpInAmp = DelBkpInAmp, 
+    ##         DelBkpInDel = DelBkpInDel, CheckBkpPos = CheckBkpPos, 
+    ##         assignGNLOut = assignGNLOut, breaksFdrQ = breaksFdrQ, 
+    ##         haarStartLevel = haarStartLevel, haarEndLevel = haarEndLevel, 
+    ##         weights.name = weights.name, verbose = verbose)
+    ## }
+    ## else {
+
+    if(GLADdetails) cat("\n GLAD details: after chrBreakpoints \n")
+    
+    
+    profileCGH$NormalRef <- 0
+    if (is.null(sigma)) {
+        IQRinfoG <- IQRdiff(profileCGH$profileValues[["LogRatio"]])
+    }
+    else {
+        IQRinfoG <- sigma
+    }
+
+    if(GLADdetails) cat("\n GLAD details: starting IQRdiff \n")
+
+    profileCGH$SigmaG <- data.frame(Chromosome = 0, Value = IQRinfoG)
+    profileCGH$findClusterSigma <- profileCGH$SigmaG$Value[1]
+    ##    }
+    FieldOrder <- names(profileCGH$profileValues)
+    profileCGH$AbsoluteBkp <- data.frame(Chromosome = c(0, profileCGH$PosOrderRange$Chromosome), 
+        PosOrder = c(0, profileCGH$PosOrderRange$MaxPosOrder), 
+        AbsoluteBkp = 1)
+
+    if(GLADdetails) cat("\n GLAD details: before OptimBkpFindCluster \n")
+
+    print("Optimization of the Breakpoints and DNA copy number calling")
+    profileCGH <- OptimBkpFindCluster(profileCGH)
+    profileCGH$BkpInfo <- BkpInfo(profileCGH)
+    if (verbose) 
+        print("daglad - step filterBkpStep (pass 0)")
+
+    if(GLADdetails) cat("\n GLAD details: before filterBkpStep 0 \n")
+
+    profileCGH <- filterBkpStep(profileCGH, MinBkpWeight = MinBkpWeight, 
+        DelBkpInAmp = DelBkpInAmp, DelBkpInDel = DelBkpInDel, 
+        assignGNLOut = assignGNLOut, verbose = verbose)
+
+    if(GLADdetails) cat("\n GLAD details: before DelRegionTooSmall \n")
+
+    profileCGH <- DelRegionTooSmall(profileCGH, region.size = region.size)
+    profileCGH <- DelRegionTooSmall(profileCGH, region.size = region.size)
+
+    if(GLADdetails) cat("\n GLAD details: before BkpInfo \n")
+
+    if (verbose) 
+        print("daglad - step BkpInfo")
+    profileCGH$BkpInfo <- BkpInfo(profileCGH)
+    if (verbose) 
+        print("daglad - step OutliersGNL")
+
+    if(GLADdetails) cat("\n GLAD details: before OutliersGNL \n")
+
+    profileCGH <- OutliersGNL(profileCGH, alpha = alpha, sigma = profileCGH$SigmaG$Value[1], 
+        NormalRef = profileCGH$NormalRef, amplicon = amplicon, 
+        deletion = deletion, assignGNLOut = assignGNLOut)
+    if (verbose) 
+        print("daglad - step filterBkpStep (pass 1)")
+
+    if(GLADdetails) cat("\n GLAD details: before filterBkpStep 1 \n")
+    
+    profileCGH <- filterBkpStep(profileCGH, MinBkpWeight = MinBkpWeight, 
+        DelBkpInAmp = DelBkpInAmp, DelBkpInDel = DelBkpInDel, 
+        assignGNLOut = assignGNLOut, verbose = verbose)
+    if (CheckBkpPos) {
+        if (verbose) 
+            print("daglad - step MoveBkpStep")
+
+        if(GLADdetails) cat("\n GLAD details: before MoveBkpStep \n")
+
+        profileCGH <- MoveBkpStep(profileCGH, assignGNLOut = assignGNLOut)
+    }
+    if (verbose) 
+        print("daglad - step filterBkpStep (pass 2)")
+
+    if(GLADdetails) cat("\n GLAD details: before filterBkpStep \n")
+
+    profileCGH <- filterBkpStep(profileCGH, MinBkpWeight = MinBkpWeight, 
+        DelBkpInAmp = DelBkpInAmp, DelBkpInDel = DelBkpInDel, 
+        assignGNLOut = assignGNLOut, verbose = verbose)
+    ## print("Results Preparation")
+
+    if(GLADdetails) cat("\n GLAD details: before prepare.output.daglad \n")
+
+    profileCGH <- prepare.output.daglad(profileCGH = profileCGH, 
+        genomestep = genomestep, normalrefcenter = normalrefcenter, 
+        inputfields = inputfields)
+    if(GLADdetails) cat("\n GLAD details: before returning from daglad \n")
+
+    return(profileCGH)
+}
+
+
+
+## the following removes a lot of unneeded, but not executed, code.
+## And if I use it, then I get the
+## * checking foreign function calls ... NOTE
+## Foreign function call to a different package:
+##   .C("chrBreakpoints_haarseg", ..., PACKAGE = "GLAD")
+
+## So I won't use it.
+## chrBreakpoints.ADa1 <- function (profileCGH, smoothfunc = "lawsglad", OnlyOptimCall = FALSE, 
+##                                  base = FALSE, sigma = NULL, model = "Gaussian", bandwidth = 10, 
+##                                  round = 1.5, verbose = FALSE, breaksFdrQ = 1e-04, haarStartLevel = 1, 
+##                                  haarEndLevel = 5, weights.name = NULL, ...) 
+## {
+##     if (verbose) {
+##         print("chrBreakpoints: starting function")
+##         call <- match.call()
+##         print(paste("Call function:", call))
+##     }
+##     ## if (smoothfunc != "laws" && smoothfunc != "aws" && smoothfunc != 
+##     ##     "lawsglad" && smoothfunc != "haarseg" && smoothfunc != 
+##     ##     "haarsegbychr") {
+##     ##     stop("Choose either aws, laws or haarseg for smoothfunc")
+##     ## }
+##     ## if (base == TRUE) {
+##     ##     if (smoothfunc != "lawsglad" && smoothfunc != "haarseg") {
+##     ##         stop("Choose either aws, or laws when base=TRUE")
+##     ##     }
+##     ## }
+##     ## if (is.null(sigma)) {
+##         resetsigma <- TRUE
+##     ## }
+##     ## else {
+##     ##     resetsigma <- FALSE
+##     ## }
+##     ## IQRdiff <- function(y) IQR(diff(y))/1.908
+##     ## roundglad <- function(x, digits = 2) {
+##     ##     dec <- (digits - trunc(digits))
+##     ##     if (dec == 0) 
+##     ##         dec <- 1
+##     ##     r <- 10^(-trunc(digits)) * dec
+##     ##     x <- r * round(x/r)
+##     ##     return(x)
+##     ## }
+##     ## if (smoothfunc != "haarseg") {
+##     ##     indice <- 1:length(profileCGH$profileValues[[1]])
+##     ##     ChrIndice <- split(indice, profileCGH$profileValues[["Chromosome"]])
+##     ##     ChrName <- names(ChrIndice)
+##     ##     if (is.numeric(profileCGH$profileValues[["Chromosome"]][1])) {
+##     ##         labelChr <- as.numeric(ChrName)
+##     ##     }
+##     ##     else {
+##     ##         labelChr <- as.character(ChrName)
+##     ##     }
+##     ##     NbChr <- length(labelChr)
+##     ##     lg <- rep(0, NbChr)
+##     ##     PosOrderRange <- data.frame(Chromosome = lg, MinPosOrder = lg, 
+##     ##         MaxPosOrder = lg)
+##     ##     nbregion <- 0
+##     ##     nblevel <- 0
+##     ##     profileCGH$BkpDetected <- data.frame(Chromosome = as.integer(labelChr), 
+##     ##         BkpDetected = 0)
+##     ##     IQRvalue <- IQRChr <- NULL
+##     ##     for (i in 1:NbChr) {
+##     ##         if (verbose) 
+##     ##             print(paste("chrBreakpoints: starting chromosome", 
+##     ##               labelChr[i]))
+##     ##         indexChr <- ChrIndice[[i]]
+##     ##         subsetdata <- profileCGH$profileValues[indexChr, 
+##     ##             ]
+##     ##         PosOrderRange$Chromosome[i] <- labelChr[i]
+##     ##         rangePos <- range(subsetdata[["PosOrder"]])
+##     ##         subsetdata[["MinPosOrder"]] <- PosOrderRange$MinPosOrder[i] <- rangePos[1]
+##     ##         subsetdata[["MaxPosOrder"]] <- PosOrderRange$MaxPosOrder[i] <- rangePos[2]
+##     ##         if (length(indexChr) > 1) {
+##     ##             if (resetsigma) {
+##     ##               sigma <- IQRdiff(subsetdata[["LogRatio"]])^2
+##     ##               IQRvalue[i] <- sigma^(0.5)
+##     ##               IQRChr[i] <- labelChr[i]
+##     ##             }
+##     ##             else {
+##     ##               IQRvalue[i] <- sigma^0.5
+##     ##               IQRChr[i] <- labelChr[i]
+##     ##             }
+##     ##             if (sigma == 0) {
+##     ##               print("Warnings: sigma equal 0")
+##     ##               print("Number of probes:", length(indexChr))
+##     ##               print("sigma was automatically set to 1")
+##     ##               sigma <- 1
+##     ##             }
+##     ##             if (base == TRUE) {
+##     ##               x <- subsetdata[["PosBase"]]
+##     ##               datarange <- range(x)
+##     ##               hmax <- diff(datarange) * bandwidth
+##     ##               hinit <- median(diff(x))
+##     ##               if (smoothfunc == "laws") {
+##     ##                 dim(x) <- c(1, length(x))
+##     ##                 awsres <- laws(y = subsetdata[["LogRatio"]], 
+##     ##                   x = x, hinit = hinit, hmax = hmax, shape = sigma, 
+##     ##                   NN = FALSE, symmetric = TRUE, model = model, 
+##     ##                   ...)$theta
+##     ##                 if (is.null(awsres) == FALSE) {
+##     ##                   subsetdata[["Smoothing"]] <- roundglad(awsres, 
+##     ##                     round)
+##     ##                 }
+##     ##                 else {
+##     ##                   subsetdata[["Smoothing"]] <- 99999
+##     ##                 }
+##     ##               }
+##     ##               if (smoothfunc == "aws") {
+##     ##                 awsres <- aws(y = subsetdata[["LogRatio"]], 
+##     ##                   x = x, hinit = hinit, hmax = hmax, sigma2 = sigma, 
+##     ##                   NN = FALSE, symmetric = TRUE, ...)$theta
+##     ##                 if (is.null(awsres) == FALSE) {
+##     ##                   subsetdata[["Smoothing"]] <- roundglad(awsres, 
+##     ##                     round)
+##     ##                 }
+##     ##                 else {
+##     ##                   subsetdata[["Smoothing"]] <- 99999
+##     ##                 }
+##     ##               }
+##     ##             }
+##     ##             else {
+##     ##               hinit <- 1
+##     ##               hmax <- length(subsetdata[["PosOrder"]]) * 
+##     ##                 bandwidth
+##     ##               if (smoothfunc == "lawsglad") {
+##     ##                 awsres <- lawsglad(y = subsetdata[["LogRatio"]], 
+##     ##                   hinit = hinit, hmax = hmax, shape = sigma, 
+##     ##                   model = model, ...)
+##     ##                 if (is.null(awsres) == FALSE) {
+##     ##                   subsetdata[["Smoothing"]] <- roundglad(awsres, 
+##     ##                     round)
+##     ##                 }
+##     ##                 else {
+##     ##                   subsetdata[["Smoothing"]] <- 99999
+##     ##                 }
+##     ##               }
+##     ##               if (smoothfunc == "laws") {
+##     ##                 awsres <- laws(y = subsetdata[["LogRatio"]], 
+##     ##                   hinit = hinit, hmax = hmax, shape = sigma, 
+##     ##                   symmetric = TRUE, model = model, ...)$theta
+##     ##                 if (is.null(awsres) == FALSE) {
+##     ##                   subsetdata[["Smoothing"]] <- roundglad(awsres, 
+##     ##                     round)
+##     ##                 }
+##     ##                 else {
+##     ##                   subsetdata[["Smoothing"]] <- 99999
+##     ##                 }
+##     ##               }
+##     ##               if (smoothfunc == "aws") {
+##     ##                 awsres <- aws(y = subsetdata[["LogRatio"]], 
+##     ##                   hinit = hinit, hmax = hmax, sigma2 = sigma, 
+##     ##                   symmetric = TRUE, ...)$theta
+##     ##                 if (is.null(awsres) == FALSE) {
+##     ##                   subsetdata[["Smoothing"]] <- roundglad(awsres, 
+##     ##                     round)
+##     ##                 }
+##     ##                 else {
+##     ##                   subsetdata[["Smoothing"]] <- 99999
+##     ##                 }
+##     ##               }
+##     ##               if (smoothfunc == "haarsegbychr") {
+##     ##                 awsres <- HaarSegGLADCPP(subsetdata[["LogRatio"]], 
+##     ##                   breaksFdrQ = breaksFdrQ, haarStartLevel = haarStartLevel, 
+##     ##                   haarEndLevel = haarEndLevel)
+##     ##                 if (is.null(awsres) == FALSE) {
+##     ##                   subsetdata[["Smoothing"]] <- awsres
+##     ##                 }
+##     ##                 else {
+##     ##                   subsetdata[["Smoothing"]] <- 99999
+##     ##                 }
+##     ##               }
+##     ##             }
+##     ##             nbregion <- nbregion + 1
+##     ##             l <- length(subsetdata[["Smoothing"]])
+##     ##             putLevel <- .C("putLevel_awsBkp", Smoothing = as.double(subsetdata[["Smoothing"]]), 
+##     ##               as.double(subsetdata[["LogRatio"]]), Level = integer(l), 
+##     ##               nblevel = as.integer(nblevel), as.integer(l), 
+##     ##               OutliersAws = integer(l), nbregion = as.integer(nbregion), 
+##     ##               regionChr = integer(l), Breakpoints = integer(l), 
+##     ##               BkpDetected = integer(1), PACKAGE = "GLAD")
+##     ##             subsetdata[c("Smoothing", "Level", "Region", 
+##     ##               "OutliersAws", "Breakpoints")] <- putLevel[c("Smoothing", 
+##     ##               "Level", "regionChr", "OutliersAws", "Breakpoints")]
+##     ##             nblevel <- putLevel$nblevel
+##     ##             profileCGH$BkpDetected$BkpDetected[i] <- putLevel$BkpDetected
+##     ##             nbregion <- putLevel$nbregion
+##     ##         }
+##     ##         else {
+##     ##             subsetdata[["Region"]] <- -1
+##     ##             subsetdata[["Level"]] <- -1
+##     ##             subsetdata[["Breakpoints"]] <- 0
+##     ##             IQRvalue[i] <- 0
+##     ##             IQRChr[i] <- labelChr[i]
+##     ##         }
+##     ##         profileCGH$profileValues[indexChr, ] <- subsetdata
+##     ##         if (verbose) 
+##     ##             print(paste("chrBreakpoints: ending chromosome", 
+##     ##               labelChr[i]))
+##     ##     }
+##     ##     profileCGH$Sigma <- data.frame(Chromosome = IQRChr, Value = IQRvalue)
+##     ##     profileCGH$PosOrderRange <- PosOrderRange
+##     ## }
+##     ## else {
+##         if (!is.null(weights.name)) {
+##             W <- profileCGH$profileValues[[weights.name]]
+##         }
+##         else {
+##             W <- NULL
+##         }
+##         NbChr <- length(unique(profileCGH$profileValues[["Chromosome"]]))
+##         l <- length(profileCGH$profileValues[["LogRatio"]])
+##         res <- .C("chrBreakpoints_haarseg", as.double(profileCGH$profileValues[["LogRatio"]]), 
+##             as.integer(profileCGH$profileValues[["Chromosome"]]), 
+##             Smoothing = as.double(profileCGH$profileValues[["Smoothing"]]), 
+##             Level = integer(l), OutliersAws = integer(l), regionChr = integer(l), 
+##             Breakpoints = integer(l), sizeChr = integer(NbChr), 
+##             startChr = integer(NbChr), IQRChr = integer(NbChr), 
+##             IQRValue = double(NbChr), BkpDetected = integer(NbChr), 
+##             as.double(breaksFdrQ), as.integer(haarStartLevel), 
+##             as.integer(haarEndLevel), as.integer(NbChr), as.integer(l), 
+##             as.double(W), as.integer(OnlyOptimCall), PACKAGE = "GLAD")
+##         MinPosOrder <- res[["startChr"]] + 1
+##         MaxPosOrder <- res[["sizeChr"]] + MinPosOrder - 1
+##         profileCGH$PosOrderRange <- data.frame(Chromosome = res[["IQRChr"]], 
+##             MinPosOrder = MinPosOrder, MaxPosOrder = MaxPosOrder)
+##         profileCGH$Sigma <- data.frame(Chromosome = res[["IQRChr"]], 
+##             Value = res[["IQRValue"]])
+##         profileCGH$BkpDetected <- data.frame(Chromosome = res[["IQRChr"]], 
+##             BkpDetected = res[["BkpDetected"]])
+##         profileCGH$profileValues[c("Smoothing", "Level", "Region", 
+##             "OutliersAws", "Breakpoints")] <- res[c("Smoothing", 
+##             "Level", "regionChr", "OutliersAws", "Breakpoints")]
+## ##    }
+##     if (verbose) 
+##         print("chrBreakpoints: ending function")
+##     return(profileCGH)
+## }
+
+
+
+
 
 pSegmentDNAcopy <- function(cghRDataName, chromRDataName,
                             merging = "MAD", ## used to be "mergeLevels",
@@ -1962,6 +2515,7 @@ pSegmentDNAcopy <- function(cghRDataName, chromRDataName,
                             undo.prune=0.05, undo.SD=3,
                             typeParall = "fork",
                             mc.cores = detectCores(),
+                            certain_noNA = FALSE,
                             ## following options for mergeLevels
                             ## merge.pv.thresh = 1e-04,
                             ## merge.ansari.sign = 0.05,
@@ -1986,11 +2540,14 @@ pSegmentDNAcopy <- function(cghRDataName, chromRDataName,
 ##  getbdry <- DNAcopy::getbdry
 
   ## taken directly from DNAcopy::segment
+  ## except no DNAcopy::default.DNAcopy.bdry
+  ## but direct assignment of object
   if (nperm == 10000 & alpha == 0.01 & eta == 0.05) {
-      ## if (!exists("default.DNAcopy.bdry")) 
-      ##     data(default.DNAcopy.bdry, package = "DNAcopy", 
-      ##          envir = environment())
-      sbdry <- DNAcopy::default.DNAcopy.bdry
+      if (!exists("default.DNAcopy.bdry")) 
+          dfdbd <- data(default.DNAcopy.bdry, package = "DNAcopy", 
+                        envir = environment())
+      ## sbdry <- default.DNAcopy.bdry
+      sbdry <- get(dfdbd)
   } else {
     max.ones <- floor(nperm * alpha) + 1
 ##    sbdry <- DNAcopy::getbdry(eta, nperm, max.ones)
@@ -2057,7 +2614,8 @@ pSegmentDNAcopy <- function(cghRDataName, chromRDataName,
                       undo.splits = undo.splits,
                       min.width =min.width,
                       mad.threshold = mad.threshold,
-                      ff.object)
+                      ff.object,
+                      certain_noNA)
   
   ## outsf <- sfClusterApplyLB(1:narrays,
   ##                           internalDNAcopy,
@@ -2104,7 +2662,8 @@ internalDNAcopy <- function(index, cghRDataName, chromRDataName,
                             undo.splits,
                             min.width,
                             mad.threshold,
-                            ff.object) {
+                            ff.object,
+                            certain_noNA) {
   ff.out <- ff.object
   
   if(ff.object) {
@@ -2115,10 +2674,11 @@ internalDNAcopy <- function(index, cghRDataName, chromRDataName,
     chrom.numeric <- chromRDataName
   }
 
-  cleanDataList <- expungeNA(cghdata)
-  cghdata <- cleanDataList$x_clean
-  chrom.numeric <- chrom.numeric[cleanDataList$pos_clean]
-
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(cghdata)
+      cghdata <- cleanDataList$x_clean
+      chrom.numeric <- chrom.numeric[cleanDataList$pos_clean]
+  }
   
   ## cghdata <- getCGHValue(cghRDataName, index)
   ## chrom.numeric <- getChromValue(chromRDataName)
@@ -2166,21 +2726,31 @@ internalDNAcopy <- function(index, cghRDataName, chromRDataName,
   rm(cghdata)
   ## nodeWhere("internalDNAcopy")
 
-  smoothed <- local(inpungeNA(outseg[, 1],
-                        cleanDataList$lx,
-                        cleanDataList$pos_clean,
-                        cleanDataList$nas))
-  state <- local(inpungeNA(outseg[, 2], 
-                     cleanDataList$lx,
-                     cleanDataList$pos_clean,
-                     cleanDataList$nas))
-  gc()
 
-  if(ff.out) {
-    return(ffListOut(smoothed, state))
+  if(certain_noNA) {
+      if(ff.out) {
+          return(ffListOut(outseg[, 1], outseg[, 2]))
+      } else {
+          return(list(smoothed = outseg[, 1], 
+                      state = as.integer(outseg[, 2])))
+      }
   } else {
-    return(list(smoothed = smoothed, 
-                state = as.integer(state)))
+      smoothed <- local(inpungeNA(outseg[, 1],
+                                  cleanDataList$lx,
+                                  cleanDataList$pos_clean,
+                                  cleanDataList$nas))
+      state <- local(inpungeNA(outseg[, 2], 
+                               cleanDataList$lx,
+                               cleanDataList$pos_clean,
+                               cleanDataList$nas))
+      gc()
+      
+      if(ff.out) {
+          return(ffListOut(smoothed, state))
+      } else {
+          return(list(smoothed = smoothed, 
+                      state = as.integer(state)))
+      }
   }
 }
 
@@ -2195,6 +2765,7 @@ pSegmentHaarSeg <- function(cghRDataName, chromRDataName,
                             haarEndLevel = 5,
                             typeParall = "fork",
                             mc.cores = detectCores(),
+                            certain_noNA = FALSE,
                             ...) {
 
   ### Here we find out if RAMl object, regular RData on disk, or ff
@@ -2251,7 +2822,8 @@ pSegmentHaarSeg <- function(cghRDataName, chromRDataName,
                       haarStartLevel,
                       haarEndLevel,
                       merging,
-                      ff.object)
+                      ff.object,
+                      certain_noNA)
 
 
   return(outToffdf2(outsf, arrayNames, ff.out = ff.object))
@@ -2269,7 +2841,8 @@ internalHaarSeg <- function(index,
                             haarStartLevel,
                             haarEndLevel,
                             merging,
-                            ff.object) {
+                            ff.object,
+                            certain_noNA) {
 
   ff.out <- ff.object ## for now, leave like this
   if(ff.object) {
@@ -2278,20 +2851,32 @@ internalHaarSeg <- function(index,
   } else {
     xvalue <- cghRDataName[, index]
   }
-
-  cleanDataList <- expungeNA(xvalue)
-  xvalue <- local(cleanDataList$x_clean)
-
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(xvalue)
+      xvalue <- local(cleanDataList$x_clean)
+  }
+  
   ## We need to deal with each chromPos individually, because
-  ## of missings.
+  ## of missings. And yes, we repeat code, to minimize temporaries.
 
-  if(ff.object){
-    nameChrom <- getffObj(chromRDataName, silent = TRUE)
-    rle.chr <- intrle(as.integer(get(nameChrom)[cleanDataList$pos_clean]))
-    close(get(nameChrom)) 
-
+  if(certain_noNA) {
+      if(ff.object){
+          nameChrom <- getffObj(chromRDataName, silent = TRUE)
+          rle.chr <- intrle(as.integer(get(nameChrom)[]))
+          close(get(nameChrom)) 
+          
+      } else {
+          rle.chr <- intrle(as.integer(chromRDataName))
+      }
   } else {
-    rle.chr <- intrle(as.integer(chromRDataName[cleanDataList$pos_clean]))
+      if(ff.object){
+          nameChrom <- getffObj(chromRDataName, silent = TRUE)
+          rle.chr <- intrle(as.integer(get(nameChrom)[cleanDataList$pos_clean]))
+          close(get(nameChrom)) 
+          
+      } else {
+          rle.chr <- intrle(as.integer(chromRDataName[cleanDataList$pos_clean]))
+      }
   }
   chr.end <- cumsum(rle.chr$lengths)
   chr.start <- c(1, chr.end[-length(chr.end)] + 1)
@@ -2320,13 +2905,17 @@ internalHaarSeg <- function(index,
   rm(chromPos)
   gc()
   if(merging == "none") {
-    haarout <- local(inpungeNA(haarout,
-                               cleanDataList$lx,
-                               cleanDataList$pos_clean,
-                               cleanDataList$nas))
-    state <- rep.int(0L, cleanDataList$lx)
-    rm(cleanDataList)
-    gc()
+      if(certain_noNA) {
+          state <- rep.int(0L, length(haarout))
+      } else {
+          haarout <- local(inpungeNA(haarout,
+                                     cleanDataList$lx,
+                                     cleanDataList$pos_clean,
+                                     cleanDataList$nas))
+          state <- rep.int(0L, cleanDataList$lx)
+          rm(cleanDataList)
+          gc()
+      }
     if(ff.out) {
       gc()
       return(ffListOut(haarout,
@@ -2337,58 +2926,69 @@ internalHaarSeg <- function(index,
                        state = state))
     }
   } else if(merging == "MAD") {
-    mad.subj <- local(median(abs(xvalue - haarout))/0.6745)
-    rm(xvalue)
-    thresh <- mad.threshold * mad.subj
-    ## nodeWhere("internalHaarSeg")
-    haarout <- local(inpungeNA(haarout,
-                               cleanDataList$lx,
-                               cleanDataList$pos_clean,
-                               cleanDataList$nas))
-
-    rm(cleanDataList)
-    gc()
-    state <- local(ifelse( (abs(haarout) > thresh), 1, 0) *
-                   sign(haarout))
-      
-    if (ff.out) {
-      gc()
-      return(ffListOut(haarout, state))
-
-    } else {
-      gc()
-      return(list(smoothed = haarout,
-                  state = as.integer(state)))
-    }
+      mad.subj <- local(median(abs(xvalue - haarout))/0.6745)
+      rm(xvalue)
+      thresh <- mad.threshold * mad.subj
+      ## nodeWhere("internalHaarSeg")
+      if(!certain_noNA) {
+          haarout <- local(inpungeNA(haarout,
+                                     cleanDataList$lx,
+                                     cleanDataList$pos_clean,
+                                     cleanDataList$nas))
+          
+          rm(cleanDataList)
+          ## gc()
+      }
+      state <- local(ifelse( (abs(haarout) > thresh), 1, 0) *
+                     sign(haarout))
+      if (ff.out) {
+          gc()
+          return(ffListOut(haarout, state))
+      } else {
+          gc()
+          return(list(smoothed = haarout,
+                      state = as.integer(state)))
+      }
   } else if(merging == "mergeLevels") {
-    outseg <- ourMerge(xvalue, haarout)
-    haarout <- local(inpungeNA(outseg[, 1],
-                               cleanDataList$lx,
-                               cleanDataList$pos_clean,
-                               cleanDataList$nas))
-    
-    state <- local(inpungeNA(outseg[ , 2],
-                             cleanDataList$lx,
-                             cleanDataList$pos_clean,
-                             cleanDataList$nas))
-    rm(outseg)
-    rm(cleanDataList)
-    gc()
-
-    if(ff.out) {
-      gc()
-      return(ffListOut(haarout,
-                       state))
-    } else {
-      gc()
-      return(list(smoothed = haarout,
-                       state = as.integer(state)))
-    }
+      outseg <- ourMerge(xvalue, haarout)
+      if(certain_noNA) {
+          if(ff.out) {
+              gc()
+              return(ffListOut(outseg[, 1],
+                               outseg[, 2]))
+          } else {
+              gc()
+              return(list(smoothed = outseg[, 1],
+                          state = as.integer(outseg[, 2])))
+          }   
+      } else {
+          haarout <- local(inpungeNA(outseg[, 1],
+                                     cleanDataList$lx,
+                                     cleanDataList$pos_clean,
+                                     cleanDataList$nas))
+          
+          state <- local(inpungeNA(outseg[ , 2],
+                                   cleanDataList$lx,
+                                   cleanDataList$pos_clean,
+                                   cleanDataList$nas))
+          rm(outseg)
+          rm(cleanDataList)
+          ## gc()
+          if(ff.out) {
+              gc()
+              return(ffListOut(haarout,
+                               state))
+          } else {
+              gc()
+              return(list(smoothed = haarout,
+                          state = as.integer(state)))
+          }
+      }
   } else {
-    rm(haarout)
-    rm(cleanDataList)
-    gc()
-    stop("This merging method not recognized")
+      rm(haarout)
+      rm(cleanDataList)
+      gc()
+      stop("This merging method not recognized")
   }
 }
 
@@ -2398,6 +2998,7 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
                         aic.or.bic = "AIC",
                         typeParall = "fork",
                         mc.cores = detectCores(),
+                        certain_noNA = FALSE,
                         ...) {
 
   type.of.data <- RAM.or.ff(cghRDataName)
@@ -2416,7 +3017,8 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
   
   ## The table exists. No need to re-create if
   ## really paranoid about speed
-  
+
+  ## Time this thing! FIXME!!!
   if (ff.object)
     tableArrChrom <- wrapCreateTableArrChr(cghRDataName, chromRDataName)
   else
@@ -2475,7 +3077,8 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
                      cghRDataName,
                      aic.or.bic,
                      ff.object,
-                     silent = TRUE) ## silly messages returned
+                     silent = TRUE,
+                     certain_noNA) ## silly messages returned
   ## nodeWhere("pSegmentHMM_0")
   ## Parallelized by array. Really???
   if(merging == "mergeLevels") {
@@ -2486,7 +3089,7 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
                       out0,
                       tableArrChrom,
                       cghRDataName,
-                      ff.object)
+                      ff.object, certain_noNA)
   } else if(merging == "MAD") {
     out <- distribute(type = typeParall,
                      mc.cores = mc.cores,
@@ -2496,7 +3099,7 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
                       tableArrChrom,
                       cghRDataName,
                       mad.threshold,
-                      ff.object)
+                      ff.object, certain_noNA)
   } else {
     stop("This merging method not recognized")
   }
@@ -2509,36 +3112,38 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
   return(outToffdf2(out, arrayNames, ff.out = ff.object))
 }
 
-internalHMM <- function(tableIndex, tableArrChrom, cghRDataName, aic.or.bic, ff.object) {
+internalHMM <- function(tableIndex, tableArrChrom, cghRDataName, aic.or.bic, ff.object,
+                        certain_noNA) {
   ff.out <- ff.object
   arrayIndex <- tableArrChrom[tableIndex, "ArrayNum"]
   chromPos <- unlist(tableArrChrom[tableIndex, c("posInit", "posEnd")])
   ## nodeWhere("internalHMM")
   if(ff.object) {
     return(hmmWrapper(getCGHValue(cghRDataName, arrayIndex, chromPos),
-                      aic.or.bic, ff.out))
+                      aic.or.bic, ff.out, certain_noNA))
   } else {
     return(hmmWrapper(cghRDataName[seq.int(from = chromPos[1], to = chromPos[2]),
                                    arrayIndex],
-                      aic.or.bic, ff.out))
+                      aic.or.bic, ff.out, certain_noNA))
   }
 }
 
-hmmWrapper <- function(logratio, aic.or.bic, ff.out) {
+hmmWrapper <- function(logratio, aic.or.bic, ff.out, certain_noNA) {
   ## Fit HMM, and return the predicted
   ## we do not pass Chrom since we only fit by Chrom.
   ##  cat("\n Disregard the 'sample is  1 	Chromosomes: 1' messages!!!\n")
 
-  cleanDataList <- expungeNA(logratio)
-  logratio <- local(cleanDataList$x_clean)
-
+    if(!certain_noNA) {
+        cleanDataList <- expungeNA(logratio)
+        logratio <- local(cleanDataList$x_clean)
+    }
 ##  Pos <- Clone <- seq_along(logratio)
-  Clone <- seq_along(logratio)
-  Chrom <- rep(1, length(logratio))
-  obj.aCGH <- create.aCGH(data.frame(logratio),
-                          data.frame(Clone = Clone,
-                                     Chrom = Chrom,
-                                     kb = Clone ## used to be Pos
+    Clone <- seq_along(logratio)
+    Chrom <- rep(1, length(logratio))
+    obj.aCGH <- create.aCGH(data.frame(logratio),
+                            data.frame(Clone = Clone,
+                                       Chrom = Chrom,
+                                       kb = Clone ## used to be Pos
                                      ))
   ## we could wrap this in "capture.output"
   if(aic.or.bic == "AIC")
@@ -2556,28 +3161,40 @@ hmmWrapper <- function(logratio, aic.or.bic, ff.out) {
   ## but otherwise, I'd need to pass around the NA info.
   ## Cumbersome and CPU and memory consuming
 
-  smoothed <- local(inpungeNA(obj.aCGH$hmm$states.hmm[[1]][, 6],
-                              cleanDataList$lx,
-                              cleanDataList$pos_clean,
-                              cleanDataList$nas))
-  rm(cleanDataList)
-  rm(obj.aCGH)
-  rm(res)
-  rm(logratio)
-  rm(Clone) ## rm(Pos)
-  rm(Chrom)
-  gc()
-  
-  if(ff.out) {
-    return(ffVecOut(smoothed))
-  } else {
-    return(smoothed)
-  }
-
+    if(certain_noNA) {
+        rm(res)
+        rm(logratio)
+        rm(Clone) ## rm(Pos)
+        rm(Chrom)
+        gc()
+        if(ff.out) {
+            return(ffVecOut(obj.aCGH$hmm$states.hmm[[1]][, 6]))
+        } else {
+            return(obj.aCGH$hmm$states.hmm[[1]][, 6])
+        }
+    } else {
+        smoothed <- local(inpungeNA(obj.aCGH$hmm$states.hmm[[1]][, 6],
+                                    cleanDataList$lx,
+                                    cleanDataList$pos_clean,
+                                    cleanDataList$nas))
+        rm(cleanDataList)
+        rm(obj.aCGH)
+        rm(res)
+        rm(logratio)
+        rm(Clone) ## rm(Pos)
+        rm(Chrom)
+        gc()
+        if(ff.out) {
+            return(ffVecOut(smoothed))
+        } else {
+            return(smoothed)
+        }
+    }
 }
 
 internalMADCall <- function(index, smoothedff, tableArrChrom, cghRDataName,
-                            mad.threshold, ff.out) {
+                            mad.threshold, ff.out,
+                            certain_noNA) {
   ## calling via MAD, as in HaarSeg
 
 
@@ -2590,22 +3207,24 @@ internalMADCall <- function(index, smoothedff, tableArrChrom, cghRDataName,
     smoothed <- vectorForArrayRAM(tableArrChrom, index, smoothedff)
 
   }
-  cleanDataList <- expungeNA(smoothed)
-  smoothed <- local(cleanDataList$x_clean)
-  values <- values[cleanDataList$pos_clean]
-  
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(smoothed)
+      smoothed <- local(cleanDataList$x_clean)
+      values <- values[cleanDataList$pos_clean]
+  }
   mad.subj <- median(abs(values - smoothed))/0.6745
   thresh <- mad.threshold * mad.subj
 
 
-  smoothed <- local(inpungeNA(smoothed,
-                              cleanDataList$lx,
-                              cleanDataList$pos_clean,
-                              cleanDataList$nas))
-
+  if(!certain_noNA) {
+      smoothed <- local(inpungeNA(smoothed,
+                                  cleanDataList$lx,
+                                  cleanDataList$pos_clean,
+                                  cleanDataList$nas))
+      rm(cleanDataList)
+  }
   state <- local(ifelse( (abs(smoothed) > thresh), 1, 0) * sign(smoothed))
 
-  rm(cleanDataList)
   rm(values)
   gc()
   
@@ -2628,7 +3247,8 @@ internalMADCall <- function(index, smoothedff, tableArrChrom, cghRDataName,
 
 
 internalMerge <- function(index, smoothedff, tableArrChrom, cghRDataName,
-                          ff.out) {
+                          ff.out,
+                          certain_noNA) {
 
   if(ff.out) {
     values <- getCGHValue(cghRDataName, index)
@@ -2638,30 +3258,39 @@ internalMerge <- function(index, smoothedff, tableArrChrom, cghRDataName,
     smoothed <- vectorForArrayRAM(tableArrChrom, index, smoothedff)
   }
 
-  cleanDataList <- expungeNA(smoothed)
-  smoothed <- local(cleanDataList$x_clean)
-  values <- local(values[cleanDataList$pos_clean])
-
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(smoothed)
+      smoothed <- local(cleanDataList$x_clean)
+      values <- local(values[cleanDataList$pos_clean])
+  }
   outseg <- ourMerge(values, smoothed)
 
   rm(values)
-  
-  smoothed <- local(inpungeNA(outseg[, 1],
-                              cleanDataList$lx,
-                              cleanDataList$pos_clean,
-                              cleanDataList$nas))
-  state <- local(inpungeNA(outseg[, 2],
-                           cleanDataList$lx,
-                           cleanDataList$pos_clean,
-                           cleanDataList$nas))
-  rm(cleanDataList)
-  rm(outseg)
-  gc()
-  
-  if(ff.out) {
-    return(ffListOut(smoothed, state))
+
+  if(certain_noNA) {
+      if(ff.out) {
+          return(ffListOut(outseg[, 1], outseg[, 2]))
+      } else {
+          return(list(smoothed = outseg[, 1],
+                      state = as.integer(outseg[, 2])))
+      }   
   } else {
-    return(list(smoothed = smoothed, state = as.integer(state)))
+      smoothed <- local(inpungeNA(outseg[, 1],
+                                  cleanDataList$lx,
+                                  cleanDataList$pos_clean,
+                                  cleanDataList$nas))
+      state <- local(inpungeNA(outseg[, 2],
+                               cleanDataList$lx,
+                               cleanDataList$pos_clean,
+                               cleanDataList$nas))
+      rm(cleanDataList)
+      rm(outseg)
+      gc()
+      if(ff.out) {
+          return(ffListOut(smoothed, state))
+      } else {
+          return(list(smoothed = smoothed, state = as.integer(state)))
+      }
   }
 }
 
@@ -2671,7 +3300,8 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
                            merging = "mergeLevels", mad.threshold = 3,
                            aic.or.bic = "AIC",
                            typeParall = "fork",
-                           mc.cores = detectCores(), 
+                           mc.cores = detectCores(),
+                           certain_noNA = FALSE,
                            ...) {
 
   type.of.data <- RAM.or.ff(cghRDataName)
@@ -2721,7 +3351,8 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
                      posRDataName,
                      aic.or.bic,
                      ff.object,
-                     silent = TRUE)
+                     silent = TRUE,
+                     certain_noNA)
   ## nodeWhere("pSegmentBioHMM_0")
   te <- unlist(unlist(lapply(out0, function(x) inherits(x, "my-try-error"))))
   if(any(te)) {
@@ -2743,17 +3374,20 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
                       out0,
                       tableArrChrom,
                       cghRDataName,
-                      ff.object)
+                      ff.object,
+                      certain_noNA
+                      )
   } else if(merging == "MAD") {
     out <- distribute(type = typeParall,
-                     mc.cores = mc.cores,
+                      mc.cores = mc.cores,
                       1:narrays,
                       internalMADCall,
                       out0,
                       tableArrChrom,
                       cghRDataName,
                       mad.threshold,
-                      ff.object)
+                      ff.object,
+                      certain_noNA)
   } else {
     stop("This merging method not recognized")
   }
@@ -2786,7 +3420,8 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
 }
 
 internalBioHMM <- function(tableIndex, tableArrChrom, cghRDataName,
-                           posRDataName, aic.or.bic, ff.object) {
+                           posRDataName, aic.or.bic, ff.object,
+                           certain_noNA) {
   ff.out <- ff.object
   arrayIndex <- tableArrChrom[tableIndex, "ArrayNum"]
   chromPos <- unlist(tableArrChrom[tableIndex, c("posInit", "posEnd")])
@@ -2794,26 +3429,30 @@ internalBioHMM <- function(tableIndex, tableArrChrom, cghRDataName,
   if(ff.object) {
     return(BioHMMWrapper(getCGHValue(cghRDataName, arrayIndex, chromPos),
                          getPosValue(posRDataName, chromPos),
-                         aic.or.bic, ff.out))
+                         aic.or.bic, ff.out,
+                         certain_noNA))
   } else {
     return(BioHMMWrapper(cghRDataName[seq.int(from = chromPos[1], to = chromPos[2]),
                                       arrayIndex],
                          posRDataName[seq.int(from = chromPos[1], to = chromPos[2])],
-                         aic.or.bic, ff.out))
+                         aic.or.bic, ff.out,
+                         certain_noNA))
   }
   
   ## return(BioHMMWrapper(getCGHValue(cghRDataName, arrayIndex, chromPos),
   ##                      getPosValue(posRDataName, chromPos), aic.or.bic))
 }
 
-BioHMMWrapper <- function(logratio, Pos, aic.or.bic, ff.out) {
+BioHMMWrapper <- function(logratio, Pos, aic.or.bic, ff.out,
+                          certain_noNA) {
 ##  cat("\n       .... running BioHMMWrapper \n")
   ydat <- matrix(logratio, ncol=1)
 
-  cleanDataList <- expungeNA(ydat)
-  ydat <- local(cleanDataList$x_clean)
-
-  Pos <- Pos[cleanDataList$pos_clean]
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(ydat)
+      ydat <- local(cleanDataList$x_clean)
+      Pos <- Pos[cleanDataList$pos_clean]
+  }
   
   n <- length(ydat)
 
@@ -2834,19 +3473,21 @@ BioHMMWrapper <- function(logratio, Pos, aic.or.bic, ff.out) {
 
   ## nodeWhere("BioHMMWrapper")
   if(inherits(res, "try-error")) {
-    rm(cleanDataList)
+    try(rm(cleanDataList))
     gc()
     class(res) <- "my-try-error"
     return(res)
   } else {
     mean.out <- res$out.list$mean
     rm(res)
-    mean.out <- local(inpungeNA(mean.out,
-                                cleanDataList$lx,
-                                cleanDataList$pos_clean,
-                                cleanDataList$nas))
-    rm(cleanDataList)
-    gc()
+    if(!certain_noNA) {
+        mean.out <- local(inpungeNA(mean.out,
+                                    cleanDataList$lx,
+                                    cleanDataList$pos_clean,
+                                    cleanDataList$nas))
+        rm(cleanDataList)
+        gc()
+    }
     if(ff.out) {
       return(ffVecOut(mean.out))      
     } else {
@@ -2859,6 +3500,7 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                            merging = "MAD", mad.threshold = 3,
                            typeParall = "fork",
                            mc.cores = detectCores(),
+                           certain_noNA = FALSE,
                            ...) {
   ## merge: "MAD", "mergeLevels", "none"
   ## We always use mergeSegs. OK for gain/loss/no-change,
@@ -2913,7 +3555,8 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                      cghRDataName,
                      CGHseg.thres,
                      merging,
-                     ff.object)
+                     ff.object,
+                     certain_noNA)
     ## nodeWhere("pSegmentCGHseg_0")
 
   ## Parallelized by array
@@ -2925,7 +3568,8 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                       out0,
                       tableArrChrom,
                       cghRDataName,
-                      ff.object)
+                      ff.object,
+                      certain_noNA)
   } else if(merging == "MAD") {
     out <- distribute(type = typeParall,
                       mc.cores = mc.cores,
@@ -2935,7 +3579,8 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                       tableArrChrom,
                       cghRDataName,
                       mad.threshold,
-                      ff.object)
+                      ff.object,
+                      certain_noNA)
   } else if(merging == "none") {
     ## of course, could be done sequentially
     ## but if many arrays and long chromosomes, probably
@@ -2986,7 +3631,7 @@ puttogetherCGHseg <- function(index, out, tableArrChrom, ff.out) {
 }
 
 internalCGHseg <- function(tableIndex, tableArrChrom, cghRDataName, CGHseg.thres,
-                           merging, ff.object) {
+                           merging, ff.object, certain_noNA) {
   ## the following could be parameters
   ff.out <- ff.object
   maxseg <- NULL
@@ -3002,8 +3647,11 @@ internalCGHseg <- function(tableIndex, tableArrChrom, cghRDataName, CGHseg.thres
     y <- cghRDataName[seq.int(from = chromPos[1], to = chromPos[2]),
                                       arrayIndex]
   }
-  cleanDataList <- expungeNA(y)
-  y <- cleanDataList$x_clean
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(y)
+      y <- cleanDataList$x_clean
+  }
+  
   n <- length(y)
   ## obj1 <- tilingArray:::segment(y,
   ##                               maxseg = ifelse(is.null(maxseg), n/2, maxseg),
@@ -3021,12 +3669,19 @@ internalCGHseg <- function(tableIndex, tableArrChrom, cghRDataName, CGHseg.thres
   ## }
   ## nodeWhere("internalCGHseg")
 
-
-  return(piccardsStretch01(obj1, optk, n, y, merging, ff.out,
-                           lx = cleanDataList$lx,
-                           pos_clean = cleanDataList$pos_clean,
-                           nas = cleanDataList$nas))
-
+  if(certain_noNA) {
+      return(piccardsStretch01(obj1, optk, n, y, merging, ff.out,
+                               lx = NA,
+                               pos_clean = NA,
+                               nas = NA,
+                               certain_noNA = TRUE))
+  } else {
+      return(piccardsStretch01(obj1, optk, n, y, merging, ff.out,
+                               lx = cleanDataList$lx,
+                               pos_clean = cleanDataList$pos_clean,
+                               nas = cleanDataList$nas,
+                               certain_noNA = FALSE))
+  }
   ## return(piccardsStretch01(obj1, optk, n, y, merging, ff.out))
 
   ## Beware we do not use the original "states" of Piccard
@@ -3037,7 +3692,8 @@ internalCGHseg <- function(tableIndex, tableArrChrom, cghRDataName, CGHseg.thres
 
 
 piccardsStretch01 <- function(obj, k, n, logratio, merging, ff.out,
-                              lx, pos_clean, nas) {
+                              lx, pos_clean, nas,
+                              certain_noNA) {
   ## note return object differs if mergeSegs TRUE or FALSE
     if(k > 1) {
         poss <- obj@breakpoints[[k]]
@@ -3059,11 +3715,12 @@ piccardsStretch01 <- function(obj, k, n, logratio, merging, ff.out,
         if(merging == "none") 
           state <- rep(1, n)
     }
-    smoothed <- local(inpungeNA(smoothed,
-                                lx,
-                                pos_clean,
-                                nas))
-
+    if(!certain_noNA) {
+        smoothed <- local(inpungeNA(smoothed,
+                                    lx,
+                                    pos_clean,
+                                    nas))
+    }
     gc()
     if(merging!= "none") {
       if(ff.out) {
@@ -3072,17 +3729,19 @@ piccardsStretch01 <- function(obj, k, n, logratio, merging, ff.out,
         return(smoothed)
       }
     } else {
-      state <- local(inpungeNA(state,
-                               lx,
-                               pos_clean,
-                               nas))
-      gc()
-      if(ff.out) {
-        return(list(ffVecOut(smoothed),
-                    ffVecOut(state, vmode = "integer")))
-      } else {
-        return(list(smoothed, as.integer(state)))
-      }
+        if(!certain_noNA) {
+            state <- local(inpungeNA(state,
+                                     lx,
+                                     pos_clean,
+                                     nas))
+        }
+        gc()
+        if(ff.out) {
+            return(list(ffVecOut(smoothed),
+                        ffVecOut(state, vmode = "integer")))
+        } else {
+            return(list(smoothed, as.integer(state)))
+        }
     }
 }
 
@@ -3125,6 +3784,7 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                              thrLvl = 3, initClusterLevels = 10,
                              typeParall = "fork",
                              mc.cores = detectCores(),
+                             certain_noNA = FALSE,
                              ...) {
 
   ## tableArrChrom <- wrapCreateTableArrChr(cghRDataName, chromRDataName)
@@ -3182,7 +3842,8 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                      minDiff = thismdiff,
                      initClusterLevels = initClusterLevels,
                      merging = merging,
-                     ff.object)
+                     ff.object,
+                     certain_noNA)
   ## nodeWhere("pSegmentWavelets_0")
  ## Parallelized by arr by chrom
   ## if merge != "none", then it returns ONLY the smoothed values
@@ -3194,7 +3855,8 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                       out0,
                       tableArrChrom,
                       cghRDataName,
-                      ff.object)
+                      ff.object,
+                      certain_noNA)
     ## nodeWhere("pSegmentWavelets_mergeLevels")
   } else if(merging == "MAD") {
     out <- distribute(type = typeParall,
@@ -3205,7 +3867,8 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                       tableArrChrom,
                       cghRDataName,
                       mad.threshold,
-                      ff.object)
+                      ff.object,
+                      certain_noNA)
     ## nodeWhere("pSegmentWavelets_MADCall")
   } else if(merging == "none") {
     ## of course, could be done sequentially
@@ -3242,7 +3905,8 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
 internalWaveHsu <- function(tableIndex, tableArrChrom,
                             cghRDataName,
                             thrLvl, minDiff, initClusterLevels,
-                            merging, ff.object) {
+                            merging, ff.object,
+                            certain_noNA) {
   arrayIndex <- tableArrChrom[tableIndex, "ArrayNum"]
   chromPos <- unlist(tableArrChrom[tableIndex, c("posInit", "posEnd")])
   ## nodeWhere("internalWaveHsu")
@@ -3252,9 +3916,11 @@ internalWaveHsu <- function(tableIndex, tableArrChrom,
     ratio <- cghRDataName[seq.int(from = chromPos[1], to = chromPos[2]),
                                    arrayIndex]
 
-  cleanDataList <- expungeNA(ratio)
-  ratio <- local(cleanDataList$x_clean)
-
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(ratio)
+      ratio <- local(cleanDataList$x_clean)
+  }
+  
   wc   <- modwt(ratio, "haar", n.levels=thrLvl)
   thH  <- our.hybrid(wc, max.level=thrLvl, hard=FALSE)
   recH <- imodwt(thH)
@@ -3262,32 +3928,36 @@ internalWaveHsu <- function(tableIndex, tableArrChrom,
   pred.ij <- local(segmentW(ratio, recH, minDiff=minDiff,
                             n.levels = initClusterLevels))
   rm(ratio)
+
+  ## the logic here could be clearer!
   if(merging == "none") {
     labs <- as.character(1:length(unique(pred.ij)))
     state <- as.integer(factor(pred.ij, labels=labs))
   }
 
-  pred.ij <- local(inpungeNA(pred.ij,
-                       cleanDataList$lx,
-                       cleanDataList$pos_clean,
-                       cleanDataList$nas))
-  if(merging != "none") {
-    rm(cleanDataList)
-    gc()
-    if(ff.object) {
-      return(ffVecOut(pred.ij))
-    } else {
-      return(pred.ij)
-    }
-  }
-  else {
-    state <- local(inpungeNA(state,
-                       cleanDataList$lx,
-                       cleanDataList$pos_clean,
-                       cleanDataList$nas))
+  if(!certain_noNA) {
+      pred.ij <- local(inpungeNA(pred.ij,
+                                 cleanDataList$lx,
+                                 cleanDataList$pos_clean,
+                                 cleanDataList$nas))
 
-    rm(cleanDataList)
-    gc()
+      gc()
+  } 
+  if(merging != "none") {
+      if(ff.object) {
+          return(ffVecOut(pred.ij))
+      } else {
+          return(pred.ij)
+      }
+  } else {
+      if(!certain_noNA) {
+          state <- local(inpungeNA(state,
+                                   cleanDataList$lx,
+                                   cleanDataList$pos_clean,
+                                   cleanDataList$nas))
+          rm(cleanDataList)
+          gc()
+      }
     if(ff.object) {
       return(list(ffVecOut(pred.ij),
                   ffVecOut(state, vmode = "integer")))
@@ -3297,6 +3967,14 @@ internalWaveHsu <- function(tableIndex, tableArrChrom,
   }
 }
 
+
+###################################################################
+###################################################################
+####################                          #####################
+####################          GLAD            #####################
+####################                          #####################
+###################################################################
+###################################################################
 
 
 
@@ -3322,7 +4000,7 @@ internalWaveHsu <- function(tableIndex, tableArrChrom,
 pChromPlot <- function(outRDataName,
                        cghRDataName,
                        chromRDataName,
-                       probenamesRDataName,
+                       probenamesRDataName = NULL,
                        posRDataName = NULL,
                        imgheight = 500,
                        pixels.point = 3,
@@ -3332,9 +4010,12 @@ pChromPlot <- function(outRDataName,
                        imagemap = FALSE,
                        typeParall = "fork",
                        mc.cores = detectCores(),
-                       typedev = "default", 
+                       typedev = "default",
+                       certain_noNA = FALSE,
                        ...) {
 
+    if(imagemap && (is.null(probenamesRDataName)))
+        stop("With imagemap you must provide probenamesRDataName")
   type.of.data <- RAM.or.ff(cghRDataName)
   type.of.chrom <- RAM.or.ff(chromRDataName)
   type.of.output <- RAM.or.ff(outRDataName)
@@ -3404,6 +4085,7 @@ pChromPlot <- function(outRDataName,
                      imagemap = imagemap,
                      ff.object,
                      typedev,
+                     certain_noNA,
                      ...)
 
 }
@@ -3422,6 +4104,7 @@ internalChromPlot <- function(tableIndex,
                               imagemap,
                               ff.object,
                               typedev,
+                              certain_noNA,
                               ...) {
   ## nodeWhere("starting internalChromPlot")
   
@@ -3439,9 +4122,11 @@ internalChromPlot <- function(tableIndex,
    res <- getOutValueRAM3(outRDataName, 3, arrayIndex, chromPos)
   }
 
-  cleanDataList <- expungeNA(cghdata)
-  cghdata <- cleanDataList$x_clean
-  res <- res[cleanDataList$pos_clean, , drop = FALSE]
+  if(!certain_noNA) {
+      cleanDataList <- expungeNA(cghdata)
+      cghdata <- cleanDataList$x_clean
+      res <- res[cleanDataList$pos_clean, , drop = FALSE]
+  }
   
   ndata <- length(cghdata)
   col <- rep(colors[1], ndata)
@@ -3458,7 +4143,9 @@ internalChromPlot <- function(tableIndex,
       simplepos <- posRDataName[seq.int(from = chromPos[1],
                                         to = chromPos[2])]
     }
-    simplepos <- simplepos[cleanDataList$pos_clean]
+    if(!certain_noNA) {
+        simplepos <- simplepos[cleanDataList$pos_clean]
+    }
   }
   
   nameChrIm <- paste("Chr", cname, "@", arrayName, sep ="")
@@ -3509,7 +4196,9 @@ internalChromPlot <- function(tableIndex,
     write(ccircle, file = paste("pngCoord_", nameChrIm, sep = ""),
           sep ="\t", ncolumns = 3)
     probeNames <- getNames(probenamesRDataName, chromPos)
-    probeNames <- probeNames[cleanDataList$pos_clean]
+    if(!certain_noNA) {
+        probeNames <- probeNames[cleanDataList$pos_clean]
+    }
     if ( (ncol(ccircle)/length(probeNames)) != 1)
       stop("Serious problem: number of arrays does not match")
     write(probeNames, 
@@ -3522,6 +4211,9 @@ internalChromPlot <- function(tableIndex,
   rm(simplepos)
   rm(res)
 
+  if(!certain_noNA) {
+      rm(cleanDataList)
+  }
   ## rm(probeNames)
   ## trythis <- try(rm(probeNames), silent = TRUE)
   
@@ -5522,3 +6214,20 @@ my.usr2png <- function(xy, imWidth, imHeight) {
 ## unix.time(tmp <- mclapply(1:10000, f2, x, mc.cores = 10 )) 
 
 ## Note: VanLoo et al., 2010, use a variant of CGHexplorer.
+
+
+
+### Geting the lines with NAs in the text files
+## sed -n '/pattern/=' filename
+## awk '/textstring/ {print FNR}' textfile
+
+
+## tests for noNA:
+## - when running the data with NA and the option noNA it should fail
+
+## - when running the data without NA and the option noNA should not fail
+
+## - when running the data without NA and option noNA should not fail and
+##    be identical to above.
+
+## Prepare directories with ff files

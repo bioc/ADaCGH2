@@ -1,3 +1,12 @@
+Changes in version 2.1.6 (2013-09-23)
+       - Started testing against R beta 3.0.2. Fixed Imports and Depends.
+       - chromData: using "short", not "ushort", to catch more user errors.
+       - pSegmentGLAD: using a custom daglad that minimizes unneeded
+         calls, specially sorting, that can be very expensive.
+       - Added "certain_noNA" to segmentation methods.
+       - Started testing against R-devel (to become R-3.1.0).
+
+
 Changes in version 2.1.5 (2013-09-16)
        - Fixed typos.
        - Minimized usage of ":::", removed unused functions for Ansari,

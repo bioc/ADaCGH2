@@ -14,12 +14,44 @@ export("pSegmentDNAcopy",
        "outputToCGHregions",
        "cutFile")
 
+import(ff, ffbase, bit)
+## importFrom("bit", intrle, ri)
+## importFrom("ffbase", min.ff, max.ff)           
 importFrom("parallel", clusterApply, mclapply, stopCluster)
 importFrom("DNAcopy", getbdry)
 importFrom("tilingArray", segment)
 importFrom("snapCGH", fit.model)
 importFrom("aCGH", mergeLevels, create.aCGH, find.hmm.states, "hmm<-")
-importFrom("GLAD", daglad.profileCGH)
+import(GLAD) ## we actually use now a whole bunch of things
+## importFrom("GLAD", daglad.profileCGH)
 importFrom("waveslim", modwt, imodwt)
 importFrom("cluster", pam)
-importFrom("ffbase", min.ff, max.ff)
+
+
+## importFrom("ff",
+##            is.ff,
+##            is.ffdf,
+##            "[[.ff",
+##            "[[<-.ff",
+##            "[.ff",
+##            "[<-.ff",
+##            "[.ff_array",
+##            "[<-.ff_array",
+##vmode,
+##as.vmode,
+##"vmode<-",
+## fforder
+##            get.ff,
+##            open.ff,
+##            close.ff,
+##            delete.ff,
+##            delete.ffdf,
+##            is.open.ff,
+##            is.open.ffdf,
+##            close.ffdf,
+##            open.ffdf,
+##            as.ffdf.ff_matrix,
+##            as.ffdf,
+##            as.ffdf.ff_vector)
+
+
