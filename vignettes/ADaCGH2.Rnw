@@ -1295,6 +1295,9 @@ chromosome and position.  The \texttt{MA} object created is of class
 original, limma MAList object). \texttt{MA2} is of type \texttt{SegList}.
 
 
+%% This code is not run now, as it depends on \textit{snapCGH} which is not
+%% available at his time (2013-10) for BioC devel.
+
 <<>>=
 require("limma")
 require("snapCGH")
@@ -1303,7 +1306,7 @@ targets <- readTargets("targets.txt", path = datadir)
 RG1 <- read.maimages(targets$FileName, path = datadir, source = "genepix")
 
 
-## Thi is snapCGH-specific
+## This is snapCGH-specific
 RG1 <- read.clonesinfo("cloneinfo.txt", RG1, path = datadir) 
 RG1$printer <- getLayout(RG1$genes)
 types <- readSpotTypes("SpotTypes.txt", path = datadir)
@@ -1993,17 +1996,26 @@ CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{
   processes accessing the disk. More generally, since with
   \texttt{inputToADaCGH} several processes can try to access different
   files at once (we are trying to parallelize the reading of data), issues
-  such as type of file system, configuration and type of RAID, amount of
-  free space, etc, can have an effect on all heavy I/O operations.  For
-  example, when reading a set of 2000 files, the time differences in a set
-  of benchmarks varied between 9 and 34 minutes. The only difference
-  between the runs we could find being that in the 34 minute runs, we had
-  added about 60 GB worth of files after creating/copying the text files,
-  and before reading, and the disk was about 64\% full. Note also that, as
-  a general rule, it is better if the newly created \textit{ff} files from
+  such as type of file system, configuration and type of RAID, number of
+  spindles, quality of the RAID card, amount of free space, etc, etc, etc,
+  can have an effect on all heavy I/O operations.  For example, when
+  reading a set of 2000 files, the time differences in a set of benchmarks
+  varied between 9 and 34 minutes. The only difference between the runs we
+  could find being that in the 34 minute runs, we had added about 60 GB
+  worth of files after creating/copying the text files, and before
+  reading, and the disk was about 64\% full. Note also that, as a general
+  rule, it is better if the newly created \textit{ff} files from
   \texttt{inputToADaCGH} are written to an empty directory, and if the
   working directory for segmentation analysis is another empty directory
   if you are using \texttt{ff} objects.
+
+  
+  \texttt{inputToADaCGH} accepts an argument to reduce the number of cores used,
+  which can help with contention issues related to I/O. A multicore
+  machine (say, 12 cores) with a single SATA drive might actually
+  complete the reading faster if you use fewer than 12 cores for the
+  reading. But your mileage might vary.
+  
   
 \item Reordering data takes time (a lot if you do not use \textit{ff}
   objects) and can use a lot of memory. So it is much better if input data are

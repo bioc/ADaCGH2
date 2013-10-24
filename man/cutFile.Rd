@@ -17,7 +17,7 @@ cutFile(filename,
         pos.col,
         sep = "\t",
         cols = NULL, 
-        cores = detectCores(),
+        mc.cores = detectCores(),
         delete.columns = NULL,
         fork = FALSE)
 }
@@ -55,7 +55,7 @@ cutFile(filename,
     is also the behavior in \code{read.table} or awk, which is what we
     use.}
   
-  \item{cores}{The number of processes to launch simultaneously. }
+  \item{mc.cores}{The number of processes to launch simultaneously.}
   
   \item{delete.columns}{The number of the columns (starting from 1) that
     you do not want to preserve. You probably do not want to have too

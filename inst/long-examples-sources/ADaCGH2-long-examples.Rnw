@@ -151,10 +151,8 @@ parallel::clusterEvalQ(NULL, setwd(wdir))
 
 
 \section{The examples}
-\subsection{RAM objects and forking}
+\subsection{RAM objects and forking}\label{allex-forking-local}
 
-
-\label{allex-forking-local}
 
 %% We skip the creation of the input data objects (as we already did this in
 %% section \ref{input-as-RData}). Here we directly carry out segmentation
@@ -231,8 +229,7 @@ waves.none.RAM.fork <- pSegmentWavelets(cgh.dat,
 
 
 
-\subsection{\textit{ff} objects and cluster}
-\label{allex-ff-cluster}
+\subsection{\textit{ff} objects and cluster}\label{allex-ff-cluster}
 
 
 %% We skip the steps we already carried out: choosing a working directory
@@ -335,8 +332,7 @@ waves.none.ff.cluster <- pSegmentWavelets("cghData.RData",
 
 
 
-\subsection{\textit{ff} objects and forking}
-\label{allex-ff-fork}
+\subsection{\textit{ff} objects and forking}\label{allex-ff-fork}
 
 %% Here we also skip the actions already performed in section
 %% \ref{ex-ff-fork}, specifically choosing a working directory (section

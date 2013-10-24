@@ -21,7 +21,8 @@ inputToADaCGH(ff.or.RAM = "RAM",
                       cloneinfosep = "\t",
                       cloneinfoquote = "\"",
                       minNumPerChrom = 10,
-                      verbose = FALSE)
+                      verbose = FALSE,
+                      mc.cores = detectCores())
 
 }
 %- maybe also 'usage' for other objects documented here.
@@ -147,6 +148,13 @@ inputToADaCGH(ff.or.RAM = "RAM",
 \item{verbose}{If TRUE, provide additional information that can be
   useful to debug problems. Right now it provides the list of files that
   will be read if using a directory. The default is FALSE.}
+
+\item{mc.cores}{The number of cores to use when reading files. This is
+  always 1 in Windows. See details about the number of cores in
+  \code{\link[parallel]{mclapply}} and
+  \code{\link[parallel]{detectCores}}. Contention problems in I/O might
+  be minimized by making this number smaller than what is returned by
+  \code{\link[parallel]{detectCores}}.}
 
 }
 \details{

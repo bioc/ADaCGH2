@@ -276,7 +276,7 @@ cutFile <- function(filename,
                     pos.col,
                     sep = "\t",
                     cols = NULL, 
-                    cores = detectCores(),
+                    mc.cores = detectCores(),
                     delete.columns = NULL,
                     fork = FALSE) {
 
@@ -298,17 +298,17 @@ cutFile <- function(filename,
     warning("Number of columns not specified. We guess they are ", cols)
   }
   
-  if(cols <= cores) {
+  if(cols <= mc.cores) {
     start <- end <- 1:cols
   } else {
-    d1 <- cols %/% cores
-    rr <- cols %% cores
+    d1 <- cols %/% mc.cores
+    rr <- cols %% mc.cores
     
-    num.per.cores <- rep(d1, cores)
+    num.per.cores <- rep(d1, mc.cores)
     num.per.cores[1:rr] <- num.per.cores[1:rr] + 1
     
     end <- cumsum(num.per.cores)
-    start <- cumsum(c(1, num.per.cores[-cores]))
+    start <- cumsum(c(1, num.per.cores[-mc.cores]))
   }
   
   awkline <- paste("awk -v pos=\"$i\" 'BEGIN ", awksep,
@@ -320,7 +320,7 @@ cutFile <- function(filename,
     )
 
   if(fork) {
-    tmp <- mclapply(commands, function(x) system(x), mc.cores = cores)
+    tmp <- mclapply(commands, function(x) system(x), mc.cores = mc.cores)
   } else {
     commands <- paste(commands, "&")
     sapply(commands, function(x) system(x, ignore.stdout = TRUE))
@@ -438,7 +438,7 @@ distribute <- function(type, mc.cores, X, FUN, ..., silent = FALSE) {
 }
 
 
-mcc <- function() {
+mcc <- function(reading.cores) {
   ## Return the number of cores, unless in windows;
   ## used inside inputToADaCGH.
   ## In function distribute there is a similar check
@@ -446,7 +446,7 @@ mcc <- function() {
     warning("You are running Windows. Setting mc.cores = 1")
     return(1)
   } else {
-    return(detectCores())
+    return(reading.cores)
   } 
 }
 
@@ -1084,13 +1084,14 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                           cloneinfosep = "\t",
                           cloneinfoquote = "\"",
                           minNumPerChrom = 10,
-                          verbose = FALSE) {
-
-
-  ## We could use eval(substitute or get(
-  ## but we modify the object for sure when eliminating rownames
-  ## and possibly when reordering. So might as well just load, copy,
-  ## remove, and gc.
+                          verbose = FALSE,
+                          mc.cores = detectCores()) {
+    ## to make it simpler down below
+    reading.cores <- mc.cores
+    ## We could use eval(substitute or get(
+    ## but we modify the object for sure when eliminating rownames
+    ## and possibly when reordering. So might as well just load, copy,
+    ## remove, and gc.
 
   if(! ff.or.RAM %in% c("ff", "RAM") )
     stop("ff.or.RAM can only take values ff or RAM")
@@ -1166,7 +1167,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                          function(x)
                                 scan(file.path(path, x),
                                      n = 1, what = "character"),
-                                mc.cores = mcc()))
+                                mc.cores = mcc(reading.cores)))
 
     cat("\n   ...  directory reading: parallel reading of data columns \n")
     ## list.of.ff <- mclapply(list.of.files,
@@ -1183,7 +1184,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                                    skip = 1),
                               vmode = "double",
                               pattern = ffpattern),
-                           mc.cores = mcc()) ## detectCores())
+                           mc.cores = mcc(reading.cores)) ## detectCores())
     
     ## we do as in outToffdf2 to return an ffdf.
     ## Why an ffdf and not a list of ffs? Because
@@ -1256,7 +1257,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                            fields = fields,
                            skip = skip,
                            ffpattern = ffpattern,
-                           mc.cores = mcc()) ##detectCores())
+                           mc.cores = mcc(reading.cores)) ##detectCores())
     
     ## we do as in outToffdf2 to return an ffdf.
     ## Why an ffdf and not a list of ffs? Because
@@ -1910,7 +1911,7 @@ internalGLAD <- function(index, cghRDataName, chromRDataName,
       Chromosome <- Chromosome[cleanDataList$pos_clean]
   }
 
-  cat("\n  GLAD details: creating profileCGH \n")
+  ## cat("\n  GLAD details: creating profileCGH \n")
   ## tmpf <- list(profileValues = data.frame(
   ##                  LogRatio = LogRatio,
   ##                  PosOrder = seq_len(length(LogRatio)),
@@ -5393,6 +5394,7 @@ tempdir2 <- function() {
 
 
 
+
 ### Simple examples of stochasticity of methods and working of SegmentPlotWrite
 
 ### library(ADaCGH)
@@ -5468,14 +5470,14 @@ tempdir2 <- function() {
 ### summary(oGLAD$segm$S3[, 3] - spw.out$S3.Status)
 
 
-my.usr2png <- function(xy, imWidth, imHeight) {
-    dev <- dev.cur()
-    xy <- fig2dev(plt2fig(usr2plt(xy,dev),dev),dev)
-    cbind(
-          ceiling(xy[,1]*imWidth),
-          ceiling((1-xy[,2])*imHeight)
-          )
-}
+## my.usr2png <- function(xy, imWidth, imHeight) {
+##     dev <- dev.cur()
+##     xy <- fig2dev(plt2fig(usr2plt(xy,dev),dev),dev)
+##     cbind(
+##           ceiling(xy[,1]*imWidth),
+##           ceiling((1-xy[,2])*imHeight)
+##           )
+## }
 
 
 

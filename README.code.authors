@@ -1,0 +1,27 @@
+ADaCGH2 incorporates some code from other authors (listed in
+the Author field). This is a brief list of files and their origins. See
+the files for further details.
+
+
+- From Ben-Yaacov and Eldar for HaarSeg method:
+  src/r_hharseg.c
+  R/HaarSeg.R
+
+- From Hsu and Grove the code for the wavelet approach in Hsu et al. In
+  particular, the following functions in ADaCGH-2.R:
+  our.sure
+  our.hybrid
+  nominal.thresh
+  segmentW
+
+
+- From B. Rowlingson:
+  R/imagemap.R
+
+
+- The file ADaCGH2.R contains some code that is a modification of existing
+  code in other packages, particularly of code in DNAcopy (Venkatraman
+  E. Seshan, Adam Olshen), in particular the functions:
+  internalDNAcopySmooth
+  internalDNAcopySegm
+

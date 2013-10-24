@@ -20,12 +20,14 @@ import(ff, ffbase, bit)
 importFrom("parallel", clusterApply, mclapply, stopCluster)
 importFrom("DNAcopy", getbdry)
 importFrom("tilingArray", segment)
+
+
 importFrom("snapCGH", fit.model)
 importFrom("aCGH", mergeLevels, create.aCGH, find.hmm.states, "hmm<-")
 import(GLAD) ## we actually use now a whole bunch of things
 ## importFrom("GLAD", daglad.profileCGH)
 importFrom("waveslim", modwt, imodwt)
-importFrom("cluster", pam)
+importFrom("cluster", pam, clara)
 
 
 ## importFrom("ff",

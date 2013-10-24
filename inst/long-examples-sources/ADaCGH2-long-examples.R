@@ -1,4 +1,4 @@
-### R code from vignette source './ADaCGH2/inst/long-examples-sources/ADaCGH2-long-examples.Rnw'
+### R code from vignette source '/home/ramon/Proyectos/ADaCGH2-devel/ADaCGH2/inst/long-examples-sources/ADaCGH2-long-examples.Rnw'
 ### Encoding: UTF-8
 
 ###################################################
@@ -50,7 +50,7 @@ parallel::clusterEvalQ(NULL, setwd(wdir))
 
 
 ###################################################
-### code chunk number 3: ADaCGH2-long-examples.Rnw:176-229
+### code chunk number 3: ADaCGH2-long-examples.Rnw:174-227
 ###################################################
 cbs.mergel.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat, 
                                             merging = "mergeLevels")
@@ -108,7 +108,7 @@ waves.none.RAM.fork <- pSegmentWavelets(cgh.dat,
 
 
 ###################################################
-### code chunk number 4: ADaCGH2-long-examples.Rnw:253-331
+### code chunk number 4: ADaCGH2-long-examples.Rnw:250-328
 ###################################################
 
 cbs.mergel.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
@@ -191,7 +191,7 @@ waves.none.ff.cluster <- pSegmentWavelets("cghData.RData",
 
 
 ###################################################
-### code chunk number 5: ADaCGH2-long-examples.Rnw:352-424
+### code chunk number 5: ADaCGH2-long-examples.Rnw:348-420
 ###################################################
 cbs.mergel.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
                                       merging = "mergeLevels",
@@ -268,13 +268,13 @@ waves.none.ff.fork <- pSegmentWavelets("cghData.RData",
 
 
 ###################################################
-### code chunk number 6: ADaCGH2-long-examples.Rnw:442-443
+### code chunk number 6: ADaCGH2-long-examples.Rnw:438-439
 ###################################################
 ff.cluster.obj <- ls(pattern = "*.ff.cluster")
 
 
 ###################################################
-### code chunk number 7: ADaCGH2-long-examples.Rnw:447-451
+### code chunk number 7: ADaCGH2-long-examples.Rnw:443-447
 ###################################################
 tmpout <- 
   capture.output(
@@ -283,7 +283,7 @@ tmpout <-
 
 
 ###################################################
-### code chunk number 8: ADaCGH2-long-examples.Rnw:457-463
+### code chunk number 8: ADaCGH2-long-examples.Rnw:453-459
 ###################################################
 ff.fork.obj <- ls(pattern = "*.ff.fork")
 tmpout <- 
@@ -294,13 +294,13 @@ tmpout <-
 
 
 ###################################################
-### code chunk number 9: ADaCGH2-long-examples.Rnw:471-472
+### code chunk number 9: ADaCGH2-long-examples.Rnw:467-468
 ###################################################
 RAM.fork.obj <- ls(pattern = "*.RAM.fork")
 
 
 ###################################################
-### code chunk number 10: ADaCGH2-long-examples.Rnw:533-551
+### code chunk number 10: ADaCGH2-long-examples.Rnw:529-547
 ###################################################
 identical3 <- function(x, y, z) {
   comp1 <- all.equal(get(x)$outSmoothed[ , ], get(y)$outSmoothed[ , ])
@@ -323,7 +323,7 @@ identical3 <- function(x, y, z) {
 
 
 ###################################################
-### code chunk number 11: ADaCGH2-long-examples.Rnw:576-579
+### code chunk number 11: ADaCGH2-long-examples.Rnw:572-575
 ###################################################
 mapply(identical3, RAM.fork.obj, 
            ff.fork.obj, ff.cluster.obj)
@@ -331,13 +331,13 @@ mapply(identical3, RAM.fork.obj,
 
 
 ###################################################
-### code chunk number 12: ADaCGH2-long-examples.Rnw:653-654
+### code chunk number 12: ADaCGH2-long-examples.Rnw:649-650
 ###################################################
 parallel::stopCluster(cl2)
 
 
 ###################################################
-### code chunk number 13: ADaCGH2-long-examples.Rnw:657-687 (eval = FALSE)
+### code chunk number 13: ADaCGH2-long-examples.Rnw:653-683 (eval = FALSE)
 ###################################################
 ## ## This is the code to remove all the files we created
 ## ## and the temporary directory.
