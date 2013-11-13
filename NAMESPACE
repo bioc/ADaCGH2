@@ -17,7 +17,7 @@ export("pSegmentDNAcopy",
 import(ff, ffbase, bit)
 ## importFrom("bit", intrle, ri)
 ## importFrom("ffbase", min.ff, max.ff)           
-importFrom("parallel", clusterApply, mclapply, stopCluster)
+importFrom("parallel", clusterApplyLB, mclapply, stopCluster)
 importFrom("DNAcopy", getbdry)
 importFrom("tilingArray", segment)
 

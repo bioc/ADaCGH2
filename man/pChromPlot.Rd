@@ -24,6 +24,7 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
            mc.cores = detectCores(),
            typedev = "default",
            certain_noNA = FALSE,
+           loadBalance = TRUE,
            ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -136,6 +137,13 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
   option in  \code{\link{pSegment}}. Of course, if you are setting it to
   true, the object you pass with the output, \code{outRDataName}, must
   have been generated using \code{certain_noNA}.}
+
+\item{loadBalance}{If TRUE (the default) use load balancing with MPI
+  (use \code{\link[parallel]{clusterApplyLB}} instead of
+  \code{\link[parallel]{clusterApply}}) and a similar approach for forking (
+  set \code{mc.preschedule = FALSE} in the call to \code{\link[parallel]{mclapply}}
+  ).}
+ 
 
 \item{...}{Additional arguments; not used.}
 

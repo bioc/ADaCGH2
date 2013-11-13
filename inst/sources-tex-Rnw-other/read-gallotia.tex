@@ -1,0 +1,66 @@
+% mylatex(tmp <- with(all.read, {     tmp2 <- all.read[all.read$machine == "Gallotia", ]     cols <- c(1:4, 6, 5)     tmp4 <- with(tmp2, {         tmp3 <- tmp2[order(ncols, numcores, Version_ADaCGH2),              cols]         rownames(tmp3) <- 1:nrow(tmp3)         tmp3     })     attributes(tmp4)$mycolnames <- attributes(all.read)$mycolnames[cols]     tmp4 }), rowlabel = "", colheads = attributes(tmp)$mycolnames, longtable = TRUE,      lines.page = 900, caption = "Reading benchmarks for Gallotia: AMD Opteron 6276, 64 cores, 256 GB RAM",      file = "read-gallotia.tex") 
+%
+
+\setlongtables
+
+
+\begin{longtable}{lrrrrrl}\caption{Reading benchmarks for Gallotia: AMD Opteron 6276, 64 cores, 256 GB RAM} \tabularnewline
+\hline\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Wall time (min.)}&\multicolumn{1}{c}{Memory (GB)}&\multicolumn{1}{c}{$\Sigma$ Memory (GB)}&\multicolumn{1}{c}{Columns}&\multicolumn{1}{c}{Cores}&\multicolumn{1}{c}{Version}\tabularnewline
+\hline
+\endfirsthead\caption[]{\em (Reading benchmarks for Gallotia: AMD Opteron 6276, 64 cores, 256 GB RAM, continued)} \tabularnewline
+\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Wall time (min.)}&\multicolumn{1}{c}{Memory (GB)}&\multicolumn{1}{c}{$\Sigma$ Memory (GB)}&\multicolumn{1}{c}{Columns}&\multicolumn{1}{c}{Cores}&\multicolumn{1}{c}{Version}\tabularnewline
+\hline
+\endhead
+\hline
+\endfoot
+\label{read-gallotia}
+1&$ 2.8$&$  1.33$&$  5.2$&$  50$&$64$&New\tabularnewline
+2&$ 3.0$&$  1.33$&$  5.6$&$  50$&$64$&New\tabularnewline
+3&$ 2.9$&$  1.33$&$ 24.9$&$  50$&$64$&New\tabularnewline
+4&$ 3.2$&$  1.33$&$  5.5$&$  50$&$64$&New\tabularnewline
+5&$ 2.9$&$  1.33$&$  6.9$&$  50$&$64$&New\tabularnewline
+6&$ 2.9$&$  1.33$&$  6.1$&$  50$&$64$&New\tabularnewline
+7&$ 6.6$&$  9.05$&$  9.1$&$  50$&$$&Old\tabularnewline
+8&$ 7.3$&$  9.05$&$  9.1$&$  50$&$$&Old\tabularnewline
+9&$ 6.5$&$  9.05$&$  9.1$&$  50$&$$&Old\tabularnewline
+10&$ 7.1$&$  9.05$&$  9.1$&$  50$&$$&Old\tabularnewline
+11&$ 6.5$&$  9.05$&$  9.1$&$  50$&$$&Old\tabularnewline
+12&$ 3.4$&$  1.33$&$ 18.6$&$ 100$&$64$&New\tabularnewline
+13&$ 2.9$&$  1.33$&$ 36.0$&$ 100$&$64$&New\tabularnewline
+14&$ 3.6$&$  1.33$&$ 18.8$&$ 100$&$64$&New\tabularnewline
+15&$ 3.6$&$  1.33$&$ 18.5$&$ 100$&$64$&New\tabularnewline
+16&$ 9.8$&$ 16.93$&$ 17.0$&$ 100$&$$&Old\tabularnewline
+17&$10.9$&$ 16.93$&$ 17.0$&$ 100$&$$&Old\tabularnewline
+18&$10.1$&$ 16.93$&$ 17.0$&$ 100$&$$&Old\tabularnewline
+19&$ 9.8$&$ 16.93$&$ 16.9$&$ 100$&$$&Old\tabularnewline
+20&$ 5.2$&$  1.33$&$ 34.6$&$ 200$&$64$&New\tabularnewline
+21&$ 3.3$&$  1.33$&$ 37.0$&$ 200$&$64$&New\tabularnewline
+22&$ 5.0$&$  1.33$&$ 34.8$&$ 200$&$64$&New\tabularnewline
+23&$ 5.2$&$  1.33$&$ 34.8$&$ 200$&$64$&New\tabularnewline
+24&$16.6$&$ 32.24$&$ 32.6$&$ 200$&$$&Old\tabularnewline
+25&$18.9$&$ 32.24$&$ 32.4$&$ 200$&$$&Old\tabularnewline
+26&$17.0$&$ 32.24$&$ 32.4$&$ 200$&$$&Old\tabularnewline
+27&$15.9$&$ 32.24$&$ 32.5$&$ 200$&$$&Old\tabularnewline
+28&$ 9.4$&$  1.33$&$ 38.3$&$ 500$&$64$&New\tabularnewline
+29&$ 9.0$&$  1.33$&$ 37.1$&$ 500$&$64$&New\tabularnewline
+30&$ 9.4$&$  1.33$&$ 38.3$&$ 500$&$64$&New\tabularnewline
+31&$ 9.5$&$  1.33$&$ 37.8$&$ 500$&$64$&New\tabularnewline
+32&$36.5$&$ 77.67$&$ 78.3$&$ 500$&$$&Old\tabularnewline
+33&$37.7$&$ 77.62$&$ 79.3$&$ 500$&$$&Old\tabularnewline
+34&$35.8$&$ 77.67$&$ 77.8$&$ 500$&$$&Old\tabularnewline
+35&$35.7$&$ 77.67$&$ 78.4$&$ 500$&$$&Old\tabularnewline
+36&$17.2$&$  1.33$&$ 38.8$&$1000$&$64$&New\tabularnewline
+37&$17.3$&$  1.33$&$ 38.3$&$1000$&$64$&New\tabularnewline
+38&$17.2$&$  1.33$&$ 38.7$&$1000$&$64$&New\tabularnewline
+39&$64.8$&$153.58$&$154.2$&$1000$&$$&Old\tabularnewline
+40&$67.2$&$153.58$&$155.0$&$1000$&$$&Old\tabularnewline
+41&$32.4$&$  1.33$&$  8.7$&$2000$&$10$&New\tabularnewline
+42&$23.6$&$  1.33$&$ 14.5$&$2000$&$20$&New\tabularnewline
+43&$22.5$&$  1.33$&$ 25.2$&$2000$&$40$&New\tabularnewline
+44&$23.6$&$  1.33$&$ 38.6$&$2000$&$64$&New\tabularnewline
+45&$65.8$&$  1.32$&$ 38.3$&$4000$&$64$&New\tabularnewline
+\hline
+\end{longtable}
+

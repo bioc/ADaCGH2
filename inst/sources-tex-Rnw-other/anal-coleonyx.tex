@@ -1,0 +1,118 @@
+% mylatex(tmp <- with(all.run, {     tmp2 <- all.run[all.run$machine == "Coleonyx", ]     cols <- c(1:5, 7, 6, 8:10)     tmp4 <- with(tmp2, {         tmp3 <- tmp2[order(method, ncols, Version_ADaCGH2, MPI,              numcores, universesize), cols]         rownames(tmp3) <- 1:nrow(tmp3)         tmp3     })     attributes(tmp4)$mycolnames <- attributes(all.run)$mycolnames[cols]     tmp4 }), rowlabel = "", colheads = attributes(tmp)$mycolnames, longtable = TRUE,      lines.page = 900, caption = "Analysis benchmarks for Coleonyx: Intel Xeon E5645, 12 cores, 64 GB RAM",      file = "anal-coleonyx.tex") 
+%
+
+\setlongtables
+
+
+\begin{longtable}{lrrrlrlrrrl}\caption{Analysis benchmarks for Coleonyx: Intel Xeon E5645, 12 cores, 64 GB RAM} \tabularnewline
+\hline\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Wall time (min.)}&\multicolumn{1}{c}{Memory (GB)}&\multicolumn{1}{c}{$\Sigma$ Memory (GB)}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{Columns}&\multicolumn{1}{c}{MPI/Fork}&\multicolumn{1}{c}{Cores}&\multicolumn{1}{c}{Procs.\ per node}&\multicolumn{1}{c}{Universe size}&\multicolumn{1}{c}{Version}\tabularnewline
+\hline
+\endfirsthead\caption[]{\em (Analysis benchmarks for Coleonyx: Intel Xeon E5645, 12 cores, 64 GB RAM, continued)} \tabularnewline
+\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Wall time (min.)}&\multicolumn{1}{c}{Memory (GB)}&\multicolumn{1}{c}{$\Sigma$ Memory (GB)}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{Columns}&\multicolumn{1}{c}{MPI/Fork}&\multicolumn{1}{c}{Cores}&\multicolumn{1}{c}{Procs.\ per node}&\multicolumn{1}{c}{Universe size}&\multicolumn{1}{c}{Version}\tabularnewline
+\hline
+\endhead
+\hline
+\endfoot
+\label{anal-coleonyx}
+1&$   2.0$&$0.13$&$ 5.3$&Haar&$  50$&Fork&$12$&$$&$$&New\tabularnewline
+2&$   1.8$&$0.13$&$ 5.2$&Haar&$  50$&Fork-LB&$12$&$$&$$&New\tabularnewline
+3&$   1.4$&$0.13$&$ 5.0$&Haar&$  50$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+4&$   1.2$&$0.13$&$ 4.9$&Haar&$  50$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+5&$   1.6$&$0.13$&$ 4.9$&Haar&$  50$&Fork-LB&$12$&$$&$$&New-noNA\tabularnewline
+6&$   1.4$&$0.16$&$ 5.8$&Haar&$  50$&MPI&$$&$12$&$11$&Old\tabularnewline
+7&$   1.3$&$0.16$&$ 6.2$&Haar&$  50$&MPI&$$&$13$&$12$&Old\tabularnewline
+8&$   1.2$&$0.16$&$ 6.4$&Haar&$  50$&MPI&$$&$13$&$12$&Old\tabularnewline
+9&$   3.1$&$0.14$&$ 5.2$&Haar&$ 100$&Fork&$12$&$$&$$&New\tabularnewline
+10&$   3.2$&$0.13$&$ 5.1$&Haar&$ 100$&Fork-LB&$12$&$$&$$&New\tabularnewline
+11&$   2.8$&$0.13$&$ 3.2$&Haar&$ 100$&MPI&$$&$12$&$11$&New\tabularnewline
+12&$   3.1$&$0.13$&$ 5.2$&Haar&$ 100$&MPI-LB&$$&$12$&$11$&New\tabularnewline
+13&$   2.3$&$0.13$&$ 5.0$&Haar&$ 100$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+14&$   2.2$&$0.13$&$ 5.0$&Haar&$ 100$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+15&$   2.7$&$0.13$&$ 5.0$&Haar&$ 100$&Fork-LB&$12$&$$&$$&New-noNA\tabularnewline
+16&$   2.6$&$0.17$&$ 5.9$&Haar&$ 100$&MPI&$$&$12$&$11$&Old\tabularnewline
+17&$   2.3$&$0.17$&$ 6.1$&Haar&$ 100$&MPI&$$&$13$&$12$&Old\tabularnewline
+18&$   2.3$&$0.17$&$ 6.1$&Haar&$ 100$&MPI&$$&$13$&$12$&Old\tabularnewline
+19&$   5.8$&$0.13$&$ 5.2$&Haar&$ 200$&Fork&$12$&$$&$$&New\tabularnewline
+20&$   5.3$&$0.13$&$ 5.4$&Haar&$ 200$&Fork-LB&$12$&$$&$$&New\tabularnewline
+21&$   7.9$&$0.13$&$ 5.3$&Haar&$ 200$&MPI&$$&$12$&$11$&New\tabularnewline
+22&$   5.7$&$0.13$&$ 5.6$&Haar&$ 200$&MPI-LB&$$&$12$&$11$&New\tabularnewline
+23&$   4.8$&$0.13$&$ 5.3$&Haar&$ 200$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+24&$   4.2$&$0.13$&$ 5.0$&Haar&$ 200$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+25&$   5.3$&$0.13$&$ 5.0$&Haar&$ 200$&Fork-LB&$12$&$$&$$&New-noNA\tabularnewline
+26&$   6.7$&$0.13$&$ 5.2$&Haar&$ 200$&MPI&$$&$12$&$11$&New-noNA\tabularnewline
+27&$   5.2$&$0.13$&$ 5.1$&Haar&$ 200$&MPI-LB&$$&$12$&$11$&New-noNA\tabularnewline
+28&$   4.8$&$0.18$&$ 6.0$&Haar&$ 200$&MPI&$$&$12$&$11$&Old\tabularnewline
+29&$   4.5$&$0.18$&$ 6.5$&Haar&$ 200$&MPI&$$&$13$&$12$&Old\tabularnewline
+30&$   4.3$&$0.18$&$ 6.5$&Haar&$ 200$&MPI&$$&$13$&$12$&Old\tabularnewline
+31&$  38.9$&$0.14$&$ 5.6$&Haar&$1000$&Fork&$12$&$$&$$&New\tabularnewline
+32&$  29.8$&$0.14$&$ 5.7$&Haar&$1000$&Fork-LB&$12$&$$&$$&New\tabularnewline
+33&$  38.7$&$0.14$&$ 5.7$&Haar&$1000$&MPI&$$&$12$&$11$&New\tabularnewline
+34&$  29.8$&$0.14$&$10.0$&Haar&$1000$&MPI-LB&$$&$12$&$11$&New\tabularnewline
+35&$  54.2$&$0.15$&$ 6.1$&Haar&$2000$&Fork&$12$&$$&$$&New\tabularnewline
+36&$  58.6$&$0.15$&$ 6.1$&Haar&$2000$&Fork-LB&$12$&$$&$$&New\tabularnewline
+37&$ 104.1$&$0.18$&$ 6.7$&Haar&$4000$&Fork&$12$&$$&$$&New\tabularnewline
+38&$ 117.3$&$0.18$&$ 6.3$&Haar&$4000$&Fork-LB&$12$&$$&$$&New\tabularnewline
+39&$  69.7$&$0.13$&$ 7.5$&CBS&$  50$&Fork&$12$&$$&$$&New\tabularnewline
+40&$  64.5$&$0.13$&$ 7.1$&CBS&$  50$&Fork-LB&$12$&$$&$$&New\tabularnewline
+41&$  70.0$&$0.13$&$ 6.8$&CBS&$  50$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+42&$  68.3$&$0.13$&$ 6.6$&CBS&$  50$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+43&$  70.9$&$0.13$&$ 6.8$&CBS&$  50$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+44&$  64.6$&$0.13$&$ 6.2$&CBS&$  50$&Fork-LB&$12$&$$&$$&New-noNA\tabularnewline
+45&$  74.2$&$0.13$&$ 7.6$&CBS&$  50$&MPI&$$&$12$&$11$&Old\tabularnewline
+46&$  74.1$&$0.13$&$ 7.6$&CBS&$  50$&MPI&$$&$12$&$11$&Old\tabularnewline
+47&$  77.3$&$0.13$&$ 8.1$&CBS&$  50$&MPI&$$&$13$&$12$&Old\tabularnewline
+48&$ 133.5$&$0.13$&$ 9.8$&CBS&$ 100$&Fork&$12$&$$&$$&New\tabularnewline
+49&$ 124.2$&$0.13$&$ 7.2$&CBS&$ 100$&Fork-LB&$12$&$$&$$&New\tabularnewline
+50&$ 132.4$&$0.13$&$ 8.4$&CBS&$ 100$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+51&$ 131.2$&$0.13$&$ 7.2$&CBS&$ 100$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+52&$ 146.2$&$0.13$&$ 8.0$&CBS&$ 100$&MPI&$$&$12$&$11$&Old\tabularnewline
+53&$ 147.9$&$0.13$&$ 7.7$&CBS&$ 100$&MPI&$$&$12$&$11$&Old\tabularnewline
+54&$ 150.0$&$0.13$&$15.5$&CBS&$ 100$&MPI&$$&$13$&$12$&Old\tabularnewline
+55&$ 250.8$&$0.13$&$ 8.2$&CBS&$ 200$&Fork&$12$&$$&$$&New\tabularnewline
+56&$ 241.4$&$0.13$&$ 7.5$&CBS&$ 200$&Fork-LB&$12$&$$&$$&New\tabularnewline
+57&$ 380.0$&$0.13$&$ 9.0$&CBS&$ 200$&MPI&$$&$12$&$11$&New\tabularnewline
+58&$ 307.9$&$0.13$&$ 8.4$&CBS&$ 200$&MPI-LB&$$&$12$&$11$&New\tabularnewline
+59&$ 255.2$&$0.13$&$14.2$&CBS&$ 200$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+60&$ 250.7$&$0.13$&$ 7.3$&CBS&$ 200$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+61&$ 372.4$&$0.13$&$ 8.7$&CBS&$ 200$&MPI&$$&$12$&$11$&New-noNA\tabularnewline
+62&$ 307.8$&$0.13$&$ 7.9$&CBS&$ 200$&MPI-LB&$$&$12$&$11$&New-noNA\tabularnewline
+63&$ 287.7$&$0.13$&$ 7.9$&CBS&$ 200$&MPI&$$&$12$&$11$&Old\tabularnewline
+64&$ 287.2$&$0.13$&$ 7.2$&CBS&$ 200$&MPI&$$&$12$&$11$&Old\tabularnewline
+65&$ 294.6$&$0.13$&$10.6$&CBS&$ 200$&MPI&$$&$13$&$12$&Old\tabularnewline
+66&$1246.0$&$0.14$&$14.8$&CBS&$1000$&Fork&$12$&$$&$$&New\tabularnewline
+67&$1185.2$&$0.14$&$ 8.2$&CBS&$1000$&Fork-LB&$12$&$$&$$&New\tabularnewline
+68&$1804.2$&$0.14$&$10.0$&CBS&$1000$&MPI&$$&$12$&$11$&New\tabularnewline
+69&$1512.4$&$0.14$&$ 8.9$&CBS&$1000$&MPI-LB&$$&$12$&$11$&New\tabularnewline
+70&$ 311.2$&$0.18$&$ 6.4$&HMM&$  50$&Fork&$11$&$$&$$&New\tabularnewline
+71&$ 309.5$&$0.18$&$10.5$&HMM&$  50$&Fork&$11$&$$&$$&New\tabularnewline
+72&$ 282.1$&$0.18$&$ 7.0$&HMM&$  50$&Fork&$12$&$$&$$&New\tabularnewline
+73&$ 286.4$&$0.18$&$ 7.1$&HMM&$  50$&Fork&$12$&$$&$$&New\tabularnewline
+74&$ 288.4$&$0.18$&$ 9.6$&HMM&$  50$&Fork&$12$&$$&$$&New\tabularnewline
+75&$ 310.9$&$0.18$&$ 9.1$&HMM&$  50$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+76&$ 284.0$&$0.18$&$11.5$&HMM&$  50$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+77&$ 322.5$&$0.18$&$ 7.2$&HMM&$  50$&MPI&$$&$11$&$10$&Old\tabularnewline
+78&$ 324.4$&$0.18$&$ 7.2$&HMM&$  50$&MPI&$$&$11$&$10$&Old\tabularnewline
+79&$ 298.2$&$0.18$&$ 7.3$&HMM&$  50$&MPI&$$&$12$&$11$&Old\tabularnewline
+80&$ 302.2$&$0.18$&$10.2$&HMM&$  50$&MPI&$$&$12$&$11$&Old\tabularnewline
+81&$ 299.9$&$0.18$&$ 8.2$&HMM&$  50$&MPI&$$&$13$&$12$&Old\tabularnewline
+82&$ 305.8$&$0.18$&$ 9.8$&HMM&$  50$&MPI&$$&$13$&$12$&Old\tabularnewline
+83&$ 574.2$&$0.18$&$ 9.5$&HMM&$ 100$&Fork&$12$&$$&$$&New\tabularnewline
+84&$ 560.4$&$0.18$&$11.3$&HMM&$ 100$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+85&$ 603.0$&$0.18$&$10.7$&HMM&$ 100$&MPI&$$&$12$&$11$&Old\tabularnewline
+86&$ 595.4$&$0.18$&$ 8.5$&HMM&$ 100$&MPI&$$&$13$&$12$&Old\tabularnewline
+87&$3188.2$&$0.20$&$ 8.7$&HMM&$ 200$&MPI&$$&$12$&$11$&New\tabularnewline
+88&$1213.7$&$0.20$&$ 8.1$&HMM&$ 200$&MPI-LB&$$&$12$&$11$&New\tabularnewline
+89&$1108.7$&$0.18$&$ 7.9$&HMM&$ 200$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+90&$1122.8$&$0.18$&$13.5$&HMM&$ 200$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+91&$3240.6$&$0.20$&$ 9.1$&HMM&$ 200$&MPI&$$&$12$&$11$&New-noNA\tabularnewline
+92&$1205.0$&$0.20$&$ 8.4$&HMM&$ 200$&MPI-LB&$$&$12$&$11$&New-noNA\tabularnewline
+93&$1192.3$&$0.20$&$ 7.3$&HMM&$ 200$&MPI&$$&$12$&$11$&Old\tabularnewline
+94&$1169.4$&$0.18$&$10.5$&BioHMM&$  50$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+95&$1222.2$&$0.18$&$17.2$&BioHMM&$  50$&MPI&$$&$13$&$12$&Old\tabularnewline
+96&$2339.5$&$0.18$&$11.0$&BioHMM&$ 100$&Fork&$12$&$$&$$&New-noNA\tabularnewline
+97&$2401.8$&$0.18$&$15.5$&BioHMM&$ 100$&MPI&$$&$13$&$12$&Old\tabularnewline
+\hline
+\end{longtable}
+

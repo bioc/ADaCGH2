@@ -32,6 +32,7 @@ pSegmentDNAcopy(cghRDataName, chromRDataName, merging = "MAD",
                 typeParall = "fork",
                 mc.cores = detectCores(),
                 certain_noNA = FALSE,
+                loadBalance = TRUE,
                 ...)
 
 pSegmentHaarSeg(cghRDataName, chromRDataName,
@@ -44,6 +45,7 @@ pSegmentHaarSeg(cghRDataName, chromRDataName,
                 typeParall = "fork",
                 mc.cores = detectCores(),
                 certain_noNA = FALSE,
+                loadBalance = FALSE,
                 ...)
 
 pSegmentHMM(cghRDataName, chromRDataName,
@@ -52,6 +54,7 @@ pSegmentHMM(cghRDataName, chromRDataName,
             typeParall = "fork",
             mc.cores = detectCores(),
             certain_noNA = FALSE,
+            loadBalance = TRUE,
             ...)
 
 
@@ -62,6 +65,7 @@ pSegmentBioHMM(cghRDataName, chromRDataName, posRDataName,
                typeParall = "fork",
                mc.cores = detectCores(),
                certain_noNA = FALSE,
+               loadBalance = TRUE,
                ...)
 
 pSegmentCGHseg(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
@@ -69,6 +73,7 @@ pSegmentCGHseg(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                typeParall = "fork",
                mc.cores = detectCores(),
                certain_noNA = FALSE,
+               loadBalance = TRUE,
                ...)
 
 
@@ -81,6 +86,7 @@ pSegmentGLAD(cghRDataName, chromRDataName,
              mc.cores = detectCores(),
              certain_noNA = FALSE,
              GLADdetails = FALSE,
+             loadBalance = TRUE,
              ...)
 
 
@@ -92,6 +98,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
                  typeParall = "fork",
                  mc.cores = detectCores(),
                  certain_noNA = FALSE,
+                 loadBalance = TRUE,
                  ...)
 
 
@@ -162,8 +169,15 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
   to understand error messages) and, even worse, other methods might
   appear to work (but give incorrect results). You've been warned.}
 
-  \item{smooth}{For DNAcopy only. If TRUE (default) carry out smoothing as
-    explained in \code{\link[DNAcopy]{smooth.CNA}}.}
+\item{loadBalance}{If TRUE (the default for all methods except HaarSeg)
+  use load balancing with MPI (use
+  \code{\link[parallel]{clusterApplyLB}} instead of
+  \code{\link[parallel]{clusterApply}}) and a similar approach for
+  forking ( set \code{mc.preschedule = FALSE} in the call to
+  \code{\link[parallel]{mclapply}} ).}
+      
+\item{smooth}{For DNAcopy only. If TRUE (default) carry out smoothing as
+  explained in \code{\link[DNAcopy]{smooth.CNA}}.}
 
   
   \item{alpha}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
@@ -513,6 +527,12 @@ lapply(haar.RAM.fork, head)
 
 ## Where and what length are segments in first sample?
 rle(haar.RAM.fork$outSmoothed[, 1])
+
+
+## Repeat, without load-balancing
+haar.RAM.fork.nlb <- pSegmentHaarSeg(cgh.dat, chrom.dat,
+                                     merging = "MAD",
+                                     loadBalance = FALSE)
 
 
 

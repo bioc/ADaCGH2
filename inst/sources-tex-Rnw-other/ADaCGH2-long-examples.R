@@ -1,4 +1,4 @@
-### R code from vignette source '/home/ramon/Proyectos/ADaCGH2-devel/ADaCGH2/inst/long-examples-sources/ADaCGH2-long-examples.Rnw'
+### R code from vignette source '/home/ramon/Proyectos/ADaCGH2-devel/ADaCGH2/inst/sources-tex-Rnw-other/ADaCGH2-long-examples.Rnw'
 ### Encoding: UTF-8
 
 ###################################################
@@ -8,7 +8,7 @@ try(setwd("~/tmp"))
 
 
 ###################################################
-### code chunk number 2: ADaCGH2-long-examples.Rnw:111-148
+### code chunk number 2: ADaCGH2-long-examples.Rnw:111-151
 ###################################################
 library(ADaCGH2)
  
@@ -33,7 +33,10 @@ fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
 inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 
-## initializing cluster
+## setting random number generator for forking
+RNGkind("L'Ecuyer-CMRG")
+
+## initializing cluster and setting up random number generator
 number.of.nodes <- detectCores()
 cl2 <- parallel::makeCluster(number.of.nodes,"PSOCK")
 parallel::clusterSetRNGStream(cl2)
@@ -50,7 +53,7 @@ parallel::clusterEvalQ(NULL, setwd(wdir))
 
 
 ###################################################
-### code chunk number 3: ADaCGH2-long-examples.Rnw:174-227
+### code chunk number 3: ADaCGH2-long-examples.Rnw:176-227
 ###################################################
 cbs.mergel.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat, 
                                             merging = "mergeLevels")
@@ -67,9 +70,7 @@ hs.mad.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
 hs.none.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
                              merging = "none")
 
-
 glad.RAM.fork <- pSegmentGLAD(cgh.dat, chrom.dat)
-
 
 biohmm.mergel.RAM.fork <- pSegmentBioHMM(cgh.dat,
                                 chrom.dat,
@@ -108,7 +109,7 @@ waves.none.RAM.fork <- pSegmentWavelets(cgh.dat,
 
 
 ###################################################
-### code chunk number 4: ADaCGH2-long-examples.Rnw:250-328
+### code chunk number 4: ADaCGH2-long-examples.Rnw:249-327
 ###################################################
 
 cbs.mergel.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
@@ -191,8 +192,9 @@ waves.none.ff.cluster <- pSegmentWavelets("cghData.RData",
 
 
 ###################################################
-### code chunk number 5: ADaCGH2-long-examples.Rnw:348-420
+### code chunk number 5: ADaCGH2-long-examples.Rnw:347-420
 ###################################################
+
 cbs.mergel.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
                                       merging = "mergeLevels",
                                   typeParall = "fork")
@@ -323,7 +325,7 @@ identical3 <- function(x, y, z) {
 
 
 ###################################################
-### code chunk number 11: ADaCGH2-long-examples.Rnw:572-575
+### code chunk number 11: ADaCGH2-long-examples.Rnw:577-580
 ###################################################
 mapply(identical3, RAM.fork.obj, 
            ff.fork.obj, ff.cluster.obj)
@@ -331,13 +333,75 @@ mapply(identical3, RAM.fork.obj,
 
 
 ###################################################
-### code chunk number 12: ADaCGH2-long-examples.Rnw:649-650
+### code chunk number 12: ADaCGH2-long-examples.Rnw:646-703
+###################################################
+hs.none.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "none")
+hs.none.RAM.fork.lb <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "none", loadBalance = TRUE)
+hs.none.RAM.fork.nlb <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "none", loadBalance = FALSE)
+identical3("hs.none.RAM.fork", "hs.none.RAM.fork.lb", "hs.none.RAM.fork.nlb")
+
+
+hs.none.ff.cluster <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                      merging = "none", typeParall = "cluster")
+hs.none.ff.cluster.lb <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                      merging = "none", typeParall = "cluster",
+                                      loadBalance = TRUE)
+hs.none.ff.cluster.nlb <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                      merging = "none", typeParall = "cluster",
+                                      loadBalance = FALSE)
+## do not show all the opening ... messages
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.cluster", function(x) lapply(get(x), open))
+    )
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.cluster.lb", function(x) lapply(get(x), open))
+    )
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.cluster.nlb", function(x) lapply(get(x), open))
+    )
+
+identical3("hs.none.ff.cluster", "hs.none.ff.cluster.lb", 
+           "hs.none.ff.cluster.nlb")
+
+
+hs.none.ff.fork <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                             merging = "none", typeParall = "fork")
+hs.none.ff.fork.lb <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                   merging = "none", typeParall = "fork",
+                                   loadBalance = TRUE)
+hs.none.ff.fork.nlb <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                   merging = "none", typeParall = "fork",
+                                   loadBalance = FALSE)
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.fork", function(x) lapply(get(x), open))
+    )
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.fork.lb", function(x) lapply(get(x), open))
+    )
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.fork.nlb", function(x) lapply(get(x), open))
+    )
+identical3("hs.none.ff.fork", "hs.none.ff.fork.lb", "hs.none.ff.fork.nlb")
+
+
+
+###################################################
+### code chunk number 13: ADaCGH2-long-examples.Rnw:726-727
 ###################################################
 parallel::stopCluster(cl2)
 
 
 ###################################################
-### code chunk number 13: ADaCGH2-long-examples.Rnw:653-683 (eval = FALSE)
+### code chunk number 14: ADaCGH2-long-examples.Rnw:730-760 (eval = FALSE)
 ###################################################
 ## ## This is the code to remove all the files we created
 ## ## and the temporary directory.

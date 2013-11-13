@@ -1,0 +1,42 @@
+% mylatex(tmp <- with(all.run, {     tmp2 <- all.run[(all.run$machine == "Lacerta") & ((!is.na(all.run$universesize)) &          (all.run$universesize == 124)), ]     cols <- c(1:5, 7, 6, 8:10)     tmp4 <- with(tmp2, {         tmp3 <- tmp2[order(method, ncols, Version_ADaCGH2, MPI,              numcores, universesize), cols]         rownames(tmp3) <- 1:nrow(tmp3)         tmp3     })     attributes(tmp4)$mycolnames <- attributes(all.run)$mycolnames[cols]     tmp4 }), rowlabel = "", colheads = attributes(tmp)$mycolnames, longtable = TRUE,      lines.page = 900, caption = "Analysis benchmarks using Lacerta and Gallotia with MPI over Infiniband (total 124 cores)",      file = "anal-lacerta-gallotia.tex") 
+%
+
+\setlongtables
+
+
+\begin{longtable}{lrrrlrlrrrl}\caption{Analysis benchmarks using Lacerta and Gallotia with MPI over Infiniband (total 124 cores)} \tabularnewline
+\hline\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Wall time (min.)}&\multicolumn{1}{c}{Memory (GB)}&\multicolumn{1}{c}{$\Sigma$ Memory (GB)}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{Columns}&\multicolumn{1}{c}{MPI/Fork}&\multicolumn{1}{c}{Cores}&\multicolumn{1}{c}{Procs.\ per node}&\multicolumn{1}{c}{Universe size}&\multicolumn{1}{c}{Version}\tabularnewline
+\hline
+\endfirsthead\caption[]{\em (Analysis benchmarks using Lacerta and Gallotia with MPI over Infiniband (total 124 cores), continued)} \tabularnewline
+\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Wall time (min.)}&\multicolumn{1}{c}{Memory (GB)}&\multicolumn{1}{c}{$\Sigma$ Memory (GB)}&\multicolumn{1}{c}{Method}&\multicolumn{1}{c}{Columns}&\multicolumn{1}{c}{MPI/Fork}&\multicolumn{1}{c}{Cores}&\multicolumn{1}{c}{Procs.\ per node}&\multicolumn{1}{c}{Universe size}&\multicolumn{1}{c}{Version}\tabularnewline
+\hline
+\endhead
+\hline
+\endfoot
+\label{anal-lacerta-gallotia}
+1&$   1.4$&$0.13$&$27.3$&Haar&$ 200$&MPI&$$&$63$&$124$&New-noNA\tabularnewline
+2&$   1.3$&$0.13$&$26.9$&Haar&$ 200$&MPI&$$&$62$&$124$&New-noNA\tabularnewline
+3&$   1.3$&$0.13$&$27.1$&Haar&$ 200$&MPI&$$&$62$&$124$&New-noNA\tabularnewline
+4&$   1.3$&$0.13$&$27.3$&Haar&$ 200$&MPI&$$&$63$&$124$&New-noNA\tabularnewline
+5&$   1.4$&$0.18$&$27.4$&Haar&$ 200$&MPI&$$&$63$&$124$&Old\tabularnewline
+6&$   1.3$&$0.18$&$27.2$&Haar&$ 200$&MPI&$$&$62$&$124$&Old\tabularnewline
+7&$   7.9$&$0.14$&$28.5$&Haar&$1000$&MPI&$$&$62$&$124$&New-noNA\tabularnewline
+8&$   8.8$&$0.18$&$32.9$&Haar&$1000$&MPI&$$&$62$&$124$&Old\tabularnewline
+9&$  27.7$&$0.15$&$31.6$&Haar&$2000$&MPI&$$&$62$&$124$&New\tabularnewline
+10&$  59.0$&$0.18$&$31.8$&Haar&$4000$&MPI&$$&$62$&$124$&New\tabularnewline
+11&$  70.1$&$0.13$&$42.1$&CBS&$ 200$&MPI&$$&$63$&$124$&New-noNA\tabularnewline
+12&$  69.6$&$0.13$&$41.4$&CBS&$ 200$&MPI&$$&$62$&$124$&New-noNA\tabularnewline
+13&$  60.0$&$0.13$&$42.0$&CBS&$ 200$&MPI&$$&$63$&$124$&Old\tabularnewline
+14&$  61.2$&$0.13$&$41.1$&CBS&$ 200$&MPI&$$&$62$&$124$&Old\tabularnewline
+15&$ 324.1$&$0.14$&$44.7$&CBS&$1000$&MPI&$$&$62$&$124$&New-noNA\tabularnewline
+16&$ 242.5$&$0.14$&$44.8$&CBS&$1000$&MPI&$$&$62$&$124$&Old\tabularnewline
+17&$ 612.7$&$0.15$&$51.5$&CBS&$2000$&MPI&$$&$62$&$124$&New\tabularnewline
+18&$1237.0$&$0.18$&$53.8$&CBS&$4000$&MPI&$$&$62$&$124$&New\tabularnewline
+19&$ 584.2$&$0.20$&$41.8$&HMM&$ 200$&MPI&$$&$62$&$124$&New-noNA\tabularnewline
+20&$ 165.7$&$0.20$&$41.8$&HMM&$ 200$&MPI&$$&$63$&$124$&Old\tabularnewline
+21&$ 166.4$&$0.20$&$41.0$&HMM&$ 200$&MPI&$$&$62$&$124$&Old\tabularnewline
+\hline
+\end{longtable}
+

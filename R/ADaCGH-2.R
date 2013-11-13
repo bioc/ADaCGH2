@@ -201,72 +201,7 @@ if(!identical(names.formals.changepoints, names(formals(adacgh_changepoints)))) 
 ## Well, they get away with it because there are no executable examples
 ## in the help for fit.model.
 
-
-
-    
-
-## snowfallInit <- function(universeSize = NULL, 
-##                          wdir = getwd(), minUniverseSize = 2,
-##                          exit_on_fail = FALSE,
-##                          maxnumcpus = 500,
-##                          typecluster = "SOCK",
-##                          socketHosts = NULL,
-##                          RNG = "RNGstream") {
-
-##   sfSetMaxCPUs <- maxnumcpus
-##   trythis <- try({
-##     require(snowfall)
-##     if(! is.null(universeSize))
-##       minUniverseSize <- universeSize
-
-##     if(typecluster == "MPI") {
-##       if(! ("package:Rmpi" %in% search()))
-##         stop("To use MPI, configure your MPI environment and ",
-##              "load the Rmpi package")
-##       ## We do not want a "require(Rmpi) because this will
-##       ## almost always lead to undesider configurations
-##       if(mpi.universe.size() < minUniverseSize) {
-##         if(exit_on_fail)
-##           stop("MPI problem: universe size < minUniverseSize")
-##         else
-##           warning("MPI problem: universe size < minUniverseSize")
-##       }
-##       if(! is.null(universeSize)) {
-##         sfInit(parallel = TRUE, cpus = minUniverseSize, type = "MPI")
-##       } else {
-##         sfInit(parallel = TRUE, cpus = mpi.universe.size(), type = "MPI")
-##       }
-##     } else { ## sockets
-##       sfInit(parallel = TRUE, cpus = minUniverseSize, type = "SOCK",
-##                socketHosts = socketHosts)
-##     }
-
-##     sfClusterEval(rm(list = ls(envir = .GlobalEnv), envir =.GlobalEnv))
-##     rngenerators <- c("SPRNG", "RNGstream")
-##     t1 <- try(sfClusterSetupRNG(type = RNG))
-##     if(inherits(t1, "try-error")) {
-##       othergen <- setdiff(rngenerators, RNG)
-##       t2 <- try(sfClusterSetupRNG(type = othergen))
-##       if(inherits(t2, "try-error"))
-##         stop("No suitable random number generator found for the cluster. ",
-##              "Please install the packages rsprng or rlecuyer")
-##       else
-##         warning("You requested random number generator ", RNG,
-##                 " but it was not available.  ",
-##                 "Using ", othergen, " instead.")
-##     }
-      
-    
-##     sfExport("wdir")
-##     setwd(wdir)
-##     sfClusterEval(setwd(wdir))
-##     sfLibrary("ADaCGH2", character.only = TRUE)
-##   })
-##   if(inherits(trythis, "try-error")) {
-##     cat("\nSnowfall error\n", file = "Status.msg")
-##     if(exit_on_fail) quit(save = "yes", status = 12, runLast = FALSE)
-##   } 
-## }
+  
 
 
 
@@ -422,20 +357,55 @@ sizesobj <- function(n = 1,  minsizeshow = 0.5) {
 ## }
 
 
-distribute <- function(type, mc.cores, X, FUN, ..., silent = FALSE) {
+## distribute <- function(type, mc.cores, X, FUN, ..., silent = FALSE) {
+##   if(type == "fork") {
+##     if(.Platform$OS.type == "windows") {
+##       warning("You are running Windows. Setting mc.cores = 1")
+##       mc.cores <- 1
+##     }
+##     ## should we allow a mc.preschedule argument?
+##     ## initial testing showed TRUE to be better
+##     ## but MPI is a lot faster with load balancing so maybe ...
+##     mclapply(X, FUN, ..., mc.preschedule = FALSE,
+##              mc.cores = mc.cores, mc.silent = silent)
+##   } else if(type == "cluster") {
+##     ## we might need to do list(...)
+## ##      parallel::clusterApply(NULL, X, FUN, ...)
+##       clusterApplyLB(NULL, X, FUN, ...)
+##   } else stop("distribute does not know this type")
+## }
+
+
+
+distribute <- function(type, mc.cores, X, FUN, ..., silent = FALSE,
+                       loadBalance = TRUE) {
   if(type == "fork") {
     if(.Platform$OS.type == "windows") {
       warning("You are running Windows. Setting mc.cores = 1")
       mc.cores <- 1
     }
-    mclapply(X, FUN, ..., 
-             mc.cores = mc.cores, mc.silent = silent)
+    ## should we allow a mc.preschedule argument?
+    ## initial testing showed TRUE to be better
+    ## but MPI is a lot faster with load balancing so maybe ...
+    if(loadBalance) {
+        mclapply(X, FUN, ..., mc.preschedule = FALSE,
+                    mc.cores = mc.cores, mc.silent = silent)
+    } else {
+        mclapply(X, FUN, ..., mc.preschedule = TRUE,
+                 mc.cores = mc.cores, mc.silent = silent)
+    }
   } else if(type == "cluster") {
     ## we might need to do list(...)
 ##      parallel::clusterApply(NULL, X, FUN, ...)
-      clusterApply(NULL, X, FUN, ...)
+      if(loadBalance) {
+          clusterApplyLB(NULL, X, FUN, ...)
+      } else {
+          clusterApply(NULL, X, FUN, ...)
+      }
   } else stop("distribute does not know this type")
 }
+
+
 
 
 mcc <- function(reading.cores) {
@@ -1093,6 +1063,10 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
     ## and possibly when reordering. So might as well just load, copy,
     ## remove, and gc.
 
+
+    ## When susing mclapply, we might want to set mc.preschedule =FALSE?
+    ## Not clear in this case?
+    
   if(! ff.or.RAM %in% c("ff", "RAM") )
     stop("ff.or.RAM can only take values ff or RAM")
   
@@ -1800,6 +1774,7 @@ pSegmentGLAD <- function(cghRDataName, chromRDataName,
                          mc.cores = detectCores(),
                          certain_noNA = FALSE,
                          GLADdetails = FALSE,
+                         loadBalance = TRUE,
                          ...) {
 
   ## check appropriate class of objects
@@ -1857,9 +1832,10 @@ pSegmentGLAD <- function(cghRDataName, chromRDataName,
                       amplicon,
                       ff.object,
                       certain_noNA,
-                      GLADdetails)
+                      GLADdetails,
+                      loadBalance = loadBalance)
   
-  ## a hack to avoid sfClusterApply from catching the error and aborting
+  ## a hack to avoid cluster code from catching the error and aborting
   te <- unlist(unlist(lapply(outsf, function(x) inherits(x, "my-try-error"))))
   if(any(te)) {
     m1 <- "The GLAD code occassionally crashes (don't blame us!)."
@@ -1988,7 +1964,7 @@ internalGLAD <- function(index, cghRDataName, chromRDataName,
 
   ## nodeWhere("internalGLAD")
   if(inherits(outglad, "try-error")) {
-      ## a hack to avoid sfClusterApply from catching the error and aborting
+      ## a hack to avoid cluster code from catching the error and aborting
       class(outglad) <- "my-try-error"
       return(outglad)
   } else { ## no errors.
@@ -2517,6 +2493,7 @@ pSegmentDNAcopy <- function(cghRDataName, chromRDataName,
                             typeParall = "fork",
                             mc.cores = detectCores(),
                             certain_noNA = FALSE,
+                            loadBalance = TRUE,
                             ## following options for mergeLevels
                             ## merge.pv.thresh = 1e-04,
                             ## merge.ansari.sign = 0.05,
@@ -2616,34 +2593,9 @@ pSegmentDNAcopy <- function(cghRDataName, chromRDataName,
                       min.width =min.width,
                       mad.threshold = mad.threshold,
                       ff.object,
-                      certain_noNA)
+                      certain_noNA,
+                      loadBalance = loadBalance)
   
-  ## outsf <- sfClusterApplyLB(1:narrays,
-  ##                           internalDNAcopy,
-  ##                           cghRDataName =   cghRDataName,
-  ##                           chromRDataName = chromRDataName,
-  ##                           merging =      merging,
-  ##                           smooth =        smooth,
-  ##                           alpha =         alpha,     
-  ##                           nperm =         nperm,    
-  ##                           kmax =          kmax,      
-  ##                           nmin =          nmin,
-  ##                           eta =           eta,
-  ##                           trim =          trim,      
-  ##                           undo.prune =    undo.prune,
-  ##                           undo.SD =       undo.SD,   
-  ##                           sbdry =         sbdry,     
-  ##                           sbn =           sbn,
-  ##                           merge.pv.thresh = merge.pv.thresh,
-  ##                           merge.ansari.sign = merge.ansari.sign,
-  ##                           merge.thresMin = merge.thresMin,
-  ##                           merge.thresMax = merge.thresMax,
-  ##                           p.method = p.method,
-  ##                           undo.splits = undo.splits,
-  ##                           min.width =min.width,
-  ##                           mad.threshold = mad.threshold
-  ##                           )                 
-
   ## nodeWhere("pSegmentDNAcopy")
   ## FIXME: classes!! for all output!!
   ## class(out) <- c("adacgh.generic.out", "adacghHaarSeg")
@@ -2767,6 +2719,7 @@ pSegmentHaarSeg <- function(cghRDataName, chromRDataName,
                             typeParall = "fork",
                             mc.cores = detectCores(),
                             certain_noNA = FALSE,
+                            loadBalance = FALSE,                            
                             ...) {
 
   ### Here we find out if RAMl object, regular RData on disk, or ff
@@ -2824,7 +2777,8 @@ pSegmentHaarSeg <- function(cghRDataName, chromRDataName,
                       haarEndLevel,
                       merging,
                       ff.object,
-                      certain_noNA)
+                      certain_noNA,
+                      loadBalance = loadBalance)
 
 
   return(outToffdf2(outsf, arrayNames, ff.out = ff.object))
@@ -3000,6 +2954,7 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
                         typeParall = "fork",
                         mc.cores = detectCores(),
                         certain_noNA = FALSE,
+                        loadBalance = TRUE,                        
                         ...) {
 
   type.of.data <- RAM.or.ff(cghRDataName)
@@ -3079,7 +3034,8 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
                      aic.or.bic,
                      ff.object,
                      silent = TRUE,
-                     certain_noNA) ## silly messages returned
+                     certain_noNA,
+                     loadBalance = loadBalance) ## silly messages returned
   ## nodeWhere("pSegmentHMM_0")
   ## Parallelized by array. Really???
   if(merging == "mergeLevels") {
@@ -3090,7 +3046,8 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
                       out0,
                       tableArrChrom,
                       cghRDataName,
-                      ff.object, certain_noNA)
+                      ff.object, certain_noNA,
+                      loadBalance = loadBalance)
   } else if(merging == "MAD") {
     out <- distribute(type = typeParall,
                      mc.cores = mc.cores,
@@ -3100,7 +3057,8 @@ pSegmentHMM <- function(cghRDataName, chromRDataName,
                       tableArrChrom,
                       cghRDataName,
                       mad.threshold,
-                      ff.object, certain_noNA)
+                      ff.object, certain_noNA,
+                      loadBalance = loadBalance)
   } else {
     stop("This merging method not recognized")
   }
@@ -3303,6 +3261,7 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
                            typeParall = "fork",
                            mc.cores = detectCores(),
                            certain_noNA = FALSE,
+                           loadBalance = TRUE,                           
                            ...) {
 
   type.of.data <- RAM.or.ff(cghRDataName)
@@ -3353,7 +3312,8 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
                      aic.or.bic,
                      ff.object,
                      silent = TRUE,
-                     certain_noNA)
+                     certain_noNA,
+                     loadBalance = loadBalance)
   ## nodeWhere("pSegmentBioHMM_0")
   te <- unlist(unlist(lapply(out0, function(x) inherits(x, "my-try-error"))))
   if(any(te)) {
@@ -3376,7 +3336,8 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
                       tableArrChrom,
                       cghRDataName,
                       ff.object,
-                      certain_noNA
+                      certain_noNA,
+                      loadBalance = loadBalance
                       )
   } else if(merging == "MAD") {
     out <- distribute(type = typeParall,
@@ -3388,28 +3349,11 @@ pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
                       cghRDataName,
                       mad.threshold,
                       ff.object,
-                      certain_noNA)
+                      certain_noNA,
+                      loadBalance = loadBalance)
   } else {
     stop("This merging method not recognized")
   }
-
-
-  ## if(merging == "mergeLevels") {
-  ##   out <- sfClusterApplyLB(1:narrays,
-  ##                           internalMerge,
-  ##                           out0,
-  ##                           tableArrChrom,
-  ##                           cghRDataName)
-  ## } else if(merging == "MAD") {
-  ##   out <- sfClusterApplyLB(1:narrays,
-  ##                           internalMADCall,
-  ##                           out0,
-  ##                           tableArrChrom,
-  ##                           cghRDataName,
-  ##                           mad.threshold)
-  ## } else {
-  ##   stop("This merging method not recognized")
-  ## }
 
   ## Clean up ff files
   if(ff.object) lapply(out0, delete)
@@ -3464,7 +3408,7 @@ BioHMMWrapper <- function(logratio, Pos, aic.or.bic, ff.out,
   ##                               bic = ifelse(aic.or.bic == "BIC", TRUE, FALSE)
   ##                               ))
   res <- try(fit.model(sample = 1, chrom = 1, dat = matrix(ydat, ncol = 1),
-                       datainfo = data.frame(Name = 1:n, Chrom = rep(1, n),
+                       datainfo = data.frame(Name = 1:n, Chr = rep(1, n),
                            Position = Pos),
                        aic = ifelse(aic.or.bic == "AIC", TRUE, FALSE),
                        bic = ifelse(aic.or.bic == "BIC", TRUE, FALSE)
@@ -3502,6 +3446,7 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                            typeParall = "fork",
                            mc.cores = detectCores(),
                            certain_noNA = FALSE,
+                           loadBalance = TRUE,                           
                            ...) {
   ## merge: "MAD", "mergeLevels", "none"
   ## We always use mergeSegs. OK for gain/loss/no-change,
@@ -3557,7 +3502,8 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                      CGHseg.thres,
                      merging,
                      ff.object,
-                     certain_noNA)
+                     certain_noNA,
+                     loadBalance = loadBalance)
     ## nodeWhere("pSegmentCGHseg_0")
 
   ## Parallelized by array
@@ -3570,7 +3516,8 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                       tableArrChrom,
                       cghRDataName,
                       ff.object,
-                      certain_noNA)
+                      certain_noNA,
+                      loadBalance = loadBalance)
   } else if(merging == "MAD") {
     out <- distribute(type = typeParall,
                       mc.cores = mc.cores,
@@ -3581,7 +3528,8 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                       cghRDataName,
                       mad.threshold,
                       ff.object,
-                      certain_noNA)
+                      certain_noNA,
+                      loadBalance = loadBalance)
   } else if(merging == "none") {
     ## of course, could be done sequentially
     ## but if many arrays and long chromosomes, probably
@@ -3598,7 +3546,8 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                       puttogetherCGHseg,
                       out0,
                       tableArrChrom,
-                      ff.object)
+                      ff.object,
+                      loadBalance = loadBalance)
     ## nodeWhere("pSegmentCGHseg_No_merge")
   } else {
     stop("This merging method not recognized")
@@ -3786,6 +3735,7 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                              typeParall = "fork",
                              mc.cores = detectCores(),
                              certain_noNA = FALSE,
+                             loadBalance = TRUE,                             
                              ...) {
 
   ## tableArrChrom <- wrapCreateTableArrChr(cghRDataName, chromRDataName)
@@ -3844,7 +3794,8 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                      initClusterLevels = initClusterLevels,
                      merging = merging,
                      ff.object,
-                     certain_noNA)
+                     certain_noNA,
+                     loadBalance = loadBalance)
   ## nodeWhere("pSegmentWavelets_0")
  ## Parallelized by arr by chrom
   ## if merge != "none", then it returns ONLY the smoothed values
@@ -3857,7 +3808,8 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                       tableArrChrom,
                       cghRDataName,
                       ff.object,
-                      certain_noNA)
+                      certain_noNA,
+                      loadBalance = loadBalance)
     ## nodeWhere("pSegmentWavelets_mergeLevels")
   } else if(merging == "MAD") {
     out <- distribute(type = typeParall,
@@ -3869,7 +3821,8 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                       cghRDataName,
                       mad.threshold,
                       ff.object,
-                      certain_noNA)
+                      certain_noNA,
+                      loadBalance = loadBalance)
     ## nodeWhere("pSegmentWavelets_MADCall")
   } else if(merging == "none") {
     ## of course, could be done sequentially
@@ -3881,7 +3834,8 @@ pSegmentWavelets <- function(cghRDataName, chromRDataName, merging = "MAD",
                       puttogetherCGHseg,
                       out0,
                       tableArrChrom,
-                      ff.object)
+                      ff.object,
+                      loadBalance = loadBalance)
     ## nodeWhere("pSegmentWavelets_No_merge")
   } else {
     stop("This merging method not recognized")
@@ -4013,6 +3967,7 @@ pChromPlot <- function(outRDataName,
                        mc.cores = detectCores(),
                        typedev = "default",
                        certain_noNA = FALSE,
+                       loadBalance = TRUE,
                        ...) {
 
     if(imagemap && (is.null(probenamesRDataName)))
@@ -4087,6 +4042,7 @@ pChromPlot <- function(outRDataName,
                      ff.object,
                      typedev,
                      certain_noNA,
+                     loadBalance = loadBalance,
                      ...)
 
 }
@@ -4833,12 +4789,6 @@ caughtOtherPackageError.Web <- function(message) {
     sink()
     quit(save = "no", status = 11, runLast = FALSE)
 }
-
-
-
-## snowfall.clean.quit.Web <- function() {
-##   try(sfStop(), silent = TRUE)
-## }
 
 
 ## the next one substitutes snowfall.clean.quit.Web

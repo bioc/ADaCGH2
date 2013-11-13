@@ -1,0 +1,55 @@
+% mylatex(tmp <- with(all.read, {     tmp2 <- all.read[all.read$machine == "Lacerta", ]     cols <- c(1:4, 6, 5)     tmp4 <- with(tmp2, {         tmp3 <- tmp2[order(ncols, numcores, Version_ADaCGH2),              cols]         rownames(tmp3) <- 1:nrow(tmp3)         tmp3     })     attributes(tmp4)$mycolnames <- attributes(all.read)$mycolnames[cols]     tmp4 }), rowlabel = "", colheads = attributes(tmp)$mycolnames, longtable = TRUE,      lines.page = 900, caption = "Reading benchmarks for Lacerta: AMD Opteron 6276, 64 cores, 384 GB RAM",      file = "read-lacerta.tex") 
+%
+
+\setlongtables
+
+
+\begin{longtable}{lrrrrrl}\caption{Reading benchmarks for Lacerta: AMD Opteron 6276, 64 cores, 384 GB RAM} \tabularnewline
+\hline\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Wall time (min.)}&\multicolumn{1}{c}{Memory (GB)}&\multicolumn{1}{c}{$\Sigma$ Memory (GB)}&\multicolumn{1}{c}{Columns}&\multicolumn{1}{c}{Cores}&\multicolumn{1}{c}{Version}\tabularnewline
+\hline
+\endfirsthead\caption[]{\em (Reading benchmarks for Lacerta: AMD Opteron 6276, 64 cores, 384 GB RAM, continued)} \tabularnewline
+\hline
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{Wall time (min.)}&\multicolumn{1}{c}{Memory (GB)}&\multicolumn{1}{c}{$\Sigma$ Memory (GB)}&\multicolumn{1}{c}{Columns}&\multicolumn{1}{c}{Cores}&\multicolumn{1}{c}{Version}\tabularnewline
+\hline
+\endhead
+\hline
+\endfoot
+\label{read-lacerta}
+1&$ 3.1$&$  1.33$&$ 22.9$&$  50$&$64$&New\tabularnewline
+2&$ 2.9$&$  1.33$&$  4.8$&$  50$&$64$&New\tabularnewline
+3&$ 3.1$&$  1.33$&$  5.2$&$  50$&$64$&New\tabularnewline
+4&$ 6.4$&$  9.05$&$  9.0$&$  50$&$$&Old\tabularnewline
+5&$ 6.2$&$  9.05$&$  9.1$&$  50$&$$&Old\tabularnewline
+6&$ 6.9$&$  9.05$&$  9.1$&$  50$&$$&Old\tabularnewline
+7&$ 3.6$&$  1.33$&$ 17.7$&$ 100$&$64$&New\tabularnewline
+8&$ 3.2$&$  1.33$&$ 32.3$&$ 100$&$64$&New\tabularnewline
+9&$ 3.5$&$  1.33$&$ 18.3$&$ 100$&$64$&New\tabularnewline
+10&$10.2$&$ 16.93$&$ 16.9$&$ 100$&$$&Old\tabularnewline
+11&$ 9.2$&$ 16.93$&$ 16.9$&$ 100$&$$&Old\tabularnewline
+12&$10.2$&$ 16.93$&$ 17.1$&$ 100$&$$&Old\tabularnewline
+13&$ 5.3$&$  1.33$&$ 35.5$&$ 200$&$64$&New\tabularnewline
+14&$ 5.5$&$  1.33$&$ 33.5$&$ 200$&$64$&New\tabularnewline
+15&$ 5.5$&$  1.33$&$ 33.5$&$ 200$&$64$&New\tabularnewline
+16&$16.6$&$ 32.24$&$ 32.1$&$ 200$&$$&Old\tabularnewline
+17&$15.5$&$ 32.24$&$ 32.4$&$ 200$&$$&Old\tabularnewline
+18&$15.7$&$ 32.24$&$ 32.6$&$ 200$&$$&Old\tabularnewline
+19&$10.2$&$  1.33$&$ 36.6$&$ 500$&$64$&New\tabularnewline
+20&$ 9.7$&$  1.33$&$ 37.3$&$ 500$&$64$&New\tabularnewline
+21&$10.3$&$  1.33$&$ 38.4$&$ 500$&$64$&New\tabularnewline
+22&$35.2$&$ 77.67$&$ 77.4$&$ 500$&$$&Old\tabularnewline
+23&$35.8$&$ 77.67$&$ 77.6$&$ 500$&$$&Old\tabularnewline
+24&$36.7$&$ 77.67$&$ 77.2$&$ 500$&$$&Old\tabularnewline
+25&$17.9$&$  1.33$&$ 38.6$&$1000$&$64$&New\tabularnewline
+26&$ 5.8$&$  1.33$&$ 38.9$&$1000$&$64$&New\tabularnewline
+27&$64.9$&$153.58$&$154.1$&$1000$&$$&Old\tabularnewline
+28&$59.7$&$153.58$&$155.5$&$1000$&$$&Old\tabularnewline
+29&$59.1$&$153.58$&$155.5$&$1000$&$$&Old\tabularnewline
+30&$31.7$&$  1.33$&$  9.6$&$2000$&$10$&New\tabularnewline
+31&$15.5$&$  1.33$&$ 14.9$&$2000$&$20$&New\tabularnewline
+32&$10.9$&$  1.33$&$ 25.7$&$2000$&$40$&New\tabularnewline
+33&$22.7$&$  1.33$&$ 38.5$&$2000$&$64$&New\tabularnewline
+34&$49.0$&$  1.32$&$ 38.6$&$4000$&$64$&New\tabularnewline
+\hline
+\end{longtable}
+

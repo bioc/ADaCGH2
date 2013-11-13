@@ -64,7 +64,6 @@ This vignette presents the ADaCGH2 package using:
   different parallelization options and types of objects (in particular,
   \textit{ff} objects) available.
 \item Examples of using ADaCGH2 with CGHregions, Limma, and snapCGH.
-\item We show some benchmarking results with large data sets.
  
 \end{itemize}
 
@@ -77,6 +76,14 @@ methods, as well as different options for type of input object and
 clustering. That other vignette is provided as both extended help and as a
 simple way of checking that all the functions can be run and yield
 identical results regardless of type of input and clustering.
+
+
+Finally, the file ``benchmarks.pdf'' presents extensive benchmarks
+comparing the current version of ADaCGH2 (>= 2.2.1) with the former
+version (v.\ 1.10, in BioConductor 2.12), as well as some comparisons with
+non-parallelized executions and a discussion of recommended patterns of usage.
+
+
 
 
 % In the vignette ADaCGH2-long (under /inst/doc) there are examples that
@@ -240,8 +247,8 @@ will depend on the actual details of number of nodes, size of data sets,
 speed of communication between nodes, etc. For large data sets, the
 recommended usage involves always using \textit{ff} objects. Using
 \textit{ff} objects is slightly more cumbersome, but can allow us to
-analyze very large data sets in moderate hardware (see examples in section
-\ref{very-large-example}). Of course, what is ``lots'', ``many'', and
+analyze very large data sets in moderate hardware (see examples in the
+``benchmark.pdf'' file).. Of course, what is ``lots'', ``many'', and
 ``large'', will depend on the arrays you analyze and the hardware.
 
 
@@ -370,8 +377,8 @@ processes.
 If you have lots of RAM (ideally all you would need is enough memory to
 hold one copy of your original CGH data plus the return object), you will
 also probably use RAM objects and not \textit{ff} objects, as these are
-less cumbersome to deal with than \textit{ff} objects. But see section
-\ref{very-large-example} for other comments.
+less cumbersome to deal with than \textit{ff} objects. But see details in
+file ``benchmarks.pdf''.
 
 % With
 % forking, the R object that holds the CGH data is accessed only for
@@ -1178,7 +1185,7 @@ irrelevant.
 When using \texttt{inputDataToADaCGH} with a directory, the output can be
 either \textit{ff} objects or RAM objects. However, the latter
 will rarely make sense (it will be slower and we can run into memory
-contraints); see section \ref{very-large-example}.
+contraints); see the discussion in file ``benchmarks.pdf''.
 
 
 %% <<>>=
@@ -1450,588 +1457,588 @@ setwd(originalDir)
 @
 
 
-\section{(Non-runnable) Examples with large data sets and a comparison
-  of approaches}
-\label{very-large-example}
+%% \section{(Non-runnable) Examples with large data sets and a comparison
+%%   of approaches}
+%% \label{very-large-example}
 
 
-We discuss here a specific example to give you a rough idea of timings and
-preferred approaches for analyzing very large data sets.
+%% We discuss here a specific example to give you a rough idea of timings and
+%% preferred approaches for analyzing very large data sets.
 
-\subsection{Data set and hardware}
-\label{sec:data-set-hardware}
+%% \subsection{Data set and hardware}
+%% \label{sec:data-set-hardware}
 
-We will use a simulated data set that contains 6,067,433 rows and 1000
-columns of data; these are, thus, data for an array with 6 million probes
-and data for 1000 subjects. In some examples shown below, we use smaller
-subsets of the same data (with only 200 or 50 columns) and in some cases
-we will use a larger data set with 2000 subjects. There are 421,000
-missing values per data column. The ASCII file with the data for the 1000
-column data is about 96 GB\footnote{All sizes are computed from the
-  reported size in bytes or megabytes, using 1024, or powers of 1024, as
-  denominator.} and the RData for those same data is 46 GB (without
-compression; 41 GB with the standard R compression); in a freshly started
-R session, loading the RData will use 46 GB (as reported by
-\texttt{gc()}). We will analyze the full data set with 1000 columns, and
-some smaller versions of that data set (with 200 and 50 data columns).
-
-
+%% We will use a simulated data set that contains 6,067,433 rows and 1000
+%% columns of data; these are, thus, data for an array with 6 million probes
+%% and data for 1000 subjects. In some examples shown below, we use smaller
+%% subsets of the same data (with only 200 or 50 columns) and in some cases
+%% we will use a larger data set with 2000 subjects. There are 421,000
+%% missing values per data column. The ASCII file with the data for the 1000
+%% column data is about 96 GB\footnote{All sizes are computed from the
+%%   reported size in bytes or megabytes, using 1024, or powers of 1024, as
+%%   denominator.} and the RData for those same data is 46 GB (without
+%% compression; 41 GB with the standard R compression); in a freshly started
+%% R session, loading the RData will use 46 GB (as reported by
+%% \texttt{gc()}). We will analyze the full data set with 1000 columns, and
+%% some smaller versions of that data set (with 200 and 50 data columns).
 
 
-The examples below were run on a Dell PowerEdge C6145 chasis with two
-nodes. Each node has 4 AMD Opteron 6276 processors; since each processor
-has 16 cores, each node has 64 cores. One node has 256 GB RAM and the
-other 384 GB of RAM. Both nodes are connected by Infiniband (40Gb/s).  For
-the data presented here, when using a single node, the data live on an xfs
-partition of a RAID0 array of SAS disks (15000 rpm) that are local to the
-node doing the computations. When using the two nodes, the data live on
-that same local SAS drive, which is seen by the other node using a simple
-NFS setup (we have also used distributed file systems, such as FhGFS, but
-they have tended to be a lot slower in these experiments; your mileage
-might vary). Therefore, in the table entries below, executions using both
-nodes will indicate ``124 cores'' \footnote{124 is not a typo; it is 124,
-  even if the total number of cores is $128 = 64 * 2$. This is due to the
-  following documented issue with Open MPI and Infiniband:
-  \url{http://www.open-mpi.org/community/lists/users/2011/07/17003.php},
-  and since $128^2 = 16384$, we are hitting the limit, and we have not had
-  a chance to correct this problem yet. Regardless, the penalty we would
-  pay would be a difference of 4 process out of 124.}
+
+
+%% The examples below were run on a Dell PowerEdge C6145 chasis with two
+%% nodes. Each node has 4 AMD Opteron 6276 processors; since each processor
+%% has 16 cores, each node has 64 cores. One node has 256 GB RAM and the
+%% other 384 GB of RAM. Both nodes are connected by Infiniband (40Gb/s).  For
+%% the data presented here, when using a single node, the data live on an xfs
+%% partition of a RAID0 array of SAS disks (15000 rpm) that are local to the
+%% node doing the computations. When using the two nodes, the data live on
+%% that same local SAS drive, which is seen by the other node using a simple
+%% NFS setup (we have also used distributed file systems, such as FhGFS, but
+%% they have tended to be a lot slower in these experiments; your mileage
+%% might vary). Therefore, in the table entries below, executions using both
+%% nodes will indicate ``124 cores'' \footnote{124 is not a typo; it is 124,
+%%   even if the total number of cores is $128 = 64 * 2$. This is due to the
+%%   following documented issue with Open MPI and Infiniband:
+%%   \url{http://www.open-mpi.org/community/lists/users/2011/07/17003.php},
+%%   and since $128^2 = 16384$, we are hitting the limit, and we have not had
+%%   a chance to correct this problem yet. Regardless, the penalty we would
+%%   pay would be a difference of 4 process out of 124.}
 
   
-We will also show some examples run on an HP Z800 workstation, with 2
-Intel Xeon E5645 processors (each processor has six cores), and 64 GB of
-RAM. The data live on an ext4 partition on a SATA disk (7200 rmp). In the
-tables, this is indicated as ``Coleonyx, 12 cores'' (table with results
-for reading data) or by the number 12 in the column for number of cores.
+%% We will also show some examples run on an HP Z800 workstation, with 2
+%% Intel Xeon E5645 processors (each processor has six cores), and 64 GB of
+%% RAM. The data live on an ext4 partition on a SATA disk (7200 rmp). In the
+%% tables, this is indicated as ``Coleonyx, 12 cores'' (table with results
+%% for reading data) or by the number 12 in the column for number of cores.
 
 
-In both systems, the operating system is Debian GNU/Linux (a mixture of
-Debian testing and Debian unstable). The Dell PowerEdge nodes were running
-version R-2.15.1 as available from the Debian repository (v.\ 2.15.1-5)
-or, later, R-3.0.1, patched (different releases, as available through May
-and June of 2013), and compiled from sources. The Xeon workstation was
-running R-2.15.1, patched version (2012-10-02 r60861), compiled from
-sources or, later R-3.0.1, patched (different releases, as available
-through May and June of 2013). Open MPI is version 1.4.3-2 (as available
-from Debian).
+%% In both systems, the operating system is Debian GNU/Linux (a mixture of
+%% Debian testing and Debian unstable). The Dell PowerEdge nodes were running
+%% version R-2.15.1 as available from the Debian repository (v.\ 2.15.1-5)
+%% or, later, R-3.0.1, patched (different releases, as available through May
+%% and June of 2013), and compiled from sources. The Xeon workstation was
+%% running R-2.15.1, patched version (2012-10-02 r60861), compiled from
+%% sources or, later R-3.0.1, patched (different releases, as available
+%% through May and June of 2013). Open MPI is version 1.4.3-2 (as available
+%% from Debian).
 
-As a reference for the size of the data set, the RData object with the
-1000 columns, when loaded into R in the PowerEdges, takes 13 minutes to
-load and uses a total of about 46 GB (45.7 from calls to \texttt{gc}
-before and after loading the object, and adding Ncells and Vcells, or 45.6
-as reported by \texttt{object.size}). Note that this is not the result of
-the object being a data frame and having a column with identifiers (a
-factor), instead of being a matrix; a similarly sized matrix with just the
-numeric data for the probes (i.e., without the first three columns of ID,
-chromosome, and location) has a size of 45.2 GB (therefore, the difference
-of 300 MB due to the first column, ID, being a factor with the identifiers, is
-minute relative to the size of the matrix).
+%% As a reference for the size of the data set, the RData object with the
+%% 1000 columns, when loaded into R in the PowerEdges, takes 13 minutes to
+%% load and uses a total of about 46 GB (45.7 from calls to \texttt{gc}
+%% before and after loading the object, and adding Ncells and Vcells, or 45.6
+%% as reported by \texttt{object.size}). Note that this is not the result of
+%% the object being a data frame and having a column with identifiers (a
+%% factor), instead of being a matrix; a similarly sized matrix with just the
+%% numeric data for the probes (i.e., without the first three columns of ID,
+%% chromosome, and location) has a size of 45.2 GB (therefore, the difference
+%% of 300 MB due to the first column, ID, being a factor with the identifiers, is
+%% minute relative to the size of the matrix).
 
-%% each column is about 0.045 GB, so a 1003 cols obj would have been
-%% 45.2 + 0.135 = 45.33. Thus, the factor takes an extra 300 MB.
-
-
-%% the data frame, without the first three columns, is 45.2 GB.
-% \footnote{A submatrix of those same data with 100
-%   columns of data, i.e., a numeric matrix of, say, columns 101 to 200,
-%   occupies 4.52 GB. Thus, a matrix with 1003 columns of that type of data
-%   would occupy about 45.34 GB (4.52 * 1003/100 = 45.34); the difference of
-%   300 MB is minute relative to the size of the matrix.}.
+%% %% each column is about 0.045 GB, so a 1003 cols obj would have been
+%% %% 45.2 + 0.135 = 45.33. Thus, the factor takes an extra 300 MB.
 
 
-
-
- %%             used    (Mb) gc trigger    (Mb)   max used    (Mb)
- %% Ncells    6272458   335.0    9532693   509.2    6273371   335.1
- %% Vcells 6102207940 46556.2 6634368466 50616.3 6102370100 46557.4 
-
-%% 100 data columns (columns 101 to 200) occupy, as data.frame 
-%% 4853957368 bytes, so about 4.52 GB.
-%% As a matrix, 4853952408 bytes, so another 4.52 GB.
+%% %% the data frame, without the first three columns, is 45.2 GB.
+%% % \footnote{A submatrix of those same data with 100
+%% %   columns of data, i.e., a numeric matrix of, say, columns 101 to 200,
+%% %   occupies 4.52 GB. Thus, a matrix with 1003 columns of that type of data
+%% %   would occupy about 45.34 GB (4.52 * 1003/100 = 45.34); the difference of
+%% %   300 MB is minute relative to the size of the matrix.}.
 
 
 
-% Sizes of objects:
-% - RData-to-local-uncompressed.RData: 46GB
-% - RData-to-local-compressed.RData: 41GB
+
+%%  %%             used    (Mb) gc trigger    (Mb)   max used    (Mb)
+%%  %% Ncells    6272458   335.0    9532693   509.2    6273371   335.1
+%%  %% Vcells 6102207940 46556.2 6634368466 50616.3 6102370100 46557.4 
+
+%% %% 100 data columns (columns 101 to 200) occupy, as data.frame 
+%% %% 4853957368 bytes, so about 4.52 GB.
+%% %% As a matrix, 4853952408 bytes, so another 4.52 GB.
 
 
-% - ff better: a single vector limited by int.machine, etc, but not the
-% whole array.
+
+%% % Sizes of objects:
+%% % - RData-to-local-uncompressed.RData: 46GB
+%% % - RData-to-local-compressed.RData: 41GB
 
 
-For the two tables below, the meaning of columns is as follows:
+%% % - ff better: a single vector limited by int.machine, etc, but not the
+%% % whole array.
 
-\begin{description}
 
-\item[Wall time] The ``elapsed'' entry returned by the command
-  \texttt{system.time}. This is the real elapsed time since the function
-  was called.
+%% For the two tables below, the meaning of columns is as follows:
+
+%% \begin{description}
+
+%% \item[Wall time] The ``elapsed'' entry returned by the command
+%%   \texttt{system.time}. This is the real elapsed time since the function
+%%   was called.
   
-  It is important to understand that these timings can be variable, and we
-  show here a single number.%  In other words, repeated executions of the
-  % same script can show variations in time; for instance, variations that
-  % can be of a few minutes for reading of data sets with 50 to 200 columns
-  % (i.e., where the wall time can, in some cases, increase or decrease by
-  % about 50\%). 
+%%   It is important to understand that these timings can be variable, and we
+%%   show here a single number.%  In other words, repeated executions of the
+%%   % same script can show variations in time; for instance, variations that
+%%   % can be of a few minutes for reading of data sets with 50 to 200 columns
+%%   % (i.e., where the wall time can, in some cases, increase or decrease by
+%%   % about 50\%). 
 
-\item[Max.\ mem (\texttt{gc})] The sum of the two rows of the ``max used''
-  column reported by \texttt{gc()}, in R, at the end of the execution of
-  the given function. This number cannot reflect all the memory used by the
-  function if the function spawns other R processes.
+%% \item[Max.\ mem (\texttt{gc})] The sum of the two rows of the ``max used''
+%%   column reported by \texttt{gc()}, in R, at the end of the execution of
+%%   the given function. This number cannot reflect all the memory used by the
+%%   function if the function spawns other R processes.
 
-\item[Max.\ $\Sigma$ mem.] A simple attempt to measure the memory used by
-  all the processes\footnote{Just adding the entries given by \texttt{top}
-    or \texttt{ps} will not do, and will overestimate, sometimes by a huge
-    amount, the total memory used.}. Right before starting the execution
-  of our function, we call the operating system command \texttt{free} and
-  record the value reported by the ``-/+ buffers/cache'' row. Then, while
-  the function is executing, we record, every 0.5 seconds, that same
-  quantity. The largest difference between the successive measures and the
-  original one is the largest RAM consumption. Note that this is an
-  approximation. First, if other process start executing, they will lead
-  to an overestimation of RAM usage; this, however, is unlikely to have
-  had serious effects (the systems were basically idle, except for light
-  weight cron jobs). Second, sampling is carried out every 0.5 seconds, so
-  we could miss short peaks in RAM usage (at least one likely example of
-  such underestimation shows in the tables below).
+%% \item[Max.\ $\Sigma$ mem.] A simple attempt to measure the memory used by
+%%   all the processes\footnote{Just adding the entries given by \texttt{top}
+%%     or \texttt{ps} will not do, and will overestimate, sometimes by a huge
+%%     amount, the total memory used.}. Right before starting the execution
+%%   of our function, we call the operating system command \texttt{free} and
+%%   record the value reported by the ``-/+ buffers/cache'' row. Then, while
+%%   the function is executing, we record, every 0.5 seconds, that same
+%%   quantity. The largest difference between the successive measures and the
+%%   original one is the largest RAM consumption. Note that this is an
+%%   approximation. First, if other process start executing, they will lead
+%%   to an overestimation of RAM usage; this, however, is unlikely to have
+%%   had serious effects (the systems were basically idle, except for light
+%%   weight cron jobs). Second, sampling is carried out every 0.5 seconds, so
+%%   we could miss short peaks in RAM usage (at least one likely example of
+%%   such underestimation shows in the tables below).
   
-  \item[Columns] The number of data columns of the data set.
-  \item[Method] The analysis method (either HaarSeg or CBS ---DNAcopy).
-  \item[Fork/MPI] Whether forking (via \texttt{mclapply}) or MPI (using
-    the facilities provided by package \textbf{Rmpi}, which are called
-    from package \textbf{snow}) are used to parallelize execution. The two
-    ``NP'' entries refer to non-parallelized execution, using the original
-    packages\footnote{The packages are DNAcopy, as available from
-      BioConductor, and the HaarSeg package, available from R-forge:
-      \url{https://r-forge.r-project.org/projects/haarseg/}; \cite{haar-package}}.
-\item[Cores] Number of cores, and machine. 64: 64 cores in a single node
-  of the Dell PowerEdge C6145. 124: 124 cores, using both nodes of the
-  Dell PowerEdge. 12: 12 cores in the Z800 HP Workstation.
-\item[ff/RAM] If the data for the analysis had been stored as an
-  \textit{ff} object, or as a data frame inside an RData that was loaded
-  before the analysis.
+%%   \item[Columns] The number of data columns of the data set.
+%%   \item[Method] The analysis method (either HaarSeg or CBS ---DNAcopy).
+%%   \item[Fork/MPI] Whether forking (via \texttt{mclapply}) or MPI (using
+%%     the facilities provided by package \textbf{Rmpi}, which are called
+%%     from package \textbf{snow}) are used to parallelize execution. The two
+%%     ``NP'' entries refer to non-parallelized execution, using the original
+%%     packages\footnote{The packages are DNAcopy, as available from
+%%       BioConductor, and the HaarSeg package, available from R-forge:
+%%       \url{https://r-forge.r-project.org/projects/haarseg/}; \cite{haar-package}}.
+%% \item[Cores] Number of cores, and machine. 64: 64 cores in a single node
+%%   of the Dell PowerEdge C6145. 124: 124 cores, using both nodes of the
+%%   Dell PowerEdge. 12: 12 cores in the Z800 HP Workstation.
+%% \item[ff/RAM] If the data for the analysis had been stored as an
+%%   \textit{ff} object, or as a data frame inside an RData that was loaded
+%%   before the analysis.
   
-\end{description}
+%% \end{description}
 
 
-For the table for reading data, all results, except for the one indicated
-in the table, correspond to using a single node in the Dell PowerEdge
-C6145 (64 cores).
+%% For the table for reading data, all results, except for the one indicated
+%% in the table, correspond to using a single node in the Dell PowerEdge
+%% C6145 (64 cores).
 
 
-\clearpage
-\subsection{Reading data}\label{large-ex-read}
-\renewcommand{\arraystretch}{1.8}
+%% \clearpage
+%% \subsection{Reading data}\label{large-ex-read}
+%% \renewcommand{\arraystretch}{1.8}
 
-\begin{center}
-\begin{threeparttable}
-  \caption{Time and memory usage when reading data}    
+%% \begin{center}
+%% \begin{threeparttable}
+%%   \caption{Time and memory usage when reading data}    
 
-  \begin{tabular}{p{3.52cm}p{1.8cm}p{1.8cm}p{2.65cm}p{3.4cm}}
+%%   \begin{tabular}{p{3.52cm}p{1.8cm}p{1.8cm}p{2.65cm}p{3.4cm}}
  
-    \hline
-    &Columns & Wall time (minutes)& Max.\ mem.\ (\texttt{gc}), GB &
-    Max.\ $\Sigma$ mem., GB\\
-\hline
+%%     \hline
+%%     &Columns & Wall time (minutes)& Max.\ mem.\ (\texttt{gc}), GB &
+%%     Max.\ $\Sigma$ mem., GB\\
+%% \hline
 
 
-Directory to \textit{ff} & 2000 & 13.9 & 1.3 & 39.1 \\ %% I get times from 9
-                                        %% to 34
-Directory to \textit{ff} & 1000 & 6.1 & 1.3 & 41.21 \\
-Directory to \textit{ff} & 500 & 4.6 & 1.3 & 39.7 \\ %% can go from 4.5
-                                        %% to 10
-%% huge variability depending on how full the disk is and, I guess,
-%% fragmentation and if files are close to each other on disk
-Directory to \textit{ff} (Coleonyx, 12 cores) & 1000 & 88 & 1.3 & 8.4 \\
+%% Directory to \textit{ff} & 2000 & 13.9 & 1.3 & 39.1 \\ %% I get times from 9
+%%                                         %% to 34
+%% Directory to \textit{ff} & 1000 & 6.1 & 1.3 & 41.21 \\
+%% Directory to \textit{ff} & 500 & 4.6 & 1.3 & 39.7 \\ %% can go from 4.5
+%%                                         %% to 10
+%% %% huge variability depending on how full the disk is and, I guess,
+%% %% fragmentation and if files are close to each other on disk
+%% Directory to \textit{ff} (Coleonyx, 12 cores) & 1000 & 88 & 1.3 & 8.4 \\
 
-Txt file to \textit{ff} & 1000 & 2630 & 1.3 & NA (not calculated) \\
-
-
-RData to \textit{ff} & 1000 & 29.6   &   169 & 168.3 \\
-Directory to data frame (RAM object) & 1000 & 22 + 2\tnote{a} & 96 & NA. Output unusable for analysis \\
-RData to data frame (RAM object) & 1000 & 22 + 2\tnote{b} &  139 & NA. Output unusable for analysis \\
-
-Directory to data frame (RAM object) & 200 & 7.7 + 0.4\tnote{c} & 20 & 38 \\
-Directory to \textit{ff} & 200 & 3.6 & 1.3 & 38 \\
-
-Directory to data frame (RAM object) & 100 & 8.7 + 0.3\tnote{d} & 10.5 & 30 \\
-Directory to \textit{ff} & 100 & 3.6 & 1.3 & 32 \\
-
-Directory to \textit{ff} & 50 & 3.2 & 1.3 & 28 \\
-Directory to data frame (RAM object) & 50 & 5.8 + 0.1\tnote{e} & 5.8 & 27 \\
-
-%% I take several measyures in a few cases, and show the representative one
+%% Txt file to \textit{ff} & 1000 & 2630 & 1.3 & NA (not calculated) \\
 
 
-\hline
+%% RData to \textit{ff} & 1000 & 29.6   &   169 & 168.3 \\
+%% Directory to data frame (RAM object) & 1000 & 22 + 2\tnote{a} & 96 & NA. Output unusable for analysis \\
+%% RData to data frame (RAM object) & 1000 & 22 + 2\tnote{b} &  139 & NA. Output unusable for analysis \\
+
+%% Directory to data frame (RAM object) & 200 & 7.7 + 0.4\tnote{c} & 20 & 38 \\
+%% Directory to \textit{ff} & 200 & 3.6 & 1.3 & 38 \\
+
+%% Directory to data frame (RAM object) & 100 & 8.7 + 0.3\tnote{d} & 10.5 & 30 \\
+%% Directory to \textit{ff} & 100 & 3.6 & 1.3 & 32 \\
+
+%% Directory to \textit{ff} & 50 & 3.2 & 1.3 & 28 \\
+%% Directory to data frame (RAM object) & 50 & 5.8 + 0.1\tnote{e} & 5.8 & 27 \\
+
+%% %% I take several measyures in a few cases, and show the representative one
+
+
+%% \hline
    
-  \end{tabular}
+%%   \end{tabular}
 
-  \begin{tablenotes}
-    {
-      \footnotesize
-    \item[a] The 2 reflects the time needed to save the resulting data frame to an RData file.
-    \item[b] The 2 reflects the time needed to save the resulting data frame to an RData file.
-    \item[c] The 0.4 reflects the time  needed to save the resulting data frame to an RData file.
-    \item[d] The 0.3 reflects the time  needed to save the resulting data frame to an RData file.
-    \item[e] The 0.1 reflects the time  needed to save the resulting data frame to an RData file.
-    }
-    \end{tablenotes}
-\end{threeparttable}
-\end{center}
+%%   \begin{tablenotes}
+%%     {
+%%       \footnotesize
+%%     \item[a] The 2 reflects the time needed to save the resulting data frame to an RData file.
+%%     \item[b] The 2 reflects the time needed to save the resulting data frame to an RData file.
+%%     \item[c] The 0.4 reflects the time  needed to save the resulting data frame to an RData file.
+%%     \item[d] The 0.3 reflects the time  needed to save the resulting data frame to an RData file.
+%%     \item[e] The 0.1 reflects the time  needed to save the resulting data frame to an RData file.
+%%     }
+%%     \end{tablenotes}
+%% \end{threeparttable}
+%% \end{center}
 
-% ``5.8 + 0.1'' or ``22 + 2'': add time to save  the RData object. When
-% creating \textit{ff} objects, saving is part of the main reading function.
-
-
-% Max.\ mem. (\texttt{gc}) is the sum of the ``max used'' column reported by
-% \texttt{gc}, in R.
+%% % ``5.8 + 0.1'' or ``22 + 2'': add time to save  the RData object. When
+%% % creating \textit{ff} objects, saving is part of the main reading function.
 
 
-
-% Notice: ff adjusts usage, thus the figure for COleonyx.
-
-% Last column: could be a slight underestimate if a peak of
-% consumpt. between two samples.
-
-\clearpage
-\subsection{Analyzing data}
-\renewcommand{\arraystretch}{1.4}
-%\thispagestyle{empty}
-
-\begin{center}
-  
-\begin{threeparttable}
-
-  \caption{Time and memory usage of segmentation with default options}    
-  \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
-
-    \hline
-
-Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
-
-\hline
-
-CBS&MPI &124  & ff & 1000 & 313 & 0.14 & 53 \\
-CBS&MPI&64& ff & 1000 & 545 & 0.14 & 51 \\
-
-CBS    & Fork & 64 & ff  & 2000 & 705.3 & 0.16 & 45.7 \\ 
-CBS    & Fork & 12 & ff  & 2000 & 2414.4 & 0.15 & 19.3 \\
-CBS&Fork&64&ff&1000&339 & 0.136 & 41 \\
-CBS&Fork&12&ff&1000&1184.0 & 0.142 & 13.8 \\
-CBS&Fork&64&ff&500&185.8 & 0.133 & 41 \\
-
-&&&&&&&\\
-HaarSeg & MPI &124  & ff & 1000 & 12.3 & 0.145 & 38.5 \\
-HaarSeg & MPI &64  & ff & 1000 & 9.5 & 0.145 & 38.5 \\
-HaarSeg & MPI &12 & ff & 1000 & 36 & 0.144 & 7.2 \\
-HaarSeg & Fork &64  & ff & 2000 & 18.7 & 0.15 & 28.4 \\
-HaarSeg & Fork &12  & ff & 2000 & 57.4 & 0.16 & 10.1 \\ 
-HaarSeg & Fork &64  & ff & 1000 & 7.9 & 0.14 & 27 \\
-HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
-HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
-HaarSeg & Fork &64  & ff & 500 & 4.6 & 0.13 & 26 \\
-&&&&&&&\\
-% 
-HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
-% HaarSeg & Fork &20\tnote{f} & ff & 1000 & 17.4 & 0.142 & 10.0 \\
-% HaarSeg & Fork &40\tnote{f}  & ff & 1000 & 10.2 & 0.142 & 17.5 \\
-% HaarSeg & Fork &50\tnote{f}  & ff & 1000 & 8.8 & 0.142 & 21.7 \\
-
-% HaarSeg\tnote{a} & Fork &64  &ff  & 100 & 1.2   &   0.133  &  24.5  \\
-% CBS\tnote{a}    & Fork &64  &ff  & 100 & 55.9  &   0.132   &  35.3  \\
-% When we just replace NAs by 0: run-sequential-Haar.R
-% HaarSeg & NP &-  &RAM  & 100 & x   &  0.95 + 3.3 + 13.15   &  x\tnote{d}  \\
-% HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
-% CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
-HaarSeg & Fork &64  & ff & 50 & 0.5 & 0.133 & 20.6\\
-HaarSeg & Fork &64  & RAM & 50 & 0.7 + 2.5 + 0.9\tnote{e}& 14.4 & 140\\
-HaarSeg & MPI &64  & ff & 50 & 0.63 & 0.14 & 24.6\\
-&&&&&&&\\
-HaarSeg & Fork &64  & RAM & 1000 & NA & NA & \textbf{Cannot allocate memory} \\
-HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
-\hline
-   
-  \end{tabular}
-
-  \begin{tablenotes}
-    {\footnotesize
-    %% \item[a] With option \texttt{merging = "none"} to make it comparable
-    %%   to the canonical code in the original packages.
-
-    %  \item[b] 0.95 + 22.9 + 1.4: load data, analyze, and save results. Since
-    %   there are missing values in the data, and the original HaarSeg code
-    %   does not deal with missing values, we are forced to remove NAs
-    %   array-per-array, and make repeated calls to the function.
-    %   % , both o
-    %   %  which introduce an important penalty. We must do this to make
-    %   % analysis comparable to those of \texttt{pSegmentHaarSeg} that
-    %   % \textbf{always} checks, and allows, for missing values. 
-    %   If there are no missing values in this data set, the total time of
-    %   analysis (i.e., sending the whole matrix at once and not checking
-    %   for, nor removing, NAs) is 3.3 minutes.
-    % \item[c] 0.95 + 1698 + 6.7: load data, analyze, and save results. The
-    %   analysis involves calling the \texttt{CNA} function to create the CNA object
-    %   (5.3 min), calling the \texttt{smooth.CNA} function to smooth the data
-    %   and detect outlier (83.2 minutes), and segmenting the data with the
-    %   \texttt{segment} function (1609.5 minutes).
-    \item[d] Since only one process, same as previous column.
-    \item[e] 0.7 + 2.5 + 0.9: load data, analyze, and save results.
-    % \item[f] These examples have been run on the Dell Power Edges, but
-    %   changing the number of cores used.
-    }
-  \end{tablenotes}
-
-\end{threeparttable}
-\end{center}
-
-
-%% time and memory, haar seg, with increasing num. cols in 64 cores
-%% h2 <- rbind(c(50, 0.5, 20.6), 
-%%             c(200, 2.3, 28.6), 
-%%             c(500, 4.6, 26), 
-%%             c(1000, 7.9, 27), 
-%%             c(2000, 18.7, 28.4))
-
-%% plot(h2[, 2] ~ h2[, 1])
-%% plot(h2[, 3] ~ h2[, 1])
-
-%% time and memory, cbs and haar, with 2000 arrays, as cores change
-%% t.c <- c(717, 857, 1007, 1879, 3771)
-%% m.c <- c(42, 35.3, 29, 16.5, 11.1)
-%% x <- c(64, 50, 40, 20, 10)
-%% plot(t.c ~ x)
-%% plot(m.c ~ x)
-%% t.h <- c(12, 13, 15.4, 26.3, 49.7)
-%% m.h <- c(28, 23, 19.5, 11.9, 8)
-%% plot(m.h ~ x)
-%% plot(t.h ~ x)
-            
-
-%\clearpage
-
-
-\begin{center}
-\begin{threeparttable}
-
-  \caption{Time and memory usage of segmentation without merging and
-    comparison with non-parallized executions. These examples have all
-    been run on the Dell Power Edges.}
-  \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
-
-    \hline
-
-Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
-
-\hline
-HaarSeg & Fork &64  & ff & 100 & 1.2   &   0.13  &  24.5  \\
-HaarSeg & Fork &10  & ff & 1000 &23.5 & 0.142 & 5.9 \\
-HaarSeg & Fork &20 & ff & 1000 & 12.3 & 0.137 & 10.0 \\
-HaarSeg & Fork &40  & ff & 1000 & 7.4 & 0.142 & 17.6 \\
-HaarSeg & Fork &50  & ff & 1000 & 6.7 & 0.139 & 21.2 \\
-HaarSeg & Fork & 64  & ff & 1000 & 6.4 & 0.142 & 26.9 \\
-
-&&&&&&&\\
-
-HaarSeg & Fork &10  & ff & 2000 &49.7 & 0.16 & 8.0 \\
-HaarSeg & Fork &20  & ff & 2000 & 26.3 & 0.16 & 11.9 \\
-HaarSeg & Fork &40  & ff & 2000 & 15.4& 0.16 & 19.5 \\
-HaarSeg & Fork &50  & ff & 2000 & 13.3& 0.16 & 23.2 \\
-HaarSeg & Fork &64  & ff & 2000 & 11.9& 0.16 & 28.4 \\
-
-
-&&&&&&&\\
-CBS    & Fork & 64 & ff  & 100  & 55.9  &   0.13   &  35.3  \\
-CBS & Fork &10  & ff & 1000 &1855.4 & 0.135 & 8.6 \\
-CBS & Fork &20 & ff & 1000 & 939.8 & 0.135 & 14.9 \\
-CBS & Fork &40  & ff & 1000 & 513.5 & 0.136 & 27.0 \\
-CBS & Fork &50  & ff & 1000 & 438.6 & 0.142 & 33.1 \\
-CBS & Fork & 64  & ff & 1000 & 350.3 & 0.142 & 41.3 \\
-
-&&&&&&&\\
-CBS & Fork &10  & ff & 2000 &3770.9 & 0.15 & 11.1 \\
-CBS & Fork &20 & ff & 2000 & 1878.8 & 0.16 & 16.5 \\
-CBS & Fork &40  & ff & 2000 & 1007.0 & 0.15 & 28.8 \\
-CBS & Fork &50  & ff & 2000 & 857.1 & 0.16 & 35.3 \\
-CBS & Fork & 64  & ff & 2000 & 717.3 & 0.163 & 41.9 \\
-
-&&&&&&&\\
-
-
-HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
-CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
-
-\hline
-   
-  \end{tabular}
-
-  \begin{tablenotes}
-    {\footnotesize
-
-     \item[b] 0.95 + 22.9 + 1.4: load data, analyze, and save results. Since
-      there are missing values in the data, and the original HaarSeg code
-      does not deal with missing values, we are forced to remove NAs
-      array-per-array, and make repeated calls to the function.
-      % , both o
-      %  which introduce an important penalty. We must do this to make
-      % analysis comparable to those of \texttt{pSegmentHaarSeg} that
-      % \textbf{always} checks, and allows, for missing values. 
-      If there are no missing values in this data set, the total time of
-      analysis (i.e., sending the whole matrix at once and not checking
-      for, nor removing, NAs) is 3.3 minutes.
-    \item[c] 0.95 + 1698 + 6.7: load data, analyze, and save results. The
-      analysis involves calling the \texttt{CNA} function to create the CNA object
-      (5.3 min), calling the \texttt{smooth.CNA} function to smooth the data
-      and detect outlier (83.2 minutes), and segmenting the data with the
-      \texttt{segment} function (1609.5 minutes).
-    % \item[f] These examples have been run on the Dell Power Edges, but
-    %   changing the number of cores used.
-      }
-  \end{tablenotes}
-
-\end{threeparttable}
-\end{center}
+%% % Max.\ mem. (\texttt{gc}) is the sum of the ``max used'' column reported by
+%% % \texttt{gc}, in R.
 
 
 
-\clearpage
+%% % Notice: ff adjusts usage, thus the figure for COleonyx.
 
+%% % Last column: could be a slight underestimate if a peak of
+%% % consumpt. between two samples.
 
-
+%% \clearpage
+%% \subsection{Analyzing data}
 %% \renewcommand{\arraystretch}{1.4}
 %% %\thispagestyle{empty}
 
 %% \begin{center}
   
-%% \begin{table}
-%% \caption{Further benchmarks on the Dell Opterons, with varying numbers of
-%%   cores used}
+%% \begin{threeparttable}
+
+%%   \caption{Time and memory usage of segmentation with default options}    
 %%   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
-    
+
 %%     \hline
 
 %% Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
 
 %% \hline
 
-%% HaarSeg & Fork &64  & ff & 1000 & 8 & 0.136 & 35 \\
+%% CBS&MPI &124  & ff & 1000 & 313 & 0.14 & 53 \\
+%% CBS&MPI&64& ff & 1000 & 545 & 0.14 & 51 \\
+
+%% CBS    & Fork & 64 & ff  & 2000 & 705.3 & 0.16 & 45.7 \\ 
+%% CBS    & Fork & 12 & ff  & 2000 & 2414.4 & 0.15 & 19.3 \\
+%% CBS&Fork&64&ff&1000&339 & 0.136 & 41 \\
+%% CBS&Fork&12&ff&1000&1184.0 & 0.142 & 13.8 \\
+%% CBS&Fork&64&ff&500&185.8 & 0.133 & 41 \\
+
+%% &&&&&&&\\
+%% HaarSeg & MPI &124  & ff & 1000 & 12.3 & 0.145 & 38.5 \\
+%% HaarSeg & MPI &64  & ff & 1000 & 9.5 & 0.145 & 38.5 \\
+%% HaarSeg & MPI &12 & ff & 1000 & 36 & 0.144 & 7.2 \\
+%% HaarSeg & Fork &64  & ff & 2000 & 18.7 & 0.15 & 28.4 \\
+%% HaarSeg & Fork &12  & ff & 2000 & 57.4 & 0.16 & 10.1 \\ 
+%% HaarSeg & Fork &64  & ff & 1000 & 7.9 & 0.14 & 27 \\
 %% HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
+%% HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
+%% HaarSeg & Fork &64  & ff & 500 & 4.6 & 0.13 & 26 \\
+%% &&&&&&&\\
+%% % 
+%% HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
+%% % HaarSeg & Fork &20\tnote{f} & ff & 1000 & 17.4 & 0.142 & 10.0 \\
+%% % HaarSeg & Fork &40\tnote{f}  & ff & 1000 & 10.2 & 0.142 & 17.5 \\
+%% % HaarSeg & Fork &50\tnote{f}  & ff & 1000 & 8.8 & 0.142 & 21.7 \\
+
+%% % HaarSeg\tnote{a} & Fork &64  &ff  & 100 & 1.2   &   0.133  &  24.5  \\
+%% % CBS\tnote{a}    & Fork &64  &ff  & 100 & 55.9  &   0.132   &  35.3  \\
+%% % When we just replace NAs by 0: run-sequential-Haar.R
+%% % HaarSeg & NP &-  &RAM  & 100 & x   &  0.95 + 3.3 + 13.15   &  x\tnote{d}  \\
+%% % HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
+%% % CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
+%% HaarSeg & Fork &64  & ff & 50 & 0.5 & 0.133 & 20.6\\
+%% HaarSeg & Fork &64  & RAM & 50 & 0.7 + 2.5 + 0.9\tnote{e}& 14.4 & 140\\
+%% HaarSeg & MPI &64  & ff & 50 & 0.63 & 0.14 & 24.6\\
+%% &&&&&&&\\
+%% HaarSeg & Fork &64  & RAM & 1000 & NA & NA & \textbf{Cannot allocate memory} \\
+%% HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 %% \hline
    
 %%   \end{tabular}
 
-%% \end{table}
+%%   \begin{tablenotes}
+%%     {\footnotesize
+%%     %% \item[a] With option \texttt{merging = "none"} to make it comparable
+%%     %%   to the canonical code in the original packages.
+
+%%     %  \item[b] 0.95 + 22.9 + 1.4: load data, analyze, and save results. Since
+%%     %   there are missing values in the data, and the original HaarSeg code
+%%     %   does not deal with missing values, we are forced to remove NAs
+%%     %   array-per-array, and make repeated calls to the function.
+%%     %   % , both o
+%%     %   %  which introduce an important penalty. We must do this to make
+%%     %   % analysis comparable to those of \texttt{pSegmentHaarSeg} that
+%%     %   % \textbf{always} checks, and allows, for missing values. 
+%%     %   If there are no missing values in this data set, the total time of
+%%     %   analysis (i.e., sending the whole matrix at once and not checking
+%%     %   for, nor removing, NAs) is 3.3 minutes.
+%%     % \item[c] 0.95 + 1698 + 6.7: load data, analyze, and save results. The
+%%     %   analysis involves calling the \texttt{CNA} function to create the CNA object
+%%     %   (5.3 min), calling the \texttt{smooth.CNA} function to smooth the data
+%%     %   and detect outlier (83.2 minutes), and segmenting the data with the
+%%     %   \texttt{segment} function (1609.5 minutes).
+%%     \item[d] Since only one process, same as previous column.
+%%     \item[e] 0.7 + 2.5 + 0.9: load data, analyze, and save results.
+%%     % \item[f] These examples have been run on the Dell Power Edges, but
+%%     %   changing the number of cores used.
+%%     }
+%%   \end{tablenotes}
+
+%% \end{threeparttable}
 %% \end{center}
+
+
+%% %% time and memory, haar seg, with increasing num. cols in 64 cores
+%% %% h2 <- rbind(c(50, 0.5, 20.6), 
+%% %%             c(200, 2.3, 28.6), 
+%% %%             c(500, 4.6, 26), 
+%% %%             c(1000, 7.9, 27), 
+%% %%             c(2000, 18.7, 28.4))
+
+%% %% plot(h2[, 2] ~ h2[, 1])
+%% %% plot(h2[, 3] ~ h2[, 1])
+
+%% %% time and memory, cbs and haar, with 2000 arrays, as cores change
+%% %% t.c <- c(717, 857, 1007, 1879, 3771)
+%% %% m.c <- c(42, 35.3, 29, 16.5, 11.1)
+%% %% x <- c(64, 50, 40, 20, 10)
+%% %% plot(t.c ~ x)
+%% %% plot(m.c ~ x)
+%% %% t.h <- c(12, 13, 15.4, 26.3, 49.7)
+%% %% m.h <- c(28, 23, 19.5, 11.9, 8)
+%% %% plot(m.h ~ x)
+%% %% plot(t.h ~ x)
+            
+
+%% %\clearpage
+
+
+%% \begin{center}
+%% \begin{threeparttable}
+
+%%   \caption{Time and memory usage of segmentation without merging and
+%%     comparison with non-parallized executions. These examples have all
+%%     been run on the Dell Power Edges.}
+%%   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
+
+%%     \hline
+
+%% Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
+
+%% \hline
+%% HaarSeg & Fork &64  & ff & 100 & 1.2   &   0.13  &  24.5  \\
+%% HaarSeg & Fork &10  & ff & 1000 &23.5 & 0.142 & 5.9 \\
+%% HaarSeg & Fork &20 & ff & 1000 & 12.3 & 0.137 & 10.0 \\
+%% HaarSeg & Fork &40  & ff & 1000 & 7.4 & 0.142 & 17.6 \\
+%% HaarSeg & Fork &50  & ff & 1000 & 6.7 & 0.139 & 21.2 \\
+%% HaarSeg & Fork & 64  & ff & 1000 & 6.4 & 0.142 & 26.9 \\
+
+%% &&&&&&&\\
+
+%% HaarSeg & Fork &10  & ff & 2000 &49.7 & 0.16 & 8.0 \\
+%% HaarSeg & Fork &20  & ff & 2000 & 26.3 & 0.16 & 11.9 \\
+%% HaarSeg & Fork &40  & ff & 2000 & 15.4& 0.16 & 19.5 \\
+%% HaarSeg & Fork &50  & ff & 2000 & 13.3& 0.16 & 23.2 \\
+%% HaarSeg & Fork &64  & ff & 2000 & 11.9& 0.16 & 28.4 \\
+
+
+%% &&&&&&&\\
+%% CBS    & Fork & 64 & ff  & 100  & 55.9  &   0.13   &  35.3  \\
+%% CBS & Fork &10  & ff & 1000 &1855.4 & 0.135 & 8.6 \\
+%% CBS & Fork &20 & ff & 1000 & 939.8 & 0.135 & 14.9 \\
+%% CBS & Fork &40  & ff & 1000 & 513.5 & 0.136 & 27.0 \\
+%% CBS & Fork &50  & ff & 1000 & 438.6 & 0.142 & 33.1 \\
+%% CBS & Fork & 64  & ff & 1000 & 350.3 & 0.142 & 41.3 \\
+
+%% &&&&&&&\\
+%% CBS & Fork &10  & ff & 2000 &3770.9 & 0.15 & 11.1 \\
+%% CBS & Fork &20 & ff & 2000 & 1878.8 & 0.16 & 16.5 \\
+%% CBS & Fork &40  & ff & 2000 & 1007.0 & 0.15 & 28.8 \\
+%% CBS & Fork &50  & ff & 2000 & 857.1 & 0.16 & 35.3 \\
+%% CBS & Fork & 64  & ff & 2000 & 717.3 & 0.163 & 41.9 \\
+
+%% &&&&&&&\\
+
+
+%% HaarSeg & NP &-  &RAM  & 100 &  0.95 + 22.9 + 1.4\tnote{b}   & 12.5 & 12.5\tnote{d}  \\
+%% CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
+
+%% \hline
+   
+%%   \end{tabular}
+
+%%   \begin{tablenotes}
+%%     {\footnotesize
+
+%%      \item[b] 0.95 + 22.9 + 1.4: load data, analyze, and save results. Since
+%%       there are missing values in the data, and the original HaarSeg code
+%%       does not deal with missing values, we are forced to remove NAs
+%%       array-per-array, and make repeated calls to the function.
+%%       % , both o
+%%       %  which introduce an important penalty. We must do this to make
+%%       % analysis comparable to those of \texttt{pSegmentHaarSeg} that
+%%       % \textbf{always} checks, and allows, for missing values. 
+%%       If there are no missing values in this data set, the total time of
+%%       analysis (i.e., sending the whole matrix at once and not checking
+%%       for, nor removing, NAs) is 3.3 minutes.
+%%     \item[c] 0.95 + 1698 + 6.7: load data, analyze, and save results. The
+%%       analysis involves calling the \texttt{CNA} function to create the CNA object
+%%       (5.3 min), calling the \texttt{smooth.CNA} function to smooth the data
+%%       and detect outlier (83.2 minutes), and segmenting the data with the
+%%       \texttt{segment} function (1609.5 minutes).
+%%     % \item[f] These examples have been run on the Dell Power Edges, but
+%%     %   changing the number of cores used.
+%%       }
+%%   \end{tablenotes}
+
+%% \end{threeparttable}
+%% \end{center}
+
+
 
 %% \clearpage
 
 
-\subsection{Comments and recommended usage patterns}
-\label{commentsend}
-\begin{enumerate}
 
-\item Reading data and trying to save it as a RAM object, a usual
-  in-memory data frame, will quickly exhaust available memory. For these
-  data, we were not able to read data sets of 100 or more columns. Part of
-  the problem lies on the way memory is handled and freed in the slaves,
-  given that we are returning actual lists. In contrast, when saving as
-  \textit{ff} objects, the slaves are only returning tiny objects (just
-  pointers to a file).
+%% %% \renewcommand{\arraystretch}{1.4}
+%% %% %\thispagestyle{empty}
+
+%% %% \begin{center}
+  
+%% %% \begin{table}
+%% %% \caption{Further benchmarks on the Dell Opterons, with varying numbers of
+%% %%   cores used}
+%% %%   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
+    
+%% %%     \hline
+
+%% %% Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
+
+%% %% \hline
+
+%% %% HaarSeg & Fork &64  & ff & 1000 & 8 & 0.136 & 35 \\
+%% %% HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
+%% %% \hline
+   
+%% %%   \end{tabular}
+
+%% %% \end{table}
+%% %% \end{center}
+
+%% %% \clearpage
+
+
+%% \subsection{Comments and recommended usage patterns}
+%% \label{commentsend}
+%% \begin{enumerate}
+
+%% \item Reading data and trying to save it as a RAM object, a usual
+%%   in-memory data frame, will quickly exhaust available memory. For these
+%%   data, we were not able to read data sets of 100 or more columns. Part of
+%%   the problem lies on the way memory is handled and freed in the slaves,
+%%   given that we are returning actual lists. In contrast, when saving as
+%%   \textit{ff} objects, the slaves are only returning tiny objects (just
+%%   pointers to a file).
   
   
-\item Saving data as RData objects will also not be an option for large
-  numbers of columns as we will quickly exhaust available memory when
-  trying to analyze them. 
+%% \item Saving data as RData objects will also not be an option for large
+%%   numbers of columns as we will quickly exhaust available memory when
+%%   trying to analyze them. 
   
   
-\item In a single machine, and for the same number of cores, analyzing
-  data with MPI is often generally slower than using forking, which is not
-  surprising. Note also that with MPI there is an overhead of spawning
-  slaves and loading packages in the slaves (which, in our case, takes
-  about half a minute to a minute). %% These overheads could be amortized if
-  %% you continue using MPI for a session (but OpenMPI is not ideal for that
-  %% scenario, in contrast to other versions such as LAM MPI).
+%% \item In a single machine, and for the same number of cores, analyzing
+%%   data with MPI is often generally slower than using forking, which is not
+%%   surprising. Note also that with MPI there is an overhead of spawning
+%%   slaves and loading packages in the slaves (which, in our case, takes
+%%   about half a minute to a minute). %% These overheads could be amortized if
+%%   %% you continue using MPI for a session (but OpenMPI is not ideal for that
+%%   %% scenario, in contrast to other versions such as LAM MPI).
   
   
-\item When using two nodes (i.e., almost doubling the number of cores),
-  MPI might, or might not, be faster than using forking on a single
-  node. Two main issues affect the speed differences: inter-process
-  communication and access to files. In our case, the likely bottleneck
-  lies in access to files, which live on a SAS disk which is accessed via
-  NFS. With other hardware/software configurations, access to shared files
-  might be much faster. Regardless, the MPI costs might not be worth if
-  each individual calculation is fast; this is why MPI with HaarSeg does
-  not pay off, but it does pay off with CBS.
+%% \item When using two nodes (i.e., almost doubling the number of cores),
+%%   MPI might, or might not, be faster than using forking on a single
+%%   node. Two main issues affect the speed differences: inter-process
+%%   communication and access to files. In our case, the likely bottleneck
+%%   lies in access to files, which live on a SAS disk which is accessed via
+%%   NFS. With other hardware/software configurations, access to shared files
+%%   might be much faster. Regardless, the MPI costs might not be worth if
+%%   each individual calculation is fast; this is why MPI with HaarSeg does
+%%   not pay off, but it does pay off with CBS.
     
   
-\item When using \textit{ff}, the exact same operations in systems with
-  different RAM can lead to different amounts of memory usage, as
-  \textit{ff} tries autotuning when starting. %% Note, for instance, the
-  %% differences in RAM usage between our two machines when reading a
-  %% directory with a 1000 column data set. Hey! This is just because we
-  %% use 12 or 64 cores! 
-  You can tune parameters when you load the \textbf{ff} package, but even
-  if you don't (and, by default, we don't), defaults are often sensible
-  and will play in your favor.
+%% \item When using \textit{ff}, the exact same operations in systems with
+%%   different RAM can lead to different amounts of memory usage, as
+%%   \textit{ff} tries autotuning when starting. %% Note, for instance, the
+%%   %% differences in RAM usage between our two machines when reading a
+%%   %% directory with a 1000 column data set. Hey! This is just because we
+%%   %% use 12 or 64 cores! 
+%%   You can tune parameters when you load the \textbf{ff} package, but even
+%%   if you don't (and, by default, we don't), defaults are often sensible
+%%   and will play in your favor.
     
-\item Even for relatively small examples, using \textit{ff} can be faster
-  than using RAM objects. Using RAM objects incurs overheads of loading
-  and saving the RData objects in memory, but analyses also tend to be
-  slightly slower. The later is somewhat surprising: with forking and RAM
-  objects, the R object that holds the CGH data is accessed only for
-  reading, and thus can be shared between all processes. We expected this
-  to be faster than using \textit{ff}, because access to disk is several
-  orders of magnitude slower than access to memory ---note that we made
-  sure that memory was not virtual memory mapped to disk, as we had
-  disabled all swapping. We suspect the main difference lies in
-  bottlenecks and contention problems that result from accessing data in a
-  single data frame simultaneously from multiple processes, compared to
-  loading exactly just one column independently in each process, and/or
-  repeated cache misses.
+%% \item Even for relatively small examples, using \textit{ff} can be faster
+%%   than using RAM objects. Using RAM objects incurs overheads of loading
+%%   and saving the RData objects in memory, but analyses also tend to be
+%%   slightly slower. The later is somewhat surprising: with forking and RAM
+%%   objects, the R object that holds the CGH data is accessed only for
+%%   reading, and thus can be shared between all processes. We expected this
+%%   to be faster than using \textit{ff}, because access to disk is several
+%%   orders of magnitude slower than access to memory ---note that we made
+%%   sure that memory was not virtual memory mapped to disk, as we had
+%%   disabled all swapping. We suspect the main difference lies in
+%%   bottlenecks and contention problems that result from accessing data in a
+%%   single data frame simultaneously from multiple processes, compared to
+%%   loading exactly just one column independently in each process, and/or
+%%   repeated cache misses.
   
   
-\item \texttt{inputToADaCGH} (i.e., transforming a directory of files into
-  \textit{ff} objects) can be severely affected, of course, by other
-  processes accessing the disk. More generally, since with
-  \texttt{inputToADaCGH} several processes can try to access different
-  files at once (we are trying to parallelize the reading of data), issues
-  such as type of file system, configuration and type of RAID, number of
-  spindles, quality of the RAID card, amount of free space, etc, etc, etc,
-  can have an effect on all heavy I/O operations.  For example, when
-  reading a set of 2000 files, the time differences in a set of benchmarks
-  varied between 9 and 34 minutes. The only difference between the runs we
-  could find being that in the 34 minute runs, we had added about 60 GB
-  worth of files after creating/copying the text files, and before
-  reading, and the disk was about 64\% full. Note also that, as a general
-  rule, it is better if the newly created \textit{ff} files from
-  \texttt{inputToADaCGH} are written to an empty directory, and if the
-  working directory for segmentation analysis is another empty directory
-  if you are using \texttt{ff} objects.
+%% \item \texttt{inputToADaCGH} (i.e., transforming a directory of files into
+%%   \textit{ff} objects) can be severely affected, of course, by other
+%%   processes accessing the disk. More generally, since with
+%%   \texttt{inputToADaCGH} several processes can try to access different
+%%   files at once (we are trying to parallelize the reading of data), issues
+%%   such as type of file system, configuration and type of RAID, number of
+%%   spindles, quality of the RAID card, amount of free space, etc, etc, etc,
+%%   can have an effect on all heavy I/O operations.  For example, when
+%%   reading a set of 2000 files, the time differences in a set of benchmarks
+%%   varied between 9 and 34 minutes. The only difference between the runs we
+%%   could find being that in the 34 minute runs, we had added about 60 GB
+%%   worth of files after creating/copying the text files, and before
+%%   reading, and the disk was about 64\% full. Note also that, as a general
+%%   rule, it is better if the newly created \textit{ff} files from
+%%   \texttt{inputToADaCGH} are written to an empty directory, and if the
+%%   working directory for segmentation analysis is another empty directory
+%%   if you are using \texttt{ff} objects.
 
   
-  \texttt{inputToADaCGH} accepts an argument to reduce the number of cores used,
-  which can help with contention issues related to I/O. A multicore
-  machine (say, 12 cores) with a single SATA drive might actually
-  complete the reading faster if you use fewer than 12 cores for the
-  reading. But your mileage might vary.
+%%   \texttt{inputToADaCGH} accepts an argument to reduce the number of cores used,
+%%   which can help with contention issues related to I/O. A multicore
+%%   machine (say, 12 cores) with a single SATA drive might actually
+%%   complete the reading faster if you use fewer than 12 cores for the
+%%   reading. But your mileage might vary.
   
   
-\item Reordering data takes time (a lot if you do not use \textit{ff}
-  objects) and can use a lot of memory. So it is much better if input data are
-  already ordered (by Chromosome and Position within Chromosome).
+%% \item Reordering data takes time (a lot if you do not use \textit{ff}
+%%   objects) and can use a lot of memory. So it is much better if input data are
+%%   already ordered (by Chromosome and Position within Chromosome).
   
-\end{enumerate}
+%% \end{enumerate}
 
 
 
 
-% Moving an ff set of files
+%% % Moving an ff set of files
 
-% \begin{verbatim}
-% ffsave(cghData, file = "savedcghData", rootpath = "./")
-% ffload(file = "pathtofile/savedcghData", rootpath = getwd())
-% \end{verbatim}
+%% % \begin{verbatim}
+%% % ffsave(cghData, file = "savedcghData", rootpath = "./")
+%% % ffload(file = "pathtofile/savedcghData", rootpath = getwd())
+%% % \end{verbatim}
 
 
 \newpage

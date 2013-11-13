@@ -1,3 +1,22 @@
+Changes in version 2.3.5 (2013-11-11)
+       - Changes in vignette: unified all benchmarking in benchmark.pdf.
+       - Clarified help for pSegment on loadBalance and say explicitly not
+         the default for HaarSeg.
+       - Note versions 2.3.3 and 2.3.4 were never placed in BioC repos.
+
+
+Changes in version 2.3.4 (2013-11-09)
+       - Reorganized file location for additional files (benchmarks,
+         long-vignette).
+       - Addedd loadBalance as an argument to the pSegment and pChromPlot
+         functions, so that the user can choose to use load balancing-like
+         with both forking and MPI. See additional benchmarking vignette
+         for tables with results. Added code to the long vignette to
+	 exercise this.
+
+Changes in version 2.3.3 (2013-11)
+	- Playing with clusterApplyLB.
+
 Changes in version 2.3.2 (2013-10-22)
        - Import aCGH and snapCGH again. Corresponding changes in Author,
          init.c, R code, and C code: basically, all the code taken from

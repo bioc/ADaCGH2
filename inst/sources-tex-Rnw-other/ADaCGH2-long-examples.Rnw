@@ -132,7 +132,10 @@ fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
 inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 
-## initializing cluster
+## setting random number generator for forking
+RNGkind("L'Ecuyer-CMRG")
+
+## initializing cluster and setting up random number generator
 number.of.nodes <- detectCores()
 cl2 <- parallel::makeCluster(number.of.nodes,"PSOCK")
 parallel::clusterSetRNGStream(cl2)
@@ -147,7 +150,6 @@ parallel::clusterExport(NULL, "wdir")
 parallel::clusterEvalQ(NULL, setwd(wdir))
 
 @
-
 
 
 \section{The examples}
@@ -187,9 +189,7 @@ hs.mad.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
 hs.none.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
                              merging = "none")
 
-
 glad.RAM.fork <- pSegmentGLAD(cgh.dat, chrom.dat)
-
 
 biohmm.mergel.RAM.fork <- pSegmentBioHMM(cgh.dat,
                                 chrom.dat,
@@ -243,7 +243,6 @@ are that we explicitly set the \texttt{typeParall} argument to
 \texttt{"cluster"} (the default is ``fork'') and the change in the names
 of the input data (which now refer to the names of the RData objects that
 contain the \textit{ff} objects).
-
 
 
 
@@ -346,6 +345,7 @@ The main difference with section \ref{allex-ff-cluster} is the argument
 
 
 <<>>=
+
 cbs.mergel.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
                                       merging = "mergeLevels",
                                   typeParall = "fork")
@@ -566,8 +566,13 @@ You should expect most (though not necessarily all) the comparisons to
 yield a TRUE. In some cases, however, different runs of the same method
 might not yield the same results (e.g., CBS, HMM, etc). If you
 get non-identical results, you can try running those methods a few times,
-to check for differences.
+to check for differences. You can also disable load balancing, and try
+using reproducible streams for the random number generators (see the
+vignette of package \textbf{parallel}).
 
+
+
+Let's check those results then:
 
 <<>>=
 mapply(identical3, RAM.fork.obj, 
@@ -628,6 +633,78 @@ these examples).
 % ## cucu2B <- which(hmm.mad.ff.forkB$outSmoothed[ ,3 ] != hmm.mad.ff.clusterB$outSmoothed[ , 3])
 % ## hmm.mad.ff.forkB$outSmoothed[cucu2B ,3 ]; hmm.mad.ff.clusterB$outSmoothed[cucu2B , 3]
 
+
+
+
+\section{Exercising the code for the load balancing options}
+
+This section simply exercises the load balancing options. We use Haar as
+it is the fastest method, and one unlikely to be affected by the order in
+which different columns are run (in contrast to, say, HMM), so we need not
+worry about random numbers here.
+
+<<>>=
+hs.none.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "none")
+hs.none.RAM.fork.lb <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "none", loadBalance = TRUE)
+hs.none.RAM.fork.nlb <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
+                             merging = "none", loadBalance = FALSE)
+identical3("hs.none.RAM.fork", "hs.none.RAM.fork.lb", "hs.none.RAM.fork.nlb")
+
+
+hs.none.ff.cluster <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                      merging = "none", typeParall = "cluster")
+hs.none.ff.cluster.lb <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                      merging = "none", typeParall = "cluster",
+                                      loadBalance = TRUE)
+hs.none.ff.cluster.nlb <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                      merging = "none", typeParall = "cluster",
+                                      loadBalance = FALSE)
+## do not show all the opening ... messages
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.cluster", function(x) lapply(get(x), open))
+    )
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.cluster.lb", function(x) lapply(get(x), open))
+    )
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.cluster.nlb", function(x) lapply(get(x), open))
+    )
+
+identical3("hs.none.ff.cluster", "hs.none.ff.cluster.lb", 
+           "hs.none.ff.cluster.nlb")
+
+
+hs.none.ff.fork <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                             merging = "none", typeParall = "fork")
+hs.none.ff.fork.lb <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                   merging = "none", typeParall = "fork",
+                                   loadBalance = TRUE)
+hs.none.ff.fork.nlb <- pSegmentHaarSeg("cghData.RData", "chromData.RData", 
+                                   merging = "none", typeParall = "fork",
+                                   loadBalance = FALSE)
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.fork", function(x) lapply(get(x), open))
+    )
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.fork.lb", function(x) lapply(get(x), open))
+    )
+tmpout <- 
+  capture.output(
+    lapply("hs.none.ff.fork.nlb", function(x) lapply(get(x), open))
+    )
+identical3("hs.none.ff.fork", "hs.none.ff.fork.lb", "hs.none.ff.fork.nlb")
+
+@ 
+
+(There is no need to compare between ff.fork, ff.cluster, RAM.fork, as
+those were already shown to be identical.)
 
 
 
