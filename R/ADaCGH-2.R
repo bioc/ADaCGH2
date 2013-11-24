@@ -1038,8 +1038,6 @@ setColClasses <- function(x) {
 
 
 
-## FIXME!!: Where is the opening of the chrom position in the ff??
-## I get a warning, from somewhere
 inputToADaCGH <- function(ff.or.RAM = "RAM",
                           robjnames = c("cgh.dat", "chrom.dat",
                             "pos.dat", "probenames.dat"),
@@ -1055,7 +1053,7 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
                           cloneinfoquote = "\"",
                           minNumPerChrom = 10,
                           verbose = FALSE,
-                          mc.cores = detectCores()) {
+                          mc.cores = floor(detectCores()/2)) {
     ## to make it simpler down below
     reading.cores <- mc.cores
     ## We could use eval(substitute or get(

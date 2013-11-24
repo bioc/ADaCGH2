@@ -2,13 +2,13 @@
 ### Encoding: UTF-8
 
 ###################################################
-### code chunk number 1: ADaCGH2-long-examples.Rnw:107-108
+### code chunk number 1: ADaCGH2-long-examples.Rnw:112-113
 ###################################################
 try(setwd("~/tmp"))
 
 
 ###################################################
-### code chunk number 2: ADaCGH2-long-examples.Rnw:111-151
+### code chunk number 2: ADaCGH2-long-examples.Rnw:116-156
 ###################################################
 library(ADaCGH2)
  
@@ -53,7 +53,7 @@ parallel::clusterEvalQ(NULL, setwd(wdir))
 
 
 ###################################################
-### code chunk number 3: ADaCGH2-long-examples.Rnw:176-227
+### code chunk number 3: ADaCGH2-long-examples.Rnw:181-232
 ###################################################
 cbs.mergel.RAM.fork <- pSegmentDNAcopy(cgh.dat, chrom.dat, 
                                             merging = "mergeLevels")
@@ -109,7 +109,7 @@ waves.none.RAM.fork <- pSegmentWavelets(cgh.dat,
 
 
 ###################################################
-### code chunk number 4: ADaCGH2-long-examples.Rnw:249-327
+### code chunk number 4: ADaCGH2-long-examples.Rnw:254-332
 ###################################################
 
 cbs.mergel.ff.cluster <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
@@ -192,7 +192,7 @@ waves.none.ff.cluster <- pSegmentWavelets("cghData.RData",
 
 
 ###################################################
-### code chunk number 5: ADaCGH2-long-examples.Rnw:347-420
+### code chunk number 5: ADaCGH2-long-examples.Rnw:352-425
 ###################################################
 
 cbs.mergel.ff.fork <- pSegmentDNAcopy("cghData.RData", "chromData.RData", 
@@ -270,13 +270,13 @@ waves.none.ff.fork <- pSegmentWavelets("cghData.RData",
 
 
 ###################################################
-### code chunk number 6: ADaCGH2-long-examples.Rnw:438-439
+### code chunk number 6: ADaCGH2-long-examples.Rnw:443-444
 ###################################################
 ff.cluster.obj <- ls(pattern = "*.ff.cluster")
 
 
 ###################################################
-### code chunk number 7: ADaCGH2-long-examples.Rnw:443-447
+### code chunk number 7: ADaCGH2-long-examples.Rnw:448-452
 ###################################################
 tmpout <- 
   capture.output(
@@ -285,7 +285,7 @@ tmpout <-
 
 
 ###################################################
-### code chunk number 8: ADaCGH2-long-examples.Rnw:453-459
+### code chunk number 8: ADaCGH2-long-examples.Rnw:458-464
 ###################################################
 ff.fork.obj <- ls(pattern = "*.ff.fork")
 tmpout <- 
@@ -296,13 +296,13 @@ tmpout <-
 
 
 ###################################################
-### code chunk number 9: ADaCGH2-long-examples.Rnw:467-468
+### code chunk number 9: ADaCGH2-long-examples.Rnw:472-473
 ###################################################
 RAM.fork.obj <- ls(pattern = "*.RAM.fork")
 
 
 ###################################################
-### code chunk number 10: ADaCGH2-long-examples.Rnw:529-547
+### code chunk number 10: ADaCGH2-long-examples.Rnw:534-552
 ###################################################
 identical3 <- function(x, y, z) {
   comp1 <- all.equal(get(x)$outSmoothed[ , ], get(y)$outSmoothed[ , ])
@@ -325,7 +325,7 @@ identical3 <- function(x, y, z) {
 
 
 ###################################################
-### code chunk number 11: ADaCGH2-long-examples.Rnw:577-580
+### code chunk number 11: ADaCGH2-long-examples.Rnw:582-585
 ###################################################
 mapply(identical3, RAM.fork.obj, 
            ff.fork.obj, ff.cluster.obj)
@@ -333,7 +333,7 @@ mapply(identical3, RAM.fork.obj,
 
 
 ###################################################
-### code chunk number 12: ADaCGH2-long-examples.Rnw:646-703
+### code chunk number 12: ADaCGH2-long-examples.Rnw:651-708
 ###################################################
 hs.none.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
                              merging = "none")
@@ -395,13 +395,13 @@ identical3("hs.none.ff.fork", "hs.none.ff.fork.lb", "hs.none.ff.fork.nlb")
 
 
 ###################################################
-### code chunk number 13: ADaCGH2-long-examples.Rnw:726-727
+### code chunk number 13: ADaCGH2-long-examples.Rnw:731-732
 ###################################################
 parallel::stopCluster(cl2)
 
 
 ###################################################
-### code chunk number 14: ADaCGH2-long-examples.Rnw:730-760 (eval = FALSE)
+### code chunk number 14: ADaCGH2-long-examples.Rnw:735-765 (eval = FALSE)
 ###################################################
 ## ## This is the code to remove all the files we created
 ## ## and the temporary directory.

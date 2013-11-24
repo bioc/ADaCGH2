@@ -22,7 +22,7 @@ inputToADaCGH(ff.or.RAM = "RAM",
                       cloneinfoquote = "\"",
                       minNumPerChrom = 10,
                       verbose = FALSE,
-                      mc.cores = detectCores())
+                      mc.cores = floor(detectCores()/2))
 
 }
 %- maybe also 'usage' for other objects documented here.
@@ -153,8 +153,14 @@ inputToADaCGH(ff.or.RAM = "RAM",
   always 1 in Windows. See details about the number of cores in
   \code{\link[parallel]{mclapply}} and
   \code{\link[parallel]{detectCores}}. Contention problems in I/O might
-  be minimized by making this number smaller than what is returned by
-  \code{\link[parallel]{detectCores}}.}
+  be minimized by making this number smaller or much smaller than what
+  is returned by \code{\link[parallel]{detectCores}}. For larte jobs,
+  please do some initial benchmarking. See comments and discussion in
+  file "benchmark.pdf". In general, if you have a single SATA disk make
+  this a small number (say, 2 or 3 or 6); in contrast, if you have many fast
+  SAS disks in a RAID0 or RAID10 array, you can increase the number
+  quite a bit (but generally always well below what detectCores
+  gives). }
 
 }
 \details{
@@ -232,11 +238,11 @@ inputToADaCGH(ff.or.RAM = "RAM",
 % }
 
 
-\note{ Converting a very large RData can be memory consuming. Since this
-  function is mainly used for its side effects, it can be run in a
-  separate process that will then be killed. See examples and comments
-  in the vignette.}
-
+%% \note{ Converting a very large RData can be memory consuming. Since this
+%%   function is mainly used for its side effects, it can be run in a
+%%   separate process that will then be killed. See examples and comments
+%%   in the vignette.}
+%%  No longer the case.
 
 \author{Ramon Diaz-Uriarte \email{rdiaz02@gmail.com}}
 

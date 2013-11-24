@@ -20,11 +20,11 @@
 
 
 \usepackage[latin1]{inputenc}
-
-
-
+\usepackage{datetime}
+\newdateformat{mydate}{\THEDAY-\monthname[\THEMONTH]-\THEYEAR}
 
 \title{Benchmarking ADaCGH2 and comparison with previous versions}
+\date{\mydate\today}
 \author{Ramon Diaz-Uriarte$^{1}$}
 
 
@@ -48,17 +48,20 @@ Instituto de Investigaciones Biomedicas ``Alberto Sols'' (UAM-CSIC), Madrid
 \listoffigures
 
 
-
 \clearpage
 
 \section{Introduction}
-We provide here comparisons with the former version of ADaCGH2 (v.\ 1.10,
+I provide here comparisons with the former version of ADaCGH2 (v.\ 1.10,
 as available in BioConductor v.\ 2.12) as well as some comparisons against
 non-parallelized executions and, finally, some details about recommended
-patterns of usage. The benchmarks shown here total over more than 1640 hours
-of wall time (about 70 days).
-Before showing the results, we provide information
-about the hardware and data sets.
+patterns of usage. The benchmarks shown here total more than 2047 hours of
+wall time (more than 85 days) and correspond to over 400 runs for reading
+and 370 for analysis. The purpose of these benchmarks is to show the
+differences in performance between the new and old versions, as well as to
+illustrate the effects of changing several parameters in the new
+version. Before showing the results, we provide information about the
+hardware and data sets.
+
 
 
 
@@ -74,23 +77,23 @@ column.
 
 To give an idea of sizes, the ASCII file with the data for the 1000 column
 data is about 96 GB\footnote{All sizes are computed from the reported size
-  in bytes or megabytes, using 1024, or powers of 1024, as denominator.},
-and an archived set of 2000 columns, compressed with bzip2, occupies 72
-GB. The RData for those same data (1000 columns) is 46 GB (without
-compression; 41 GB with the standard R compression); in a freshly started
-R session, loading the RData will use 46 GB (as reported by
-\texttt{gc()}). The RData object with the 1000 columns, when loaded into R
-in the PowerEdges, takes 13 minutes to load and uses a total of about 46
-GB (45.7 from calls to \texttt{gc} before and after loading the object,
-and adding Ncells and Vcells, or 45.6 as reported by
-\texttt{object.size}). Note that this is not the result of the object
-being a data frame and having a column with identifiers (a factor),
-instead of being a matrix; a similarly sized matrix with just the numeric
-data for the probes (i.e., without the first three columns of ID,
-chromosome, and location) has a size of 45.2 GB (therefore, the difference
-of 300 MB due to the first column, ID, being a factor with the
-identifiers, is minute relative to the size of the matrix).  As a
-reference for the size of the data set,
+  in bytes or megabytes, using 1024, or powers of 1024, as
+  denominator.}. The directory with the data for 2000 columns occupies
+about 198 GB and, when archived and compressed with bzip2, occupies 78
+GB. The RData for the 1000 columns data is 46 GB (without compression; 41
+GB with the standard R compression); in a freshly started R session,
+loading the RData will use 46 GB (as reported by \texttt{gc()}). The RData
+object with the 1000 columns, when loaded into R in the PowerEdges, takes
+13 minutes to load and uses a total of about 46 GB (45.7 from calls to
+\texttt{gc} before and after loading the object, and adding Ncells and
+Vcells, or 45.6 as reported by \texttt{object.size}). Note that this is
+not the result of the object being a data frame and having a column with
+identifiers (a factor), instead of being a matrix; a similarly sized
+matrix with just the numeric data for the probes (i.e., without the first
+three columns of ID, chromosome, and location) has a size of 45.2 GB
+(therefore, the difference of 300 MB due to the first column, ID, being a
+factor with the identifiers, is minute relative to the size of the
+matrix).  
 
 
 
@@ -117,7 +120,7 @@ other 384 GB of RAM. Both nodes are connected by Infiniband (40Gb/s).  For
 the data presented here, when using a single node, the data live on an xfs
 partition of a RAID0 array of SAS disks (15000 rpm) that are local to the
 node doing the computations. When using the two nodes, the data live on
-that same local SAS drive, which is seen by the other node using a simple
+one of the xfs partitions, which is seen by the other node using a simple
 NFS setup (we have also used distributed file systems, such as FhGFS, but
 they have tended to be a lot slower in these experiments; your mileage
 might vary). Therefore, in the table entries below, executions using both
@@ -146,6 +149,74 @@ through May and June of 2013). Open MPI is version 1.4.3-2 (as available
 from Debian).
 
 
+\subsection{Segmentation methods used}\label{methods}
+
+The methods available in ADaCGH2 are (see further details in the help of
+function \texttt{pSegment}):
+
+\begin{itemize}
+
+\item The popular Circular Binary Segmentation approach, described in its
+  current implementation in \cite{CBS-paper} and implemented in package
+  \texttt{DNAcopy}.
+
+\item A wavelet-based method, proposed in \cite{waves-hsu}. This is called
+  \texttt{pSegementWavelets} in ADaCGH2. 
+
+\item Another wavelet-based method, HaarSeg, published in
+  \cite{haarseg-paper}. This was later made available as an R-package as
+  \cite{haar-package}.
+
+
+\item HMM, as described by \cite{hmm-fridlyand} and implemented in package
+  \cite{aCGHpackage}. 
+
+\item BioHMM, a non-homogeneous HMM, described in \cite{biohmm} and
+  implemented in package \cite{snapCGH}. 
+
+
+\item The CGHseg method described in \cite{cghseg}. An implementation of
+  \textbf{part} of this method is available in the R package
+  \cite{tilingarray}, but ADaCGH2 is the first R implementation of the
+  full description of the CGHseg procedure (see comments in the help of
+  function \texttt{pSegmentCGHseg}).
+
+
+\item GLAD, a method first described in \cite{glad-paper} and implemented
+  in \cite{glad-package}.
+
+\end{itemize}
+
+
+\subsubsection{Difficulties of using some methods with large data sets}\label{methodproblems}
+
+The tables below only show benchmarks for methods HMM, BioHMM, HaarSeg
+(referred as Haar) and CBS. CGHseg and the wavelet approach described in
+\cite{waves-hsu} cannot be used when any chromosome has a large number of
+probes because of their memory use. With CGHseg the problem arises in the
+underlying \texttt{tilingArray} package, in the internal step of computing
+the ``costMatrix'', a function called by the function \texttt{segment} in
+\texttt{tilingArray}.  When analyzing the first chromosome (for a single
+subject), the request is for 1493 GB.  For the wavelet approach, the
+problem shows up in the clustering step, when function \texttt{pam} (from
+package \texttt{cluster}) is called. For instance, the memory requirements
+for a chromosome of 350000 probes would exceeded 400 GB (the request is
+for a vector of doubles of size $1 + (n * (n - 1))$).  It must be
+emphasized that, in both cases, it is not the complete 6 million probes,
+nor using multiple subjects, which causes the problems: neither of the
+methods is capable of analyzing the first chromosome for a single subject.
+GLAD seems capable of dealing with large data sets in terms of memory
+usage, but it is extremely slow. After more than four days, the method had
+not been able to finish the analysis of the 50-column data set in the
+machines with 64 cores; on closer inspection, the problem lies in function
+\texttt{OptimBkpFindCluster}, a C function internal to the package, and is
+not attributable, therefore, to the initial segmentation method (we were
+using, anyway, the recommended fast function, which uses HaarSeg).
+Finally, to run method BioHMM we often had to increase the \texttt{ulimit}
+(stack limit), by using \texttt{ulimit -u}, from the shell.
+
+
+
 \subsection{Tables: column name explanation}
 For the tables below, the meaning of columns is as follows:
 
@@ -163,7 +234,8 @@ For the tables below, the meaning of columns is as follows:
   sum of the two rows of the ``max used'' column reported by
   \texttt{gc()}, in R, at the end of the execution of the given
   function. This number cannot reflect all the memory used by the function
-  if the function spawns other R processes. 
+  if the function spawns other R processes (via MPI or forking, for
+  example).
 
 \item[$\Sigma$ Memory (GB)] A simple attempt to measure the memory used by
   all the processes\footnote{Just adding the entries given by \texttt{top}
@@ -187,6 +259,11 @@ For the tables below, the meaning of columns is as follows:
   % . Finally, the coherence of repeated executions and the clear patterns
   % both within and among machines suggests that this procedure captures the
   % key
+
+  Finally, note that for cases where we know that there is a single R
+  process (e.g., reading with the old version), there is an excellent
+  agreement between the ``Memory (GB)'' (whose value is reported from R
+  itself) and ``$\Sigma$ Memory (GB)''. 
   
   \item[Columns] The number of data columns of the data set.
   \item[Method] The analysis method. ``Haar'' for HaarSeg, ``CBS'' for
@@ -198,9 +275,10 @@ For the tables below, the meaning of columns is as follows:
     the tables.
 
 
-  \item[MPI/Fork] Whether forking (via \texttt{mclapply}) or MPI (using
-    the facilities provided by package \textbf{Rmpi}, which are called
-    from package \textbf{snow}) are used to parallelize execution.
+  \item[MPI/Fork] Whether forking (via \texttt{mclapply}) or explicitly
+    using an MPI cluster (using the facilities provided by package
+    \textbf{Rmpi}, which are called from package \textbf{snow}) are used
+    to parallelize execution.
 
     The ``NP'' entries in table \ref{nonparall} refer to non-parallelized
     execution, using the original packages\footnote{The packages are
@@ -213,18 +291,20 @@ For the tables below, the meaning of columns is as follows:
     in v.\ $\ge 2.3.4$).
 
 
-\item[Cores] Number of cores used. In most cases, when running in the AMD Opteron
-  machines we used all 64 cores, and when running on the Intel Xeon
-  machine we used all 12 cores, but not always. When running over both AMD
-  Opterons we used 124 cores (see above).
+  \item[Cores] Number of cores used. In most cases, when running in the
+    AMD Opteron machines we used all 64 cores, and when running on the
+    Intel Xeon machine we used all 12 cores, but not always, to show the
+    effects of changing the number of cores used. When running over both
+    AMD Opterons we used 124 cores (see above).
 
-\item[Procs.\ per node] When using MPI, the total number of R processes
-  that can run in a node; this is the parameter \texttt{npernode} passed
-  to \texttt{mpirun} (from Open MPI). When running on a single node, that
-  is the number of R slaves + 1.
-\item[Universe size] The number of slave nodes in the MPI universe (over
-  all nodes in the universe). This is the parameter \texttt{count} passed
-  to \texttt{makeMPIcluster} in R.
+  \item[Procs.\ per node] When using MPI, the total number of R processes
+    that can run in a node; this is the parameter \texttt{npernode} passed
+    to \texttt{mpirun} (from Open MPI). When running on a single node,
+    that is the number of R slaves + 1.
+
+  \item[Universe size] The number of slave nodes in the MPI universe (over
+    all nodes in the universe). This is the parameter \texttt{count}
+    passed to \texttt{makeMPIcluster} in R.
 
 \item[Version] The version of ADaCGH2. For simplicity, ``Old'' means
   version 1.10 and ``New'' versions 2.1 and larger.
@@ -243,17 +323,21 @@ For the tables below, the meaning of columns is as follows:
 
 
 
-
+\clearpage
 \section{Comparison with v.\ 1.10 of ADaCGH2}
 
 \subsection{Main differences between the old (v.\ 1.10) and new versions
-  (v.\ $\ge$ 2.1.3) of ADaCGH2}
+  (v.\ $\ge$ 2.3.4) of ADaCGH2}
 
 
 The code for the new version of ADaCGH2 represent a major rewrite of most
 of the code in the former version. Listed here are some of the major
-advantages of the new version; they are shown in approximately decreasing
-order of importance from the user's point of view.
+advantages of the new version\footnote{Most of the new capabilities were
+  already available in version 2.1.3; however, the vignettes have suffered
+  major changes and there have been some changes in the code and help
+  files. Thus, these comments all do apply to version $\ge$ 2.3.4.}; they
+are shown in approximately decreasing order of importance from the user's
+point of view.
 
 
 \begin{description}
@@ -261,62 +345,65 @@ order of importance from the user's point of view.
 \item[Reading of large data sets] The new version of ADaCGH2 can read data
   sets much larger than the old one (see section \ref{comp-read}). In a
   machine with 64 GB RAM the old version cannot read data sets with 500
-  columns (each with 6 million probes), whereas data sets with 4000
-  columns can be read with the new version (see table \ref{read-coleonyx})
-  and the scaling of the memory consumption with number of columns
-  suggests that much larger data sets could be read. Likewise, in machines
-  with 256 and 384 GB of RAM (tables \ref{read-gallotia} and
-  \ref{read-lacerta}) data sets of 2000 columns could not be read with the
-  old version of ADaCGH2, but data sets of 4000 columns are read with the
-  new version and, again, the scaling of memory consumption with number of
-  columns suggests (see Figure \ref{fig-read}) that much larger data sets could be
-  read and, even for the sizes of data that can be read by the old
-  version, reading is faster with the new version because it can make much
-  better usage of available hardware (RAID arrays for disks).
+  columns (each with 6 million probes ---see section
+  \ref{sec:data-set-hardware}), whereas data sets with 4000 columns can be
+  read with the new version (see table \ref{read-coleonyx}) and the
+  scaling of the memory consumption with number of columns suggests that
+  much larger data sets could be read. Likewise, in machines with 256 and
+  384 GB of RAM (tables \ref{read-gallotia} and \ref{read-lacerta}) data
+  sets of 2000 columns could not be read with the old version of ADaCGH2,
+  but data sets of 4000 columns are read with the new version and, again,
+  the scaling of memory consumption with number of columns suggests (see
+  Figure \ref{fig-read}) that much larger data sets could be read and,
+  even for the sizes of data that can be read by the old version, reading
+  is much faster with the new version because of the parallelized reading,
+  which can make much better usage of available hardware (e.g., RAID
+  arrays for disks). % In summary, given the scaling pattern, it seems the
+  % size limits for reading data are not memory but hard drive space.
 
 
 
 \item[Missing value handling] The old version of ADaCGH2 used row-wise
   deletion of missing values when reading data: a probe would be deleted
-  from the data if it had one missing value over all subjects. Analysis
-  could be speed up, as no checks or provisions had to be taken for
-  dealing with NAs, and all procedures are simplified, as the data are
-  then known to be complete. However, row-wise deletion of missing values
-  is probably not an appropriate approach, especially as the number of
-  samples increases (because the probability that a given probe will then
-  be left out of the analysis increases). The new version of ADaCGH2 deals
-  with missing values column by column, so for each column (or subject)
-  all available data (or probes) are used in the
+  from the data if it had one missing value in any
+  subject/column. Analysis could be speed up, as no checks or provisions
+  had to be taken for dealing with NAs, and all procedures are simplified,
+  as the data are then known to be complete. However, row-wise deletion of
+  missing values is probably not an appropriate approach, especially as
+  the number of samples increases (because the probability that a given
+  probe will then be left out of the analysis increases). The new version
+  of ADaCGH2 deals with missing values column by column, so for each
+  column (or subject) all available data (or probes) are used in the
   segmentation. Nevertheless, the new version incorporates a setting to
   provide speed ups when the user is certain that there are no missing
   values (\texttt{certain\_noNA = TRUE}).
 
 
 \item[Analysis of large data sets] The old version of ADaCGH2 cannot
-  analyze large data sets, as it cannot read them and it cannot use data
+  analyze large data sets, as it cannot read them (and it cannot use data
   read by the new version since the old version assumes there are no
-  missing values in the data after reading.
+  missing values in the data after reading).
+
+ In addition, although time increases, obviously, with number of samples
+  to analyze, the scaling of memory consumption is modest and well below
+  the memory available for the systems.
+
+\item[Forking and clusters] The new version of ADaCGH2 allows for the
+  usage of forking or an explicit cluster (e.g., MPI, sockets, etc) to
+  parallelize reading and analysis. In Unix-based environments (including
+  Unix, GNU/Linux, and Mac OS), forking can be faster, less memory
+  consuming, and much easier to use than using a cluster.
 
 
-\item[Forking] The new version of ADaCGH2 allows for the usage of forking
-  to parallelize reading and analysis. In Unix-based environments
-  (including Unix, GNU/Linux, and Mac OS), forking can be faster, less
-  memory consuming, and much easier to use than using an explicit cluster.
-
-
-\item[Speed] The new version is generally slightly faster than the old one
-  for the default options (load balancing and forking). Further speed
-  improvements can be achieved in some cases, for instance by not using
-  load balancing with certain methods (e.g., HaarSeg); see details in
-  section \ref{comp-anal}.
-
+\item[Speed of analysis] The new version is generally slightly faster than
+  the old one for the default options.
 
 \item[Flexibility of reading data] The new version of ADaCGH2 has not
   removed the mechanisms of reading data available in the old
   version. Thus, when data are small or memory is plentiful, reading data
   from a single RData is an available option. But the new version adds new
-  mechanisms, mainly reading from a text file and from a directory of
-  text files, that, as discussed, allow for reading much larger data sets.
+  mechanisms, mainly reading from a text file and from a directory of text
+  files that, as discussed above, allow for reading much larger data sets.
 
 \item[Usage of data read from the other version] The new version of
   ADaCGH2 can accept data read by the old version. However, the old
@@ -326,20 +413,14 @@ order of importance from the user's point of view.
   missing values.
 
 
-\item[Flexibility of analysis options] The new version allows gives the
-  user more options for analysis, which can help adapt analysis to
-  available hardware, therefore resulting in faster speed and/or decreased
-  memory consumption. In particular, the user can choose to use MPI or
-  forking (option \texttt{typeParall} in the segmentation and plotting
-  functions) and to use, or not, load balancing (options
-  \texttt{loadBalance} to segmentation and plotting functions).
 
 \item[Dependencies] The old version depends on package \texttt{snowfall}
-  for parallelization, whereas the new depends only on
+  for parallelization, whereas the new version depends only on
   \texttt{multicore}. This makes the new version less likely to break in
   the future, as \texttt{multicore} is one of the core packages
   distributed with R (whereas, for instance, there were some problems with
-  \texttt{snowfall} immediately following the release of v.\ 3 of R).
+  \texttt{snowfall} not building with the development versions of v.\ 3 of
+  R around February 2013).
 
   % In addition, snowfall is difficult to use with Open MPI, probably the
   % most widely used approach for MPI, and often the recommended one for R.
@@ -353,87 +434,33 @@ order of importance from the user's point of view.
   sometimes lead to speed improvements. The new version of ADaCGH2 allows
   not to use load balancing with the argument \texttt{loadBalance = FALSE}.
 
-
-\item[Limiting RAM consumption] Limiting RAM usage during reading and
-  analysis is simple with the new version of ADaCGH2: limit the number of
-  processes that are allowed to run simultaneously. This is not possible
-  with the old version of ADaCGH2.
+\item[Limiting memory consumption] Memory usage is generally well below
+  the available memory of the system. However, if it were necessary to
+  limit memory usage during reading and analysis this is simple with the
+  new version of ADaCGH2: limit the number of processes that are allowed
+  to run simultaneously. This is not possible with the old version of
+  ADaCGH2.
 
 \item[Method availability] Two of the methods available, HMM and BioHMM,
   depend on packages \texttt{aCGH} and \texttt{snapCGH}. These two
-  packages haven been updated since 2010 and 2009, respectively, and aCGH
-  will no longer be maintained (personal communication from the
-  authors). There is code in ADaCGH2 (including both C and R code), taken
-  and modified from those packages, that can be readily uncommented to
-  make these two methods available in ADaCGH2 if either of those packages
-  were not to pass checks in future versions of BioConductor.
+  packages haven not been updated since 2010 and 2009, respectively, and
+  aCGH will no longer be maintained (personal communication from the
+  authors). There is code in the ADaCGH2 repositories (including both C
+  and R code), taken and modified from those packages, that can be readily
+  uncommented to make these two methods available in ADaCGH2 if either of
+  those packages were not to pass checks in future versions of
+  BioConductor.
  
 \end{description}
 
 
 
+\subsection{Data and code availability}
 
+All scripts, data, and results from these benchmarks are available from
+\url{http://www2.iib.uam.es/rduriarte\_lab/ADaCGH2-v2-suppl-files/public}. The
+scripts include the R code to obtain the tables and figures shown here.
 
-
-\subsection{Segmentation methods used}\label{methodproblems}
-
-The methods available in ADaCGH2 are (see further details in the help of
-function \texttt{pSegment}):
-
-\begin{itemize}
-
-\item HMM, as described by \cite{hmm-fridlyand} and implemented in package
-  \cite{aCGHpackage}. 
-
-\item BioHMM, a non-homogeneous HMM, described in \cite{biohmm} and
-  implemented in package \cite{snapCGH}. 
-
-\item A wavelet-based method, proposed in \cite{waves-hsu}. This is called
-  \texttt{pSegementWavelets} in ADaCGH2. 
-
-\item Another wavelet-based method, HaarSeg, published in
-  \cite{haarseg-paper}. This was later made available as an R-package as
-  \cite{haar-package}.
-
-\item The CGHseg method described in \cite{cghseg}. An implementation of
-  \textbf{part} of this method is available in the R package
-  \cite{tilingarray}, but ADaCGH2 is the first R implementation of the
-  full description of the CGHseg procedure (see comments in the help of
-  function \texttt{pSegmentCGHseg}).
-
-\item The popular Circular Binary Segmentation approach, described in its
-  current implementation in \cite{CBS-paper} and implemented in package
-  \texttt{DNAcopy}.
-
-\item GLAD, a method first described in \cite{glad-paper} and implemented
-  in \cite{glad-package}.
-
-\end{itemize}
-
-
-The tables below only show benchmarks for methods HMM, BioHMM, HaarSeg
-(referred as Haar) and CBS. CGHseg and the wavelet approach described in
-\cite{waves-hsu} cannot be when any chromosome has a large number of
-probes because of their memory use. With CGHseg the problem arises in the
-underlying \texttt{tilingArray} package, in the internal step of computing
-the ``costMatrix'', a function called by the function \texttt{segment} in
-\texttt{tilingArray}.  When analyzing the first chromosome (for a single
-subject), the request is for 1493 GB.  For the wavelet approach, the
-problem shows up in the clustering step, when function \texttt{pam} (from
-package \texttt{cluster}) is called. For instance, the memory requirements
-for a chromosome of 350000 probes would exceeded 400 GB (the request is
-for a vector of doubles of size $1 + (n * (n - 1))$.  It must be
-emphasized that, in both cases, it is not the complete 6 million probes,
-nor using multiple subjects, which causes the problems: neither of the
-methods is capable of analyzing the first chromosome for a single subject.
-GLAD can deal with large data sets in terms of memory usage, but it
-extremely slow. After more than four days, the method had not been able to
-finish the analysis of the 50-column data set in the machines with 64
-cores; on close inspection, the problem lies in function
-\texttt{OptimBkpFindCluster}, a C function internal to the package, and is
-not attributable, therefore, at the initial segmentation method.  Finally,
-to run method BioHMM we often had to increase the \texttt{ulimit} (stack
-limit), by using \texttt{ulimit -u}, from the shell.
 
 
 
@@ -441,8 +468,9 @@ limit), by using \texttt{ulimit -u}, from the shell.
 \subsection{Reading data}\label{comp-read}
 
 The next three tables show time and memory consumption when reading data
-using the recommended approach with each version of the package. Some of
-the major patterns and results are:
+using the recommended approach with each version of the package (an RData
+object for the old version, a directory of single-column txt files for the
+new version). Some of the major patterns and results are:
 
 \begin{description}
 \item[Size limits for old version] Table
@@ -470,35 +498,48 @@ In contrast, the new version is capable of reading data sets of 4000
 columns in all machines, without getting anywhere near the memory limits
 of the machines. Moreover, the \textbf{scaling} (see also figure
 \ref{fig-read}) shows that the total number of columns could be increased
-to much larger number and, in addition, that the total memory used can be
-limited by setting the number of cores used (of course, at the possible
-expense of reduced speed ---but see next point): for instance, compare row
-32 with 33, and row 34 with 35 in table \ref{read-coleonyx}; rows 41 to 44
-in table \ref{read-gallotia}; and rows 30, 31, 32, 33 in table
-\ref{read-lacerta}.
+to much larger numbers and, in addition, that the total memory used can be
+limited by reducing the number of cores used (with little effects on speed
+---see next point).% : for instance, compare row 32 with 33, and row 34
 
 
-\item[Speed of new and old version] Reading speed differences are small
-  (and likely of little consequence for users) for small sized data sets;
-  reading is faster at all sizes with the new version in the most capable
-  machines, but is faster with the old version in the Intel Xeon
-  machine. However, as data sets grow larger in size, reading speeds are
-  much faster with the new version than the old by factors of about 4x.
+\item[Speed of new and old version] Reading is much faster with the new
+  version. These differences are most likely inconsequential for small
+  sized data sets (where differences are by a factor of about 2x), but can
+  have large effects with a large number of columns.  As data sets grow
+  larger in size, reading speeds are much faster with the new version than
+  the old by factors of about 4x (this can only be verified in the
+  machines with larger memory, as the old version will not read data sets
+  of 500 columns or more in the smaller machine). There can,
+  nevertheless, be quite a bit of variation in reading speeds of small
+  data sets, specially in less capable machines; these variations,
+  however, are most likely of little practical relevance.
+
+  
+
 
 \item[Speed and number of cores in new version] Reading speed does not
-  always increase with the number of cores. Look at rows 32 to 35 in table
-  \ref{read-coleonyx}; rows 41 to 44 in table \ref{read-gallotia}; and
-  rows 30 to 33 in table \ref{read-lacerta}. In particular, the number of
-  spindles and the speed of the drives is likely to have a large effect on
-  the benefits of parallelizing reading. In the Intel Xeon machine all the
-  data are on an ext4 partition that lives on a single SATA hard drive,
-  whereas in the AMD Opteron machines the data are on an xfs partition
-  that is, physically, for each machine, on four 600 GB SAS disks
-  configured as a RAID0 array. In addition, the reading step is generally
-  faster the less full the partition is and the type of file system is
-  also likely to affect.
+  always increase with the number of cores. In fact, for a range of number
+  of cores, reading speeds show little variation with number of cores, as
+  the most likely limiting factor is I/O, which is related to the number
+  of spindles and the speed of the drives. Increasing the number of cores
+  used, however, tends to make the system less responsive (higher loads)
+  and thus using a reasonably small number of cores is recommended and the
+  default option.
 
-  If the reading operation is to be performed many times, or an very large
+
+  % \ref{read-coleonyx}; rows 41 to 44 in table \ref{read-gallotia}; and
+  % rows 30 to 33 in table \ref{read-lacerta}.
+  % In particular, the number of spindles and the speed of the drives is
+  % likely to have a large effect on the benefits of parallelizing
+  % reading. In the Intel Xeon machine all the data are on an ext4 partition
+  % that lives on a single SATA hard drive, whereas in the AMD Opteron
+  % machines the data are on an xfs partition that is, physically, for each
+  % machine, on four 600 GB SAS disks configured as a RAID0 array. In
+  % addition, the reading step is generally faster the less full the
+  % partition is and the type of file system is also likely to affect.
+
+  If the reading operation is to be performed many times, or on very large
   set of data, it would pay off to experiment with the number of cores
   used for reading, which can be done with the option \texttt{mc.cores} to
   the function \texttt{inputToADaCGH}.
@@ -513,12 +554,13 @@ in table \ref{read-gallotia}; and rows 30, 31, 32, 33 in table
 \caption[Wall time and memory usage when reading data: version
 comparison]{\label{fig-read} Comparison between old and new versions in
   wall time and memory usage when reading data as a function of number of
-  columns (samples). Both axis shown in log scale. The figure shows the
-  default use cases: using 12 cores in the Intel Xeon machine and 64 cores
-  in the AMD Opterons; note that better speeds (and lower memory usage)
-  can be achieved by decreasing the number of cores used (see
-  tables). When more than one benchmark is available for a scenario, the
-  median is shown.}
+  columns (samples). Both axes shown in log scale. The figure shows the
+  benchmarks using 12 cores in the Intel Xeon machine and 64 cores in the
+  AMD Opterons; note that for some scenarios better speeds (and lower
+  memory usage) can be achieved by decreasing the number of cores used
+  (see tables). When more than one benchmark is available for a scenario,
+  the median is shown.}
+
 \end{figure}
 
 \begin{center}
@@ -536,10 +578,20 @@ The next four tables show time and memory consumption when analyzing
 data. For the old version, the largest data sets analyzed are of 200
 columns for the Intel Xeon machine with 64 GB of RAM, and 1000 columns for
 the AMD Opteron machines (see details in section \ref{comp-read}). In
-these benchmarks, no single run was allowed to run for more than 72 hours
-(4320 minutes). Some of the major patterns and results shown in tables
-\ref{anal-coleonyx} to \ref{anal-lacerta-gallotia} (see also
-Figure\ref{fig-anal}) are:
+these benchmarks, runs were not allowed to run for more than 48 hours
+(2880 minutes) except for a few cases that were allowed to run for longer
+to either compare between methods (e.g., HMM in Coleonyx) or to verify
+that the method is definitely not suitable for very large data, such as in
+the case of GLAD, where two processes were allowed to run for four days
+(see section \ref{methodproblems}). Finally, note that we do not compute
+the time it takes to set up the MPI environment (with the old version or
+with the new version, when using MPI), but only the time of the call for
+the segmentation itself; setting up the cluster takes about half a minute
+to a minute.
+
+
+Some of the major patterns and results shown in tables \ref{anal-coleonyx}
+to \ref{anal-lacerta-gallotia} (see also Figure\ref{fig-anal}) are:
 
 \begin{description}
 
@@ -551,9 +603,9 @@ Figure\ref{fig-anal}) are:
   size of the data sets that can be read (see section \ref{comp-read}).
 
 \item[Load balancing] Load balancing is generally a good choice, but not
-  with HaarSeg, because the individual analysis of HaarSeg are so fast
-  that they rarely make it worth it the increased communication and
-  processing overheads of load balancing.
+  with HaarSeg on a single multicore machine, because the individual
+  analysis of HaarSeg are so fast that they rarely make it worth it the
+  increased communication and processing overheads of load balancing.
 
 \item[MPI vs.\ forking] Forking is faster than MPI when running on a
   single node, which is to be expected, and in some cases (e.g., HMM) the
@@ -585,7 +637,7 @@ Figure\ref{fig-anal}) are:
 \caption[Wall time and memory usage when analyzing data: version
 comparison]{\label{fig-anal} Comparison between old and new version in
   wall time and memory usage as a function of number of columns
-  (samples). Both axis shown in log scale. The figure shows the default
+  (samples). Both axes shown in log scale. The figure shows the default
   use cases: using 12 cores in the Intel Xeon machine and 64 cores in the
   AMD Opterons. Since the old version assumes no missing data, when
   possible (i.e., when data read by the old version are available) the
@@ -611,7 +663,7 @@ comparison]{\label{fig-anal} Comparison between old and new version in
 \end{landscape}
 
 
-
+\clearpage
 \section{Other comparisons}
 
 \subsection{Comparison with non-parallelized executions}
@@ -854,13 +906,42 @@ shown than for similarly sized problems when using \textit{ff} objects
 \clearpage
 \section{Comments and recommended usage patterns}
 \label{commentsend}
+
+
+\subsection{Recommended usage: summary}\label{comments-summary}
+
+
+\begin{enumerate}
+\item For data analysis, use the defaults when running on a single
+  multicore computer:
+  \begin{enumerate}
+  \item \textit{ff} objects for input and output.
+  \item Forking (instead of explicit clusters).
+  \item Load balancing, except when using HaarSeg.
+  \end{enumerate}
+
+\item If you have multiple machines available for analysis, try using them
+  with explicit clusters (e.g., MPI). However, especially for methods such
+  as HaarSeg, the gains could be modest unless you add many machines to
+  the cluster. Use load balancing for all methods (i.e., override the
+  defult if using HaarSeg).
+
+\item When reading data, the fastest and least memory consuming is using a
+  directory of single-column files. The best number of cores is likely to
+  be strongly hardware (and possibly file system) dependent. The default
+  \texttt{mc.cores} has been set to half the number of cores, but this is
+  not necessarily a sensible default.
+\end{enumerate}
+
+
+\subsection{Recommended usage: details}\label{comments-detail}
 \begin{enumerate}
 
 \item Reading data and trying to save it as a RAM object, a usual
   in-memory data frame, will quickly exhaust available memory. For these
   data, we were not able to read data sets of 100 or more columns. Part of
   the problem lies on the way memory is handled and freed in the slaves,
-  given that we are returning actual lists. In contrast, when saving as
+  given that we are returning lists. In contrast, when saving as
   \textit{ff} objects, the slaves are only returning tiny objects (just
   pointers to a file).
   
@@ -882,11 +963,12 @@ shown than for similarly sized problems when using \textit{ff} objects
   MPI might, or might not, be faster than using forking on a single
   node. Two main issues affect the speed differences: inter-process
   communication and access to files. In our case, the likely bottleneck
-  lies in access to files, which live on a SAS disk which is accessed via
-  NFS. With other hardware/software configurations, access to shared files
-  might be much faster. Regardless, the MPI costs might not be worth if
-  each individual calculation is fast; this is why MPI with HaarSeg does
-  not pay off, but it does pay off with HMM and is borderline with CBS.
+  lies in access to files, which live on an array of disks that is
+  accessed via NFS. With other hardware/software configurations, access to
+  shared files might be much faster. Regardless, the MPI costs might not
+  be worth if each individual calculation is fast; this is why MPI with
+  HaarSeg does not pay off, but it does pay off with HMM and is borderline
+  with CBS.
   
   
 \item When using \textit{ff}, the exact same operations in systems with
@@ -920,13 +1002,8 @@ shown than for similarly sized problems when using \textit{ff} objects
   files at once (we are trying to parallelize the reading of data), issues
   such as type of file system, configuration and type of RAID, number of
   spindles, quality of the RAID card, amount of free space, etc, etc, etc,
-  can have an effect on all heavy I/O operations.  For example, when
-  reading a set of 2000 files, the time differences in a set of benchmarks
-  varied between 9 and 34 minutes. The only difference between the runs we
-  could find being that in the 34 minute runs, we had added about 60 GB
-  worth of files after creating/copying the text files, and before
-  reading, and the disk was about 64\% full. Note also that, as a general
-  rule, it is better if the newly created \textit{ff} files from
+  can have an effect on all heavy I/O operations.  Note also that, as a
+  general rule, it is better if the newly created \textit{ff} files from
   \texttt{inputToADaCGH} are written to an empty directory, and if the
   working directory for segmentation analysis is another empty directory
   if you are using \texttt{ff} objects.
@@ -936,9 +1013,10 @@ shown than for similarly sized problems when using \textit{ff} objects
   which can help with contention issues related to I/O. A multicore
   machine (say, 12 cores) with a single SATA drive might actually
   complete the reading faster if you use fewer than 12 cores for the
-  reading. But your mileage might vary.
-  
-  
+  reading. But your mileage might vary. See also comments and full tables
+  in section \ref{comp-read}.
+
+   
 \item Reordering data takes time (a lot if you do not use \textit{ff}
   objects) and can use a lot of memory. So it is much better if input data are
   already ordered (by Chromosome and Position within Chromosome).
@@ -957,146 +1035,6 @@ shown than for similarly sized problems when using \textit{ff} objects
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-  
-  
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-  
-    
-
-
-
-   
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-    
-  
-    
-  
-  
-
-  
-  
-  
-  
 
 
 

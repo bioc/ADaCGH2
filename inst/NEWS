@@ -1,3 +1,11 @@
+Changes in version 2.3.6 (2013-11-24)
+	- Help for inputToADaCGH has a more verbose section on the need to
+	  use the right mc.cores.
+	- Made default for mc.cores to inputToADaCGH be half the number of
+	  cores. 
+	- More changes to benchmarks.pdf, including the link to all the data.
+
+
 Changes in version 2.3.5 (2013-11-11)
        - Changes in vignette: unified all benchmarking in benchmark.pdf.
        - Clarified help for pSegment on loadBalance and say explicitly not

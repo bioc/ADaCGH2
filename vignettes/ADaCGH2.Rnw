@@ -22,8 +22,12 @@
 \usepackage[latin1]{inputenc}
 
 
+\usepackage{datetime}
+\newdateformat{mydate}{\THEDAY-\monthname[\THEMONTH]-\THEYEAR}
+
 \title{Analysis of data from aCGH experiments using parallel computing and
 ff objects}
+\date{\mydate\today}
 \author{Ramon Diaz-Uriarte$^{1}$, Daniel Rico$^{2}$, and Oscar M.\ Rueda$^{3}$}
 
 
@@ -79,11 +83,9 @@ identical results regardless of type of input and clustering.
 
 
 Finally, the file ``benchmarks.pdf'' presents extensive benchmarks
-comparing the current version of ADaCGH2 (>= 2.2.1) with the former
+comparing the current version of ADaCGH2 (>= 2.3.6) with the former
 version (v.\ 1.10, in BioConductor 2.12), as well as some comparisons with
 non-parallelized executions and a discussion of recommended patterns of usage.
-
-
 
 
 % In the vignette ADaCGH2-long (under /inst/doc) there are examples that
@@ -130,12 +132,12 @@ the analysis, which now allow a wider range of options with increased
 speed and decreased memory usage, and also allows users to disable the
 usage of \textit{ff}. Moreover, in the new version, a large part of the
 reading is parallelized and makes use of temporary \textit{ff} objects and
-we allow parallelization of analysis (and data reading) using forking. 
+we allow parallelization of analysis (and data reading) using
+forking. Further details and comparisons between the old and new versions are
+provided in the document ``benchmarks.pdf'', included with this
+package. 
 
 
-% , to use instead local R objects
-% plus forking, which will likely be the preferred usage mode when plenty of
-% RAM is available in a single multicore machine.
 
 
 \subsection{Terminology}
@@ -247,29 +249,10 @@ will depend on the actual details of number of nodes, size of data sets,
 speed of communication between nodes, etc. For large data sets, the
 recommended usage involves always using \textit{ff} objects. Using
 \textit{ff} objects is slightly more cumbersome, but can allow us to
-analyze very large data sets in moderate hardware (see examples in the
-``benchmark.pdf'' file).. Of course, what is ``lots'', ``many'', and
-``large'', will depend on the arrays you analyze and the hardware.
-
-
-
-% \begin{center}
-% \begin{tabular}{lll}
-%                       &  Lots of RAM                &  Little RAM  \\
-% \hline
-%  Many cores per node  &  No ff, fork                &  ff, fork    \\
-%  and few nodes        &  (but make ff optional)     &              \\
-%                       &  (but make cluster optional)    &              \\
-%  Few cores per node   &  ff, cluster                    &  ff, cluster     \\
-%  and many nodes       &  (we need acess to object   &              \\
-%                       &  from several nodes, so we  &              \\
-%                       &  use ff.                    &              \\
-% \end{tabular}
-% \end{center}
-
-  
-  
-%%% FIXME: fuse previous table and next section, and discuss reasons for choices.  
+analyze very large data sets in moderate hardware and will often result in
+faster computation; see details and discussion in ``benchmarks.pdf''. Of
+course, what is ``lots'', ``many'', and ``large'', will depend on the
+arrays you analyze and the hardware.
 
 
 The examples below cover all three possible usage patterns:

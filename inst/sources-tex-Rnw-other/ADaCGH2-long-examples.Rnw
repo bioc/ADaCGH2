@@ -26,9 +26,14 @@
 %% BiocStyle::latex()
 %% @
 
+\usepackage{datetime}
+
+\newdateformat{mydate}{\THEDAY-\monthname[\THEMONTH]-\THEYEAR}
+
 
 \title{Analysis of data from aCGH experiments using parallel computing and
 ff objects: long list of examples}
+\date{\mydate\today}
 \author{Ram\'on D\'{\i}az-Uriarte$^{1}$}
 
 \begin{document}
