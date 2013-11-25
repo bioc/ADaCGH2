@@ -1,3 +1,6 @@
+Changes in version 2.3.7 (2013-11-26)
+	- Minor changes to "benchmarks.pdf".
+
 Changes in version 2.3.6 (2013-11-24)
 	- Help for inputToADaCGH has a more verbose section on the need to
 	  use the right mc.cores.

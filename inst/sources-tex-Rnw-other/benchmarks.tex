@@ -64,6 +64,46 @@ hardware and data sets.
 
 
 
+It should be noted that the very first version of ADaCGH (the one
+documented in \cite{Diaz-Uriarte2007}) will no longer run in current
+versions of R without tweaks, as it depends on a package (papply) that no
+longer installs in current versions of R (it had problems at least since
+v.\ 2.15.0 of R). The web-based application documented in that paper still
+works because I did perform those tweaks, and because in some servers we
+are still running version 2.9.0 of R. However, for the final user,
+comparisons against that initial version are therefore of little
+interest. Thus, the benchmarks that I show provide comparisons against the
+version available from release 2.12 of BioConductor; this ``old'' version
+(v.\ 1.10) still runs, but already incorporates several major advantages
+over the initial one documented in the PLoS ONE paper, mainly:
+
+
+\begin{itemize}
+
+\item Clusters are not restricted to MPI cluster, whereas the initial
+  version only allowed MPI clusters; so, for instance socket clusters
+  (much easier to use in Windows than MPI clusters) were not available.
+
+\item There are no dependencies on deprecated or orphaned packages so the
+  package will install in current versions of R.
+
+\item \textit{ff} objects start to be used. The very first version always
+  required the complete data set to be in memory in the master process for
+  the duration of the analysis, and MPI moved around actual columns of the
+  data frame, and not just pointers to \textit{ff} objects. As a
+  consequence, for the initial version, memory requirements for analysis
+  were actually higher than the memory requirements of reading data of the
+  ``old'' version; thus the largest possible data for analysis were
+  smaller than the ones for v.\ 1.10, and analyses were also  slower.
+\item Two algorithms, ACE and PSW, were eliminated because of little
+  usage, and a new and very fast one, HaarSeg, included.
+\item Input from, and output to, other BioConductor packages was added. 
+\end{itemize}
+
+Therefore, in what follows, ``old'' refers to v.\ 1.10, as available from
+BioConductor 2.12, and ``new'' to versions $ge 2.3$, and those are the
+versions that will be compared. 
+
 
 \subsection{Data set and hardware}
 \label{sec:data-set-hardware}
@@ -459,8 +499,12 @@ point of view.
 
 All scripts, data, and results from these benchmarks are available from
 \url{http://www2.iib.uam.es/rduriarte\_lab/ADaCGH2-v2-suppl-files/public}. The
-scripts include the R code to obtain the tables and figures shown here.
-
+scripts include the R code to obtain the tables and figures shown
+here. All of the code, scripts, and benchmark results are also available
+from my personal web site at
+\url{http://ligarto.org/rdiaz/Papers/ADaCGH2-v2-suppl-files/} (for space
+restriction reasons, the more than 140 GB of data in the form of RData and
+txt files are only available from the previous site.)
 
 
 
@@ -737,7 +781,8 @@ repeated calls to the function.
   \begin{tablenotes}
     {\footnotesize
 
-     \item[a] 25.25 = 0.95 + 22.9 + 1.4: load data, analyze, and save results.%  Since
+     \item[a] 25.25 = 0.95 + 22.9 + 1.4: load data, analyze, and save
+       results. %  Since
       % there are missing values in the data, and the original HaarSeg code
       % does not deal with missing values, we are forced to remove NAs
       % array-per-array, and make repeated calls to the function.
