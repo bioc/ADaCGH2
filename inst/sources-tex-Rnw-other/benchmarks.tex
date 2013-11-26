@@ -597,13 +597,13 @@ limited by reducing the number of cores used (with little effects on speed
 \end{center}
 \caption[Wall time and memory usage when reading data: version
 comparison]{\label{fig-read} Comparison between old and new versions in
-  wall time and memory usage when reading data as a function of number of
-  columns (samples). Both axes shown in log scale. The figure shows the
-  benchmarks using 12 cores in the Intel Xeon machine and 64 cores in the
-  AMD Opterons; note that for some scenarios better speeds (and lower
-  memory usage) can be achieved by decreasing the number of cores used
-  (see tables). When more than one benchmark is available for a scenario,
-  the median is shown.}
+  wall time and total memory usage (over all spawned processes) when
+  reading data as a function of number of columns (samples). Both axes
+  shown in log scale. The figure shows the benchmarks using 12 cores in
+  the Intel Xeon machine and 64 cores in the AMD Opterons; note that for
+  some scenarios better speeds (and lower memory usage) can be achieved by
+  decreasing the number of cores used (see tables). When more than one
+  benchmark is available for a scenario, the median is shown.}
 
 \end{figure}
 
@@ -680,14 +680,14 @@ to \ref{anal-lacerta-gallotia} (see also Figure\ref{fig-anal}) are:
 \end{center}
 \caption[Wall time and memory usage when analyzing data: version
 comparison]{\label{fig-anal} Comparison between old and new version in
-  wall time and memory usage as a function of number of columns
-  (samples). Both axes shown in log scale. The figure shows the default
-  use cases: using 12 cores in the Intel Xeon machine and 64 cores in the
-  AMD Opterons. Since the old version assumes no missing data, when
-  possible (i.e., when data read by the old version are available) the
-  data without missing values have been used with option
-  \texttt{certain\_noNA = TRUE}; these correspond to rows labeled
-  ``New-noNA'' in tables \ref{anal-coleonyx} to
+  wall time and total memory usage (over all spawned processes) as a
+  function of number of columns (samples). Both axes shown in log
+  scale. The figure shows the default use cases: using 12 cores in the
+  Intel Xeon machine and 64 cores in the AMD Opterons. Since the old -
+  version assumes no missing data, when possible (i.e., when data read by
+  the old version are available) the data without missing values have been
+  used with option \texttt{certain\_noNA = TRUE}; these correspond to rows
+  labeled ``New-noNA'' in tables \ref{anal-coleonyx} to
   \ref{anal-lacerta-gallotia}. When more than one benchmark is available
   for a scenario, the median is shown.}
 \end{figure}
@@ -724,7 +724,10 @@ repeated calls to the function.
   \caption[Time and memory usage of segmentation: comparison with
   non-parallized executions.]{Time and memory usage of segmentation
     without merging and comparison with non-parallized executions. These
-    examples have all been run on the Dell Power Edges.}
+    examples have all been run on the Dell Power Edges, except for the
+    last two, run on the Intel machine (on the Intel machine
+    non-parallelized runs with 1000 columns cannot be attempted as R runs
+    out of memory loading the data).}
 \label{nonparall}
   \begin{tabular}{lp{1.3cm}p{1.2cm}p{1.0cm}p{0.85cm}p{1.2cm}p{1.9cm}p{1.55cm}p{1.8cm}}
 
@@ -741,7 +744,6 @@ repeated calls to the function.
 \rownumber&Haar & Fork &50  & ff & 1000 & 6.7 & 0.139 & 21.2 \\
 \rownumber&Haar & Fork & 64  & ff & 1000 & 6.4 & 0.142 & 26.9 \\
 
-&&&&&&&\\
 
 \rownumber&Haar & Fork &10  & ff & 2000 &49.7 & 0.16 & 8.0 \\
 \rownumber&Haar & Fork &20  & ff & 2000 & 26.3 & 0.16 & 11.9 \\
@@ -758,7 +760,6 @@ repeated calls to the function.
 \rownumber&CBS & Fork &50  & ff & 1000 & 438.6 & 0.142 & 33.1 \\
 \rownumber&CBS & Fork & 64  & ff & 1000 & 350.3 & 0.142 & 41.3 \\
 
-&&&&&&&\\
 \rownumber&CBS & Fork &10  & ff & 2000 &3770.9 & 0.15 & 11.1 \\
 \rownumber&CBS & Fork &20 & ff & 2000 & 1878.8 & 0.16 & 16.5 \\
 \rownumber&CBS & Fork &40  & ff & 2000 & 1007.0 & 0.15 & 28.8 \\
@@ -772,7 +773,13 @@ repeated calls to the function.
 \rownumber&CBS     & NP &-  &RAM  & 100 & 1706\tnote{b}  &   40   &  40\\
 \rownumber&Haar & NP &-  &RAM  & 1000 &
 \multicolumn{3}{c}{198.3\tnote{c}\quad \textit{\textbf{Cannot allocate memory}}} \\
-\rownumber&CBS     & NP &-  &RAM  & 1000 & \multicolumn{3}{c}{\textit{\qquad\textbf{Cannot allocate memory}}}\\
+\rownumber&CBS     & NP &-  &RAM  & 1000 &
+\multicolumn{3}{c}{\textit{\qquad\textbf{Cannot allocate memory}}}\\
+
+&&&&&&&\\
+\rownumber&Haar & NP &-  &RAM  & 100 &  15.1\tnote{d}   & 14.1 & 14.1  \\
+\rownumber&CBS     & NP &-  &RAM  & 100 & 1112\tnote{e}  &   38.3   &  38.3\\
+
 
 \hline
    
@@ -798,7 +805,16 @@ repeated calls to the function.
       (5.3 min), calling the \texttt{smooth.CNA} function to smooth the data
       and detect outlier (83.2 minutes), and segmenting the data with the
       \texttt{segment} function (1609.5 minutes).
-    \item[c] The analysis uses 113 GB, but results cannot be saved.
+    \item[c] The analysis uses 113 GB, but results cannot be saved. This
+      was in the machine with 256 GB of RAM.
+     \item[d] 15.1 = 0.65 + 13.5 + 0.9: load data, analyze, and save
+       results.
+    \item[e] 1112 =  0.65 + 1106 + 4.9: load data, analyze, and save results. The
+      analysis involves calling the \texttt{CNA} function to create the CNA object
+      (0.95 min), calling the \texttt{smooth.CNA} function to smooth the data
+      and detect outlier (20.2 minutes), and segmenting the data with the
+      \texttt{segment} function (1085 minutes).
+
     % \item[f] These examples have been run on the Dell Power Edges, but
     %   changing the number of cores used.
       }
@@ -809,6 +825,8 @@ repeated calls to the function.
 
 
 
+
+\clearpage
 \subsection{Reading from a directory of files vs.\ other options}
 
 Here we show time and memory usage of options that are not the recommended
