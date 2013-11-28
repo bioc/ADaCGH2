@@ -305,7 +305,8 @@ For the tables below, the meaning of columns is as follows:
   agreement between the ``Memory (GB)'' (whose value is reported from R
   itself) and ``$\Sigma$ Memory (GB)''. 
   
-  \item[Columns] The number of data columns of the data set.
+  \item[Columns] The number of data columns of the data set; the same as
+    the number of arrays or the number of samples.
   \item[Method] The analysis method. ``Haar'' for HaarSeg, ``CBS'' for
     Circular Binary Segmentation (from package \texttt{DNAcopy}), ``HMM''
     for the HMM approach in package \texttt{aCGH}, ``BioHMM'' for the
@@ -430,13 +431,15 @@ point of view.
 
 \item[Forking and clusters] The new version of ADaCGH2 allows for the
   usage of forking or an explicit cluster (e.g., MPI, sockets, etc) to
-  parallelize reading and analysis. In Unix-based environments (including
+  parallelize reading and analysis. In POSIX operating systems (including
   Unix, GNU/Linux, and Mac OS), forking can be faster, less memory
   consuming, and much easier to use than using a cluster.
 
 
-\item[Speed of analysis] The new version is generally slightly faster than
-  the old one for the default options.
+\item[Speed of analysis] The new version can be slightly faster than the
+  old one for the default options. Further speed improvements can be
+  achieved in some cases, for instance by not using load balancing with
+  certain methods (e.g., HaarSeg).
 
 \item[Flexibility of reading data] The new version of ADaCGH2 has not
   removed the mechanisms of reading data available in the old
@@ -552,7 +555,7 @@ limited by reducing the number of cores used (with little effects on speed
   sized data sets (where differences are by a factor of about 2x), but can
   have large effects with a large number of columns.  As data sets grow
   larger in size, reading speeds are much faster with the new version than
-  the old by factors of about 4x (this can only be verified in the
+  the old by factors of about 10x (this can only be verified in the
   machines with larger memory, as the old version will not read data sets
   of 500 columns or more in the smaller machine). There can,
   nevertheless, be quite a bit of variation in reading speeds of small
@@ -598,12 +601,13 @@ limited by reducing the number of cores used (with little effects on speed
 \caption[Wall time and memory usage when reading data: version
 comparison]{\label{fig-read} Comparison between old and new versions in
   wall time and total memory usage (over all spawned processes) when
-  reading data as a function of number of columns (samples). Both axes
-  shown in log scale. The figure shows the benchmarks using 12 cores in
-  the Intel Xeon machine and 64 cores in the AMD Opterons; note that for
-  some scenarios better speeds (and lower memory usage) can be achieved by
-  decreasing the number of cores used (see tables). When more than one
-  benchmark is available for a scenario, the median is shown.}
+  reading data as a function of number of columns (or arrays or
+  samples). Both axes shown in log scale. The figure shows the benchmarks
+  using 12 cores in the Intel Xeon machine and 64 cores in the AMD
+  Opterons; note that for some scenarios better speeds (and lower memory
+  usage) can be achieved by decreasing the number of cores used (see
+  tables). When more than one benchmark is available for a scenario, the
+  median is shown.}
 
 \end{figure}
 
@@ -622,8 +626,8 @@ The next four tables show time and memory consumption when analyzing
 data. For the old version, the largest data sets analyzed are of 200
 columns for the Intel Xeon machine with 64 GB of RAM, and 1000 columns for
 the AMD Opteron machines (see details in section \ref{comp-read}). In
-these benchmarks, runs were not allowed to run for more than 48 hours
-(2880 minutes) except for a few cases that were allowed to run for longer
+these benchmarks, runs were not allowed to run for more than 36 hours
+(2160 minutes) except for a few cases that were allowed to run for longer
 to either compare between methods (e.g., HMM in Coleonyx) or to verify
 that the method is definitely not suitable for very large data, such as in
 the case of GLAD, where two processes were allowed to run for four days
@@ -681,8 +685,8 @@ to \ref{anal-lacerta-gallotia} (see also Figure\ref{fig-anal}) are:
 \caption[Wall time and memory usage when analyzing data: version
 comparison]{\label{fig-anal} Comparison between old and new version in
   wall time and total memory usage (over all spawned processes) as a
-  function of number of columns (samples). Both axes shown in log
-  scale. The figure shows the default use cases: using 12 cores in the
+  function of number of columns (or arrays or samples). Both axes shown in
+  log scale. The figure shows the default use cases: using 12 cores in the
   Intel Xeon machine and 64 cores in the AMD Opterons. Since the old -
   version assumes no missing data, when possible (i.e., when data read by
   the old version are available) the data without missing values have been

@@ -1,3 +1,8 @@
+Changes in version 2.3.9 (2013-11-28)
+	- Minor changes to "benchmarks.pdf": consistent usage of lty and
+	pch for figures of reading and analysis.
+
+
 Changes in version 2.3.8 (2013-11-26)
 	- Minor changes to "benchmarks.pdf".
 
