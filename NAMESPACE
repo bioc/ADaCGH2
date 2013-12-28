@@ -14,9 +14,11 @@ export("pSegmentDNAcopy",
        "outputToCGHregions",
        "cutFile")
 
-import(ff, ffbase, bit)
-## importFrom("bit", intrle, ri)
-## importFrom("ffbase", min.ff, max.ff)           
+## import(ff, bit, ffbase) works, but gives the warning
+import(ff)
+importFrom("bit", intrle, ri)
+importFrom("ffbase", min.ff, max.ff)           
+
 importFrom("parallel", clusterApplyLB, mclapply, stopCluster)
 importFrom("DNAcopy", getbdry)
 importFrom("tilingArray", segment)
