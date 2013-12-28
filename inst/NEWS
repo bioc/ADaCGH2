@@ -1,7 +1,7 @@
 Changes in version 2.3.10 (2013-12-27)
         - Change in NAMESPACE to adapt to changes in ffbase or bit (we
 	  were getting warnings of "replacing previous import by
-	  ‘ffbase::[.ff’ when loading ‘ADaCGH2’"")
+	  ffbase::[.ff when loading ADaCGH2"")
 
 Changes in version 2.3.9 (2013-11-28)
 	- Minor changes to "benchmarks.pdf": consistent usage of lty and
