@@ -1458,12 +1458,12 @@ is the strategy used by ADaCGH2).
 
 To examine the simplest scenario, let us suppose we are already provided
 with single-column files (as, for instance, we obtain after using the
-simple helper function \texttt{cutFile} ---see section \ref{cutfile}); if
+helper function \texttt{cutFile} ---see section \ref{cutfile}); if
 we had a single large file, we would need to think of a way of reading
 only specific rows of a single column.
 
 
-Now, we need to think how to parallelize the analysis. We will consider to
+Now, we need to think how to parallelize the analysis. We will consider two
 cases: parallelizing by subject (or array or column) and parallelizing by
 subject*chromosome. 
 
@@ -1508,7 +1508,7 @@ The steps above need to deal with the following possible problems:
 \item Much more serious can be step \ref{assemble} since we need to
   assemble a whole object with results. If the analysis involves many
   arrays and/or data sets with millions of probes, then we will not be
-  able to load all of that in RAM. (The approach we use in ADaCGH2 with
+  able to load all of that in memory. (The approach we use in ADaCGH2 with
   the use of \textit{ff} objects is to never reload all of the results to
   assemble the final object, but only assemble a set of pointers to data
   structures on disk).
@@ -1575,7 +1575,7 @@ steps, automating them for the user, with careful consideration of fast
 access to data on disk, and attempts to minimize memory usage in repeated
 calls to the same process (which we can do successfully, as can be seen
 from the benchmarks for large numbers of arrays with more than 6 million
-probes ---RAM usage levels out; see the file ``benchmarks.pdf'' ). Of
+probes ---memory usage levels out; see the file ``benchmarks.pdf'' ). Of
 course, ADaCGH2 provides other benefits (e.g., facilities for using as
 input the data from other packages ---e.g, section \ref{snap}--- or providing
 output for other packages ---e.g., section \ref{cghregions}).
