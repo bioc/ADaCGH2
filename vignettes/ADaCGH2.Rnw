@@ -205,6 +205,11 @@ The following is the meaning of some terms we will use repeatedly.
   
 \end{description}
 
+
+
+
+
+
 \subsection{Suggested usage patterns summary}
 
 The following table provides a simple guide of suggested usage patterns
@@ -303,7 +308,9 @@ the following in sequence:
 \end{enumerate}
 
 We cover each in turn in the remaining of this section and discuss
-alternative routes.
+alternative routes. But first, we discuss why we might want to use ADaCGH2
+instead of just ``doing it manually on our own''.
+
 
 
 \section{The data for all the examples}\label{inputdata}
@@ -1045,7 +1052,7 @@ consumption, we use \textit{ff} objects for intermediate storage.
 
 
 
-\subsubsection{Cutting the original file into one-column files}
+\subsubsection{Cutting the original file into one-column files}\label{cutfile}
 We provide a simple function, \texttt{cutFile}, to do this job. Here we
 create a directory where we will place the one-column files (we first
 check that the directory does not exist\footnote{If it exists and contains
@@ -1401,7 +1408,7 @@ tmp <- inputToADaCGH(MAList = MA.limma,
 % the last thing is because the $ screws up the syntax highlighting
 
 
-\subsection{Using CGHregions}
+\subsection{Using CGHregions}\label{cghregions}
 
 The CGHregions package \cite{CGHregions-manual} is a BioConductor package
 that implements a well known method \cite{VandeWiel2007} for dimension
@@ -1438,6 +1445,144 @@ particular, you probably do NOT want to use this function when
 ## Restore the directory
 setwd(originalDir)
 @
+
+
+
+
+\section{Why ADaCGH2 instead of a ``manual'' solution}
+
+It is of course possible to parallelize the analysis (and figure creation)
+without using ADaCGH2. To deal with very large data, the key idea is to
+never try to load more data than we strictly need for an analysis (which
+is the strategy used by ADaCGH2).
+
+To examine the simplest scenario, let us suppose we are already provided
+with single-column files (as, for instance, we obtain after using the
+simple helper function \texttt{cutFile} ---see section \ref{cutfile}); if
+we had a single large file, we would need to think of a way of reading
+only specific rows of a single column.
+
+
+Now, we need to think how to parallelize the analysis. We will consider to
+cases: parallelizing by subject (or array or column) and parallelizing by
+subject*chromosome. 
+
+Let's first examine the simplest case: we will parallelize by subject, as
+is done by ADaCGH2 with HaarSeg and CBS (these methods are very fast, and
+further splitting by chromosome is rarely worth it). These are the
+required steps:
+
+\begin{enumerate}
+\item Each R process needs to have access to the chromosome information;
+  this probably requires loading a vector with chromosome positions.
+  
+\item Each process will carry these steps until all the columns/subjects
+  have been processed:
+  \begin{enumerate}
+  \item Read the data for a specific column (or subject).
+  \item Analyze (segment) those data.
+  \item Save the results to disk.
+  \item Remove from the workspace the results and the data (and probably
+    call the garbage collector).
+  \end{enumerate}
+\item When all analysis are completed, assemble the results somehow to
+  allow easy access to results.\label{assemble}
+\end{enumerate}
+
+
+The steps above need to deal with the following possible problems:
+
+
+\begin{itemize}
+\item We need to consider how to deal with missing values, since
+  a simple removal of missing values case by case will result in a ragged
+  array of results, which would probably not be acceptable.
+  
+\item ``loading'' and ``saving'' can be time-consuming steps: the direct
+  way in R would be to use functions such as \texttt{scan} (for reading)
+  and \texttt{save} (for saving), but when done repeatedly, these are
+  likely to be slower than using \textit{ff} objects (e.g., using
+  \texttt{scan} will be slower than acessing data from an \textit{ff}
+  object).
+  
+\item Much more serious can be step \ref{assemble} since we need to
+  assemble a whole object with results. If the analysis involves many
+  arrays and/or data sets with millions of probes, then we will not be
+  able to load all of that in RAM. (The approach we use in ADaCGH2 with
+  the use of \textit{ff} objects is to never reload all of the results to
+  assemble the final object, but only assemble a set of pointers to data
+  structures on disk).
+  
+  Of course, an alternative is to leave the results as a large collection
+  of files, and never try to assemble a single object with results. This,
+  however, is likely much more cumbersome than having a single results
+  object with all the information available that can be accessed as need
+  (e.g., for further plotting).
+\end{itemize}
+
+
+
+Let us now examine the second scenario, where we parallelize by
+subject*chromosome. This is done, for instance, with HMM or BioHMM in
+ADaCGH2. Why? Because the methods are sufficiently slow that a finer
+grained division is likely to pay off in terms of gain in speed. In this
+case, additional partition and reassembly of the data are required for the
+segmentation and merging steps. These are the main steps:
+
+\begin{enumerate}
+\item Each R process needs to have access to the chromosome information.
+  
+\item Each process will carry these steps until all the columns/subjects
+  have been processed:
+  \begin{enumerate}
+  \item Read the data for a specific set of positions (those that
+    correspond to a specific chromosome) for a given column (or subject).
+  \item Analyze (segment) those data.
+  \item Save the results to disk.
+  \item Remove from the workspace the results and the data.
+  \end{enumerate}
+\item When all segmentation steps are completed, assemble the results by
+  column/subject for the merging step.
+  
+\item For the merging step, each process will load the data for a complete
+  column/subject and merge them with the corresponding algorithm:
+  \begin{enumerate}
+  \item Read the data for a column/subject.
+  \item Perform merging.
+  \item Save the results to disk.
+  \item Remove from the workspace the results and the data and do garbage collection.
+  \end{enumerate}
+\item When all analysis are completed, assemble the results somehow to
+  allow easy access to results.\label{assemble2}
+\end{enumerate}
+
+
+This process is, of course, more convoluted than when parallelizing only
+by subject. As above, we need to consider how to deal with missing values,
+the use of repeated ``scan'' and ``save'', and the much more serious
+problem of putting together the complete object with all of the
+results. 
+
+
+Finally, if we were interested in analyzing the data with more than one
+method, we would need to modify the code above since each method uses
+different ways of being called (e.g., some methods require setting up
+specific objects before segmentation can be called).
+
+
+What ADaCGH2 provides is, among other things, a way to eliminate those
+steps, automating them for the user, with careful consideration of fast
+access to data on disk, and attempts to minimize memory usage in repeated
+calls to the same process (which we can do successfully, as can be seen
+from the benchmarks for large numbers of arrays with more than 6 million
+probes ---RAM usage levels out; see the file ``benchmarks.pdf'' ). Of
+course, ADaCGH2 provides other benefits (e.g., facilities for using as
+input the data from other packages ---e.g, section \ref{snap}--- or providing
+output for other packages ---e.g., section \ref{cghregions}).
+
+
+
+
 
 
 %% \section{(Non-runnable) Examples with large data sets and a comparison

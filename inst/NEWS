@@ -1,4 +1,8 @@
 Changes in version 2.3.10 (2013-12-27)
+	- Minor changes to main vignette with a new section "Why ADaCGH2
+	instead of a manual solution".
+	
+Changes in version 2.3.10 (2013-12-27)
         - Change in NAMESPACE to adapt to changes in ffbase or bit (we
 	  were getting warnings of "replacing previous import by
 	  ffbase::[.ff when loading ADaCGH2"")
