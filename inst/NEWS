@@ -1,3 +1,6 @@
+Changes in version 2.5.2 (2014-10-03)
+	- Corrected help for "inputToADaCGH"
+
 Changes in version 2.5.1 (2014-10-03)
 	- Fixed bug reading files when R object was called "inputData"
 

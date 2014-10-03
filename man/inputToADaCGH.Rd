@@ -167,17 +167,8 @@ inputToADaCGH(ff.or.RAM = "RAM",
   If there are identical positions (in the same chromosome) a small
   random uniform variate is added to get unique locations.
 
-  Commented examples of reading objects from \pkg{limma} and
-  \pkg{snapCGH} are provided in the vignnette.
-  %%  ~~ If necessary, more details than the description above ~~
-}
 
-\value{
-
-  This function is used mainly for its side effects: writing either
-  several \code{ff} files to the current working directory, or several
-  RAM objects (the usual, in memory, local, R objects). The actual names
-  are printed out.  We carry out several checks (e.g., no duplicated
+  We carry out several checks (e.g., no duplicated
   positions), but note that we DO NOT check for extremely large or small
   values, and this includes NOT CHECKING for infinite values.
 
@@ -201,35 +192,47 @@ inputToADaCGH(ff.or.RAM = "RAM",
 
   
   
-  Since we need to manipulate the complete set of original data, the
-  return value is a data frame that could be used later to speed up
-  certain calculations. Right now, however, this is not used for
-  anything, except for information purposes.  This table is similar to a
-  dictionary or hash table.  This data frame has (number of arrays *
-  number of chromosomes) rows. The columns are
-  
-  \item{Index}{The integer index of the entry, 1:number of
-    arrays * number of chromosomes}
-  \item{ArrayNum}{The array number}
-  \item{Arrayname}{The name of the array}
-  \item{ChromNum}{The chrosome number}
-  \item{ChromName}{The chromosome name. Yes, chromosome must be numeric,
-    but the values of ChromNum form a set of integers starting at one and
-    going up to the total number of different chromosomes. E.g., if you
-    only have two chromosomes, say 3 and 22, ChromNum contains values 1
-    and 2, whereas ChromName contains values 3 and 22.}
-  \item{posInit}{The first position (in a vector ordered from 1 to total
-    number of probes, with probes ordered by chromosome and position
-    within chromosome) of a probe of this chromosome.}
-  \item{posEnd}{The last position of a probe of this chromosome.}
+  Commented examples of reading objects from \pkg{limma} and
+  \pkg{snapCGH} are provided in the vignnette.
+  %%  ~~ If necessary, more details than the description above ~~
+}
 
-  Further details: this object is created inside several of the pSegment
-  functions to distribute and speed up the parallel jobs. We call a
-  function that is called by inputToADaCGH itself. Recreating
-  this object is not really needed if you are using ff objects, but
-  creating it is very fast anyway, and passing the object or creating it
-  depending on whether you use ff or not would be a lot more cumbersome
-  for the user.
+\value{
+
+  This function is used mainly for its side effects: writing either
+  several \code{ff} files to the current working directory, or several
+  RAM objects (the usual, in memory, local, R objects). The actual names
+  are printed out.  
+  
+  %% Since we need to manipulate the complete set of original data, the
+  %% return value is a data frame that could be used later to speed up
+  %% certain calculations. Right now, however, this is not used for
+  %% anything, except for information purposes.  This table is similar to a
+  %% dictionary or hash table.  This data frame has (number of arrays *
+  %% number of chromosomes) rows. The columns are
+  
+  %% \item{Index}{The integer index of the entry, 1:number of
+  %%   arrays * number of chromosomes}
+  %% \item{ArrayNum}{The array number}
+  %% \item{Arrayname}{The name of the array}
+  %% \item{ChromNum}{The chrosome number}
+  %% \item{ChromName}{The chromosome name. Yes, chromosome must be numeric,
+  %%   but the values of ChromNum form a set of integers starting at one and
+  %%   going up to the total number of different chromosomes. E.g., if you
+  %%   only have two chromosomes, say 3 and 22, ChromNum contains values 1
+  %%   and 2, whereas ChromName contains values 3 and 22.}
+  %% \item{posInit}{The first position (in a vector ordered from 1 to total
+  %%   number of probes, with probes ordered by chromosome and position
+  %%   within chromosome) of a probe of this chromosome.}
+  %% \item{posEnd}{The last position of a probe of this chromosome.}
+
+  %% Further details: this object is created inside several of the pSegment
+  %% functions to distribute and speed up the parallel jobs. We call a
+  %% function that is called by inputToADaCGH itself. Recreating
+  %% this object is not really needed if you are using ff objects, but
+  %% creating it is very fast anyway, and passing the object or creating it
+  %% depending on whether you use ff or not would be a lot more cumbersome
+  %% for the user.
 
 }
 

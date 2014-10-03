@@ -646,7 +646,9 @@ these examples).
 This section simply exercises the load balancing options. We use Haar as
 it is the fastest method, and one unlikely to be affected by the order in
 which different columns are run (in contrast to, say, HMM), so we need not
-worry about random numbers here.
+worry about random numbers here. (Note: sometimes, and only in some
+machines, the code that uses the cluster, not the forking, fails with a
+serialization error.  I do not know the reason.)
 
 <<>>=
 hs.none.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat, 
