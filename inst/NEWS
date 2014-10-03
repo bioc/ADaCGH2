@@ -1,3 +1,12 @@
+Changes in version 2.5.1 (2014-10-03)
+	- Fixed bug reading files when R object was called "inputData"
+
+Changes in version 2.5.0
+	- Bumped BioC version.
+
+Changes in version 2.4.0
+	- Bumped BioC version.
+
 Changes in version 2.3.10 (2013-12-27)
 	- Minor changes to main vignette with a new section "Why ADaCGH2
 	instead of a manual solution".

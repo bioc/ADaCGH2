@@ -1,28 +1,20 @@
 Package: ADaCGH2
-Version: 2.5.0
-Date: 2014-01-29
-Title: Analysis of big data from aCGH experiments using parallel
-        computing and ff objects
-Author: Ramon Diaz-Uriarte <rdiaz02@gmail.com> and Oscar M. Rueda
-        <rueda.om@gmail.com>. Wavelet-based aCGH smoothing code from Li
-        Hsu <lih@fhcrc.org> and Douglas Grove <dgrove@fhcrc.org>.
-        Imagemap code from Barry Rowlingson
-        <B.Rowlingson@lancaster.ac.uk>. HaarSeg code from Erez
-        Ben-Yaacov; downloaded from
-        <http://www.ee.technion.ac.il/people/YoninaEldar/Info/software/HaarSeg.htm>.
+Version: 2.5.1
+Date: 2014-10-3 
+Title: Analysis of big data from aCGH experiments using parallel computing and ff objects
+Author: Ramon Diaz-Uriarte <rdiaz02@gmail.com> and Oscar M. Rueda <rueda.om@gmail.com>. Wavelet-based aCGH smoothing code from Li Hsu <lih@fhcrc.org> and Douglas Grove <dgrove@fhcrc.org>. Imagemap code from Barry Rowlingson <B.Rowlingson@lancaster.ac.uk>. HaarSeg code from Erez Ben-Yaacov; downloaded from <http://www.ee.technion.ac.il/people/YoninaEldar/Info/software/HaarSeg.htm>. 
 Maintainer: Ramon Diaz-Uriarte <rdiaz02@gmail.com>
 Depends: R (>= 2.15.0), parallel, ff
-Imports: bit, ffbase, DNAcopy, tilingArray, GLAD, waveslim, cluster,
-        aCGH, snapCGH
+Imports: bit, ffbase, DNAcopy, tilingArray, GLAD, waveslim, cluster, aCGH, snapCGH
 Suggests: CGHregions, Cairo, limma
 Enhances: Rmpi
 Description: Analysis and plotting of array CGH data. Allows usage of
-        Circular Binary Segementation, wavelet-based smoothing (both as
-        in Liu et al., and HaarSeg as in Ben-Yaacov and Eldar), HMM,
-        BioHMM, GLAD, CGHseg. Most computations are parallelized
-        (either via forking or with clusters, including MPI and sockets
-        clusters) and use ff for storing data.
+	     Circular Binary Segementation, wavelet-based smoothing 
+	     (both as in Liu et al., and HaarSeg as in Ben-Yaacov and Eldar), 
+	     HMM, BioHMM, GLAD, CGHseg. Most computations are
+	     parallelized (either via forking or with clusters, including
+	     MPI and sockets clusters) and use ff for storing data.
+biocViews: Microarray, CopyNumberVariants
 LazyLoad: Yes
 License: GPL (>= 3)
-URL:
-biocViews: Microarray, CopyNumberVariation
+URL: 

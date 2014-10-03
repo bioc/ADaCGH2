@@ -1296,7 +1296,8 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
     } else if(!is.null(RDatafilename)) {
         nmobj <- load(RDatafilename)
         inputData <- get(nmobj, inherits = FALSE)
-        rm(list = nmobj)
+        if(nmobj != "inputData")
+            rm(list = nmobj)
         rm(nmobj)
         gc()
 
