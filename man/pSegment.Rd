@@ -379,7 +379,9 @@ contrast, performs no merging as such, but only calling.
 
 \references{
 
-
+Diaz-Uriarte, R. (2014). ADaCGH2: parallelized analysis of (big) CNA
+data. \emph{Bioinformatics}, \bold{30}: 1759--1761.
+  
 Carro A, Rico D, Rueda O M, Diaz-Uriarte R, and Pisano DG.
   (2010). waviCGH: a web application for the analysis and visualization of
   genomic copy number alterations. \emph{Nucleic Acids Research}, \bold{38 Suppl}:W182--187.
