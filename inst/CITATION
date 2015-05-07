@@ -11,5 +11,5 @@ citEntry(entry="Article",
          pages = "1759--1761",
          textVersion = paste("R Diaz-Uriarte.",
              "ADaCGH2: parallelized analysis of (big) CNA data.",
-             "Bioinformatics, 30(12): 1759--1761, 2014.")
+             "Bioinformatics, 30(12):1759--1761, 2014.")
 )
