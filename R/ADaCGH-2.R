@@ -1377,10 +1377,12 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
     ## this should be unneeded, and caught when reading?
       ## we will catch non-numeric; but > 32768 will just flip around
       ## and become negative
-    if( min.ff(chromData) < 1 ) ## min.ff is from ffbase
-      caughtUserError2("Chromosome is NOT a positive integer (or has values > 32000) \n")
-    if(max.ff(chromData)> 30000) ## max.ff is from ffbase
-      caughtUserError2("Chromosome has more than 30000 levels!!\n")
+      ## if( min.ff(chromData) < 1 ) ## min.ff is from ffbase
+      if( min(chromData) < 1 ) ## min.ff is from ffbase
+          caughtUserError2("Chromosome is NOT a positive integer (or has values > 32000) \n")
+      ## if(max.ff(chromData)> 30000) ## max.ff is from ffbase
+      if(max(chromData)> 30000) ## max.ff is from ffbase
+          caughtUserError2("Chromosome has more than 30000 levels!!\n")
   } else {  
     if(!all(is.wholeposnumber(inputData[, 2])))
       caughtUserError2("Chromosome is NOT a positive integer!!\n")
@@ -4019,7 +4021,7 @@ pChromPlot <- function(outRDataName,
     else
       typedev <- "cairo"
   }
-  if( (typedev == "Cairo") && !require("Cairo") )
+  if( (typedev == "Cairo") && !requireNamespace("Cairo", quietly = TRUE) )
     stop("You selected Cairo as typedev, or you used default",
          " in Mac OS, but the Cairo package is not available.")
 
@@ -4911,9 +4913,10 @@ imagemap3 <- function(filename,width=480,height=480,
                       title='Imagemap from R', ps = 12){
   ## copied from "imagemap" function in imagemap.R from B. Rowlingson
   ## with added modification
-  if(type == "Cairo") {
-    require(Cairo) ## in case we are running in a cluster
-    CairoPNG(filename = paste(filename, ".png", sep=''),
+    if(type == "Cairo") {
+        requireNamespace("Cairo", quietly = TRUE)
+    ## require(Cairo) ## in case we are running in a cluster
+    Cairo::CairoPNG(filename = paste(filename, ".png", sep=''),
              width=width,
              height=height,
              pointsize = ps)

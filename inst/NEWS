@@ -1,3 +1,8 @@
+Changes in version 2.9.3 (2015-05-30)
+	- Fixed Note about require(Cairo).
+	- Fixed failure with changes in ffbase and not exporting min.ff
+	and max.ff
+
 Changes in version 2.9.2 (2015-05-07)
 	- Remove wrong {} in CITATION.
 
