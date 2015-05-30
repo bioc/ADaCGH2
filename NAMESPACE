@@ -17,7 +17,11 @@ export("pSegmentDNAcopy",
 ## import(ff, bit, ffbase) works, but gives the warning
 import(ff)
 importFrom("bit", intrle, ri)
-importFrom("ffbase", min.ff, max.ff)           
+## importFrom("ffbase", min.ff, max.ff)           
+## import(ffbase) ## leads to warning of replacing repvious imports
+## importFrom("ffbase", min, max)           
+importFrom("ffbase", mean.ff) ## importing something from ffbase, so that
+## the min and max methods are available
 
 importFrom("parallel", clusterApplyLB, mclapply, stopCluster)
 importFrom("DNAcopy", getbdry)

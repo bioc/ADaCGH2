@@ -1,3 +1,8 @@
+Changes in version 2.8.1 (2015-05-30)
+	- Fixed Note about require(Cairo).
+	- Fixed failure with changes in ffbase and not exporting min.ff
+	and max.ff
+
 Changes in version 2.5.2 (2014-10-03)
 	- Corrected help for "inputToADaCGH"
 
