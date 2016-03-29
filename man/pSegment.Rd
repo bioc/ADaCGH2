@@ -537,6 +537,11 @@ haar.RAM.fork.nlb <- pSegmentHaarSeg(cgh.dat, chrom.dat,
                                      loadBalance = FALSE)
 
 
+if(.Platform$OS.type != "windows") {
+
+## We do not want this to run in Windows the automated tests since
+## issues with I/O. It should work, though, in interactive usage
+
 
 #####################################################
 ###
@@ -684,14 +689,14 @@ rm(haar.ff.cluster)
 
 
 ### Try to prevent problems in R CMD check
-Sys.sleep(2)
+## Sys.sleep(2)
 
 ### Delete temp dir
 setwd(originalDir)
-Sys.sleep(2)
+## Sys.sleep(2)
 unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
-Sys.sleep(2)
-
+## Sys.sleep(2)
+}
 }
 
 % #### Writing

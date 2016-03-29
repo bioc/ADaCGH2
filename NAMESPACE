@@ -23,7 +23,8 @@ importFrom("bit", intrle, ri)
 importFrom("ffbase", mean.ff) ## importing something from ffbase, so that
 ## the min and max methods are available
 
-importFrom("parallel", clusterApplyLB, mclapply, stopCluster)
+importFrom("parallel", detectCores, clusterApply, clusterApplyLB,
+           mclapply, stopCluster)
 importFrom("DNAcopy", getbdry)
 importFrom("tilingArray", segment)
 
@@ -34,6 +35,16 @@ import(GLAD) ## we actually use now a whole bunch of things
 ## importFrom("GLAD", daglad.profileCGH)
 importFrom("waveslim", modwt, imodwt)
 importFrom("cluster", pam, clara)
+
+importFrom("grDevices", "dev.cur", "dev.off", "dev.set", "png")
+importFrom("graphics", "abline", "axis", "box", "lines", "par", "plot",
+           "rect", "rug", "strheight", "strwidth", "symbols", "text")
+importFrom("stats", "IQR", "mad", "median", "na.omit", "pnorm",
+           "qnorm", "runif", "update")
+importFrom("utils", "capture.output", "data", "file_test",
+           "object.size", "packageDescription", "read.table")
+
+
 
 
 ## importFrom("ff",

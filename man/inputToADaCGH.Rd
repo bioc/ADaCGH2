@@ -262,7 +262,7 @@ inputToADaCGH(ff.or.RAM = "RAM",
 dir.create("ADaCGH2_example_input_dir")
 originalDir <- getwd()
 setwd("ADaCGH2_example_input_dir")
-Sys.sleep(1)
+## Sys.sleep(1)
 
 ## Get location (and full filename) of example data file
 fnameRData <- list.files(path = system.file("data", package = "ADaCGH2"),
@@ -331,13 +331,13 @@ unlink("probeNames.RData")
 }
 
 ### Try to prevent problems in R CMD check
-Sys.sleep(2)
+## Sys.sleep(2)
 
 ### Delete temp dir
 setwd(originalDir)
-Sys.sleep(2)
+## Sys.sleep(2)
 unlink("ADaCGH2_example_input_dir", recursive = TRUE)
-Sys.sleep(2)
+## Sys.sleep(2)
 
 }
 \keyword{ IO }

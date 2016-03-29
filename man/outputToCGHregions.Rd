@@ -135,13 +135,18 @@ if(require(CGHregions)) {
 #####
 ##################################
 
+if(.Platform$OS.type != "windows") {
+
+## We do not want this to run in Windows the automated tests since
+## issues with I/O. It should work, though, in interactive usage
+
 
 ## Create a temp dir for storing output.
 ## (Not needed, but cleaner).
 dir.create("ADaCGH2_cghreg_example_tmp_dir")
 originalDir <- getwd()
 setwd("ADaCGH2_cghreg_example_tmp_dir")
-Sys.sleep(1)
+## Sys.sleep(1)
 
 
 inputToADaCGH(ff.or.RAM = "ff",
@@ -178,10 +183,10 @@ rm(haar.ff.fork)
 
 ### Delete all files and temp dir
 setwd(originalDir)
-Sys.sleep(2)
+## Sys.sleep(2)
 unlink("ADaCGH2_cghreg_example_tmp_dir", recursive = TRUE)
-Sys.sleep(2)
-
+## Sys.sleep(2)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

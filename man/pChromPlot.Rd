@@ -291,14 +291,14 @@ rm(haar.ff.cluster)
 unlink("haar.ff.cluster.out.RData")
 
 ### Try to prevent problems in R CMD check
-Sys.sleep(2)
+## Sys.sleep(2)
 
 
 ### Delete all png files and temp dir
 setwd(originalDir)
-Sys.sleep(2)
+## Sys.sleep(2)
 unlink("ADaCGH2_plot_tmp_dir", recursive = TRUE)
-Sys.sleep(2)
+## Sys.sleep(2)
 
 }
 
