@@ -123,7 +123,7 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
   \code{typeParall} for segmentation and plotting.
 }
 \item{mc.cores}{The number of cores used if \code{typeParall =
-    "fork"}. See details in \code{\link[parallel]{mclapply}}}.
+    "fork"}. See details in \code{\link{mclapply}}}.
 
 \item{typedev}{The device type. One of "cairo", "cairo-png", "Cairo", or
   "default". "Cairo" requires the Cairo package to be available, but
@@ -140,8 +140,8 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
 
 \item{loadBalance}{If TRUE (the default) use load balancing with MPI
   (use \code{\link[parallel]{clusterApplyLB}} instead of
-  \code{\link[parallel]{clusterApply}}) and a similar approach for forking (
-  set \code{mc.preschedule = FALSE} in the call to \code{\link[parallel]{mclapply}}
+  \code{\link{clusterApply}}) and a similar approach for forking (
+  set \code{mc.preschedule = FALSE} in the call to \code{\link{mclapply}}
   ).}
  
 

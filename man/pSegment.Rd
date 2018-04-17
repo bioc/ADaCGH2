@@ -152,7 +152,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
   \item{typeParall}{One of "fork" or "cluster". "fork" is unavailable in
   Windows, and will lead to sequential execution. "cluster" requires
   having set up a cluster before, with appropriate calls to
-  \code{\link[parallel]{makeCluster}}, in which case the cluster can be
+  \code{\link{makeCluster}}, in which case the cluster can be
   one of the available types (e.g., sockets, MPI, etc).
 
   Using "fork" and "cluster" will lead to different schemes for
@@ -160,7 +160,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
 
 
 \item{mc.cores}{The number of cores used if \code{typeParall =
-    "fork"}. See details in \code{\link[parallel]{mclapply}}}.
+    "fork"}. See details in \code{\link{mclapply}}}.
 
 \item{certain_noNA}{Are you certain, absolutely sure, your data contain
   no missing values? (Default is FALSE). If you are, you can achieve
@@ -171,10 +171,10 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
 
 \item{loadBalance}{If TRUE (the default for all methods except HaarSeg)
   use load balancing with MPI (use
-  \code{\link[parallel]{clusterApplyLB}} instead of
-  \code{\link[parallel]{clusterApply}}) and a similar approach for
+  \code{\link{clusterApplyLB}} instead of
+  \code{\link{clusterApply}}) and a similar approach for
   forking ( set \code{mc.preschedule = FALSE} in the call to
-  \code{\link[parallel]{mclapply}} ).}
+  \code{\link{mclapply}} ).}
       
 \item{smooth}{For DNAcopy only. If TRUE (default) carry out smoothing as
   explained in \code{\link[DNAcopy]{smooth.CNA}}.}

@@ -42,8 +42,10 @@ inputToADaCGH(ff.or.RAM = "RAM",
     current working directory. }
 
   \item{MAList}{The name of an object of class \code{MAList}
-    (\code{\link[limma]{as.MAList}}) or \code{SegList} (e.g.,
-    \code{\link[snapCGH]{dim.SegList}}). See vignnettes for these
+    %% (\code{\link[limma]{as.MAList}})
+    (\code{\link[limma]{MAList-class}})
+    or \code{SegList} (e.g.,
+    \code{\link{dim.SegList}}). See vignnettes for these
     packages for details about these objects.
     
     You have to specify one, and only one, of \code{MAList},
@@ -151,7 +153,7 @@ inputToADaCGH(ff.or.RAM = "RAM",
 
 \item{mc.cores}{The number of cores to use when reading files. This is
   always 1 in Windows. See details about the number of cores in
-  \code{\link[parallel]{mclapply}} and
+  \code{\link{mclapply}} and
   \code{\link[parallel]{detectCores}}. Contention problems in I/O might
   be minimized by making this number smaller or much smaller than what
   is returned by \code{\link[parallel]{detectCores}}. For larte jobs,
