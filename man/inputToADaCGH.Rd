@@ -52,7 +52,7 @@ inputToADaCGH(ff.or.RAM = "RAM",
     \code{\link{dim.SegList}}). See vignnettes for these
     packages (\pkg{limma} and \pkg{snapCGH}) for details about these
     objects.
-  
+
     
     You have to specify one, and only one, of \code{MAList},
     \code{RDatafilename}, \code{textfilename}, \code{path}.
