@@ -139,7 +139,7 @@ pChromPlot(outRDataName, cghRDataName, chromRDataName,
   have been generated using \code{certain_noNA}.}
 
 \item{loadBalance}{If TRUE (the default) use load balancing with MPI
-  (use \code{\link[parallel]{clusterApplyLB}} instead of
+  (use \code{\link{clusterApplyLB}} instead of
   \code{\link{clusterApply}}) and a similar approach for forking (
   set \code{mc.preschedule = FALSE} in the call to \code{\link{mclapply}}
   ).}

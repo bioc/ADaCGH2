@@ -1,3 +1,6 @@
+Changes in version 2.19.2 (2018-04-19)
+	- More on warning on Windows in linking from Rd files.
+
 Changes in version 2.19.1 (2018-04-17)
 	- Prevent warning on Windows in linking from Rd files.
 

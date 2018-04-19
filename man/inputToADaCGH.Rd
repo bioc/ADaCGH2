@@ -43,10 +43,13 @@ inputToADaCGH(ff.or.RAM = "RAM",
 
   \item{MAList}{The name of an object of class \code{MAList}
     %% (\code{\link[limma]{as.MAList}})
-    (\code{\link[limma]{MAList-class}})
+    %% (\code{\link[limma]{MAList-class}})
+    %% (\code{\link{MAList-class}})
+    %% OK, I give up
+    (\code{as.MAList})
     or \code{SegList} (e.g.,
     \code{\link{dim.SegList}}). See vignnettes for these
-    packages for details about these objects.
+    packages (\pkg{limma} and \pkg{snapCGH}) for details about these objects.
     
     You have to specify one, and only one, of \code{MAList},
     \code{RDatafilename}, \code{textfilename}, \code{path}.
