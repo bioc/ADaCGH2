@@ -1,3 +1,6 @@
+Changes in version 2.21.1 (2018-07-16)
+	- Removed all mentions to old installer
+
 Changes in version 2.19.2 (2018-04-19)
 	- More on warning on Windows in linking from Rd files.
 

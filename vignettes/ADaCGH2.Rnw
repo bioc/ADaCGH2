@@ -2389,9 +2389,6 @@ sessionInfo()
 %% Install Rtools and Miktex
 
 %% Install the devel version of BioC
-%%     source("http://bioconductor.org/biocLite.R")
-%%     library(BiocInstaller)
-%%     useDevel()
 
 %% Install the dependencies. Either from BioC or from CRAN
 
