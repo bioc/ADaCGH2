@@ -53,6 +53,8 @@ void
 R_init_ADaCGH2(DllInfo *info)
 {
   R_registerRoutines(info, cMethods, NULL, NULL, NULL);
+  R_useDynamicSymbols(info, FALSE);
+  R_forceSymbols(info, TRUE);
 }
 
 

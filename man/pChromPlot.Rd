@@ -195,15 +195,18 @@ pos.dat <- inputEx[, 3]
 
 
 ## Segment with HaarSeg
+##    You might want to adapt mc.cores to your hardware
 haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
-                                   merging = "MAD")
+                                 merging = "MAD",
+                                 mc.cores = 2)
 
-
+##    You might want to adapt mc.cores to your hardware
 pChromPlot(haar.RAM.fork,
            cghRDataName = cgh.dat,
            chromRDataName = chrom.dat,
            posRDataName = pos.dat,
-           imgheight = 350)
+           imgheight = 350,
+           mc.cores = 2)
 
 
 \dontrun{
