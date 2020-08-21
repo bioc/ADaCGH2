@@ -521,8 +521,10 @@ pos.dat <- inputEx[, 3]
 
 
 ## Segment with HaarSeg
+##    You might want to adapt mc.cores to your hardware
 haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
-                                   merging = "MAD")
+                                 merging = "MAD",
+                                 mc.cores = 2)
 
 ## What does the output look like?
 lapply(haar.RAM.fork, head)
@@ -532,9 +534,11 @@ rle(haar.RAM.fork$outSmoothed[, 1])
 
 
 ## Repeat, without load-balancing
+##    You might want to adapt mc.cores to your hardware
 haar.RAM.fork.nlb <- pSegmentHaarSeg(cgh.dat, chrom.dat,
                                      merging = "MAD",
-                                     loadBalance = FALSE)
+                                     loadBalance = FALSE,
+                                     mc.cores = 2)
 
 
 if(.Platform$OS.type != "windows") {
@@ -576,9 +580,11 @@ inputToADaCGH(ff.or.RAM = "ff",
 
 ## Segment with HaarSeg
 
+##    You might want to adapt mc.cores to your hardware    
 haar.ff.fork <- pSegmentHaarSeg("cghData.RData",
                                 "chromData.RData",
-                                 merging = "MAD")
+                                merging = "MAD",
+                                mc.cores = 2)
 
 ## What does the output look like?
 haar.ff.fork
@@ -596,7 +602,7 @@ haar.ff.fork
 ## for your hardware and use other types of clusters (e.g., MPI)
 ## if you want.
 
-cl2 <- parallel::makeCluster(4,"PSOCK")
+cl2 <- parallel::makeCluster(2,"PSOCK")
 parallel::clusterSetRNGStream(cl2)
 parallel::setDefaultCluster(cl2) 
 parallel::clusterEvalQ(NULL, library("ADaCGH2"))

@@ -109,14 +109,17 @@ fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
 
 
 
-
+##    You might want to adapt mc.cores to your hardware
 inputToADaCGH(ff.or.RAM = "RAM",
-                      textfilename = fnametxt)
+              textfilename = fnametxt,
+              mc.cores = 2)
 
 ## Run segmentation (e.g., HaarSeg)
 
+##    You might want to adapt mc.cores to your hardware
 haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
-                                   merging = "MAD")
+                                 merging = "MAD",
+                                 mc.cores = 2)
 
 forcghr <- outputToCGHregions(output.dat = haar.RAM.fork,
                               chrom.dat = chrom.dat,
@@ -148,15 +151,17 @@ originalDir <- getwd()
 setwd("ADaCGH2_cghreg_example_tmp_dir")
 ## Sys.sleep(1)
 
-
+##    You might want to adapt mc.cores to your hardware
 inputToADaCGH(ff.or.RAM = "ff",
-                      textfilename = fnametxt)
+              textfilename = fnametxt,
+              mc.cores = 2)
 
 
-
+##    You might want to adapt mc.cores to your hardware
 haar.ff.fork <- pSegmentHaarSeg("cghData.RData",
                                 "chromData.RData",
-                                merging = "MAD")
+                                merging = "MAD",
+                                mc.cores = 2)
 
 forcghr.ff <- outputToCGHregions(ffoutput = haar.ff.fork)
 

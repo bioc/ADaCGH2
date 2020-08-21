@@ -162,7 +162,7 @@ inputToADaCGH(ff.or.RAM = "RAM",
   \code{\link{mclapply}} and
   \code{\link[parallel]{detectCores}}. Contention problems in I/O might
   be minimized by making this number smaller or much smaller than what
-  is returned by \code{\link[parallel]{detectCores}}. For larte jobs,
+  is returned by \code{\link[parallel]{detectCores}}. For long running jobs,
   please do some initial benchmarking. See comments and discussion in
   file "benchmark.pdf". In general, if you have a single SATA disk make
   this a small number (say, 2 or 3 or 6); in contrast, if you have many fast
@@ -283,20 +283,26 @@ namepath <- system.file("example-datadir", package = "ADaCGH2")
 
 ## Read from RData and write to ff
 inputToADaCGH(ff.or.RAM = "ff",
-                      RDatafilename = fnameRData)
+              RDatafilename = fnameRData)
 
 ## Read from text file and write to ff
+##    You might want to adapt mc.cores to your hardware
 inputToADaCGH(ff.or.RAM = "ff",
-                      textfilename = fnametxt)
+              textfilename = fnametxt,
+              mc.cores = 2)
 
 
 ## Read from text file and write to RAM
+##    You might want to adapt mc.cores to your hardware
 inputToADaCGH(ff.or.RAM = "RAM",
-                      textfilename = fnametxt)
+              textfilename = fnametxt,
+              mc.cores = 2)
 
 ## Read from a directory and write to ff
+##    You might want to adapt mc.cores to your hardware
 inputToADaCGH(ff.or.RAM = "ff",
-                      path = namepath)
+              path = namepath,
+              mc.cores = 2)
 
 ### Clean up (DO NOT do this with objects you want to keep!!!)
 load("chromData.RData")

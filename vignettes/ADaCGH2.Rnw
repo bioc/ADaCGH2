@@ -493,8 +493,10 @@ available RAM.
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
 
+##    You might want to adapt mc.cores to your hardware
 tmp <- inputToADaCGH(ff.or.RAM = "RAM",
-                             textfilename = fnametxt)
+                     textfilename = fnametxt,
+                     mc.cores = 2)
 @ 
 
 
@@ -560,9 +562,11 @@ help(pSegment)
 @ 
 
 <<>>=
+##    You might want to adapt mc.cores to your hardware
 haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
                                    merging = "MAD",
-                                   typeParall = "fork")
+                                 typeParall = "fork",
+                                 mc.cores = 2)
 @ 
 
 Since the input are RAM objects, the output is also a RAM object (a
@@ -586,13 +590,15 @@ but we set it here explicitly for clarity.
 
 
 <<>>=
+##    You might want to adapt mc.cores to your hardware
 pChromPlot(haar.RAM.fork,
            cghRDataName = cgh.dat,
            chromRDataName = chrom.dat,
            posRDataName = pos.dat,
            probenamesRDataName = probenames.dat,
            imgheight = 350,
-           typeParall = "fork")
+           typeParall = "fork",
+           mc.cores = 2)
 @ 
 
 
@@ -809,8 +815,10 @@ if(.Platform$OS.type != "windows") {
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
 
+##    You might want to adapt mc.cores to your hardware
 inputToADaCGH(ff.or.RAM = "ff",
-                      textfilename = fnametxt)
+              textfilename = fnametxt,
+              mc.cores = 2)
 }
 @ 
 
@@ -864,7 +872,8 @@ many nodes as cores can be detected.
 
 <<>>=
 if(.Platform$OS.type != "windows") {
-number.of.nodes <- detectCores()
+## Adapt number of nodes to your hardware    
+number.of.nodes <- 2 ##detectCores()
 cl2 <- parallel::makeCluster(number.of.nodes, "PSOCK")
 parallel::clusterSetRNGStream(cl2)
 parallel::setDefaultCluster(cl2) 
@@ -908,7 +917,7 @@ help(pSegment)
 @ 
 <<>>=
 if(.Platform$OS.type != "windows") {
-haar.ff.cluster <- pSegmentHaarSeg("cghData.RData",
+    haar.ff.cluster <- pSegmentHaarSeg("cghData.RData",
                                    "chromData.RData", 
                                    merging = "MAD",
                                    typeParall = "cluster")
@@ -1061,8 +1070,10 @@ if(.Platform$OS.type != "windows") {
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
 
+##    You might want to adapt mc.cores to your hardware
 inputToADaCGH(ff.or.RAM = "ff",
-                      textfilename = fnametxt)
+              textfilename = fnametxt,
+              mc.cores = 2)
 }
 @ 
 
@@ -1135,7 +1146,8 @@ if( (.Platform$OS.type == "unix") && (Sys.info()['sysname'] != "Darwin") ) {
          "to inputToADaCGH below")
   } else dir.create("cuttedFile")
   setwd("cuttedFile")
-  cutFile(fnametxt, 1, 2, 3, sep = "\t")
+  ## You might want to adapt mc.cores to your hardware
+  cutFile(fnametxt, 1, 2, 3, sep = "\t", mc.cores = 2)
   cuttedFile.dir <- getwd()
   setwd("../")
 } else {
@@ -1170,8 +1182,8 @@ actually be much simpler, and something like the following:
     excludefile = "afile.txt")}
 \end{enumerate}
 
-(In this vignette the work flow was not as easy because we are running
-lots of different examples, with several different work flows.)
+(In this vignette the workflow was not as easy because we are running
+lots of different examples, with several different workflows.)
 
 
 
@@ -1234,11 +1246,13 @@ contraints); see the discussion in file ``benchmarks.pdf''.
 %% files split by column)
 
 
-<<>>=
+<<chunk0001>>=
 if(.Platform$OS.type != "windows") {
+## You might want to adapt mc.cores to your hardware    
 inputToADaCGH(ff.or.RAM = "ff",
               path = cuttedFile.dir,
-              verbose = TRUE)
+              verbose = TRUE,
+              mc.cores = 2)
 }
 @ 
 
@@ -1284,12 +1298,14 @@ The call is similar to the one in \ref{segment-ff-cluster}, except for the
 argument \texttt{typeParall}. 
 
 
-<<>>=
+<<chunk0002>>=
 if(.Platform$OS.type != "windows") {
+## You might want to adapt mc.cores to your hardware
 haar.ff.fork <- pSegmentHaarSeg("cghData.RData",
                                 "chromData.RData",
                                  merging = "MAD",
-                                typeParall = "fork")
+                                typeParall = "fork",
+                                mc.core = 2)
 }
 @ 
 
@@ -1299,17 +1315,19 @@ haar.ff.fork <- pSegmentHaarSeg("cghData.RData",
 The call here is the same as in section \ref{plot-ff-cluster}, except for
 argument \texttt{typeParall}.
 
-<<>>=
+<<chunk0003>>=
 if(.Platform$OS.type != "windows") {
 save(haar.ff.fork, file = "haar.ff.fork.RData", compress = FALSE)
 
+##    You might want to adapt mc.cores to your hardware
 pChromPlot(outRDataName = "haar.ff.fork.RData",
            cghRDataName = "cghData.RData",
            chromRDataName = "chromData.RData",
            posRDataName = "posData.RData",
            probenamesRDataName = "probeNames.RData",
            imgheight = 350,
-           typeParall = "fork")
+           typeParall = "fork",
+           mc.cores = 2)
 }
 @ 
 
@@ -1339,7 +1357,7 @@ original, limma MAList object). \texttt{MA2} is of type \texttt{SegList}.
 %% This code is not run now, as it depends on \textit{snapCGH} which is not
 %% available at his time (2013-10) for BioC devel.
 
-<<>>=
+<<chunk0004>>=
 if(.Platform$OS.type != "windows") {
 require("limma")
 require("snapCGH")
@@ -1381,7 +1399,7 @@ output a set of RAM objects with a different set of names from the
 default. (Note that we could also have produced \textit{ff} files as
 output, using the option \texttt{ff.or.RAM = "ff"}).
 
-<<>>=
+<<chunk0005>>=
 if(.Platform$OS.type != "windows") {
 tmp <- inputToADaCGH(MAList = MA, 
                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
@@ -1414,7 +1432,7 @@ and \texttt{Position}.
 
 We copy from the limma vignette (section 3.2, p.8), changing the names of
 objets by appending ``.limma''. 
-<<>>=
+<<chunk0006>>=
 if(.Platform$OS.type != "windows") {
 targets.limma <- readTargets("targets.txt", path = datadir)
 RG.limma <- read.maimages(targets.limma, path = datadir, 
@@ -1431,7 +1449,7 @@ name of a file (with the same format as required by
 \texttt{read.clonesinfo}). Note that \texttt{fclone} is a path (and, thus,
 a character vector).
 
-<<>>=
+<<chunk0007>>=
 if(.Platform$OS.type != "windows") {
 fclone <- list.files(path = system.file("testdata", package = "snapCGH"),
                      full.names = TRUE, pattern = "cloneinfo.txt")
@@ -1449,7 +1467,7 @@ information. For illustrative purposes, we can use here the columns of the
 
 
 
-<<>>=
+<<chunk0008>>=
 if(.Platform$OS.type != "windows") {
 acloneinfo <- MA$genes
 tmp <- inputToADaCGH(MAList = MA.limma, 
@@ -1480,7 +1498,7 @@ working with data frames. Extending the usage of this, and other methods,
 to much larger data sets, using \textit{ff}, and properly dealing with
 missing values, is beyond the scope of this package.
 
-<<>>=
+<<chunk0009>>=
 if(.Platform$OS.type != "windows") {
 forcghr <- outputToCGHregions(haar.ff.cluster)
 if(require(CGHregions)) {
@@ -1496,7 +1514,7 @@ particular, you probably do NOT want to use this function when
 \texttt{pSegment} has been called using \texttt{merging = "none"}.
 
 
-<<>>=
+<<chunk00010>>=
 if(.Platform$OS.type != "windows") {
 ## We are done with the executable code in the vignette.
 ## Restore the directory
@@ -1505,7 +1523,7 @@ print(getwd())
 }
 @
 
-<<>>=
+<<chunk00011>>=
 if(.Platform$OS.type != "windows") {
 ## Remove the tmp dir. Sys.sleep to prevent Windoze problems.
 ## Sys.sleep(1)
