@@ -1,6 +1,4 @@
 useDynLib(ADaCGH2, .registration = TRUE)
-## useDynLib(ADaCGH2, ad_rConvAndPeak, ad_rPulseConv,
-##           ad_rWConvAndPeak, ad_rThresAndUnify)
 
 export("pSegmentDNAcopy",
        "pSegmentWavelets",
@@ -14,13 +12,9 @@ export("pSegmentDNAcopy",
        "outputToCGHregions",
        "cutFile")
 
-## import(ff, bit, ffbase) works, but gives the warning
 import(ff)
-importFrom("bit", intrle, ri)
-## importFrom("ffbase", min.ff, max.ff)           
-## import(ffbase) ## leads to warning of replacing repvious imports
-## importFrom("ffbase", min, max)           
-importFrom("ffbase", mean.ff) ## importing something from ffbase, so that
+importFrom("bit", intrle, ri, chunk)
+## importFrom("ffbase", mean.ff) ## importing something from ffbase, so that
 ## the min and max methods are available
 
 importFrom("parallel", detectCores, clusterApply, clusterApplyLB,
@@ -31,8 +25,7 @@ importFrom("tilingArray", segment)
 
 importFrom("snapCGH", fit.model)
 importFrom("aCGH", mergeLevels, create.aCGH, find.hmm.states, "hmm<-")
-import(GLAD) ## we actually use now a whole bunch of things
-## importFrom("GLAD", daglad.profileCGH)
+import(GLAD) 
 importFrom("waveslim", modwt, imodwt)
 importFrom("cluster", pam, clara)
 
@@ -43,34 +36,5 @@ importFrom("stats", "IQR", "mad", "median", "na.omit", "pnorm",
            "qnorm", "runif", "update")
 importFrom("utils", "capture.output", "data", "file_test",
            "object.size", "packageDescription", "read.table")
-
-
-
-
-## importFrom("ff",
-##            is.ff,
-##            is.ffdf,
-##            "[[.ff",
-##            "[[<-.ff",
-##            "[.ff",
-##            "[<-.ff",
-##            "[.ff_array",
-##            "[<-.ff_array",
-##vmode,
-##as.vmode,
-##"vmode<-",
-## fforder
-##            get.ff,
-##            open.ff,
-##            close.ff,
-##            delete.ff,
-##            delete.ffdf,
-##            is.open.ff,
-##            is.open.ffdf,
-##            close.ffdf,
-##            open.ffdf,
-##            as.ffdf.ff_matrix,
-##            as.ffdf,
-##            as.ffdf.ff_vector)
 
 

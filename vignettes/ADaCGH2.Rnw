@@ -2,6 +2,7 @@
 % \VignetteDepends{ADaCGH2}
 % \VignetteKeywords{ADaCGH2 CGH segmentation parallelization}
 % \VignettePackage{ADaCGH2}
+\synctex=1
 
 
 \documentclass[a4paper,11pt]{article}
@@ -229,7 +230,7 @@ with small to moderate data sets:
     \hline
     \centerline{Single node,} many cores/node &&\centerline{RAM objects (?), forking}
     \textit{ff} objects (?), forking&& \textit{ff} objects, forking& \\
-\\
+&&&\\
     \centerline{Many nodes,}few cores/node&& \textit{ff} objects, cluster && \textit{ff} objects,
     cluster&\\
     \hline

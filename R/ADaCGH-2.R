@@ -1377,11 +1377,9 @@ inputToADaCGH <- function(ff.or.RAM = "RAM",
     ## this should be unneeded, and caught when reading?
       ## we will catch non-numeric; but > 32768 will just flip around
       ## and become negative
-      ## if( min.ff(chromData) < 1 ) ## min.ff is from ffbase
-      if( min(chromData) < 1 ) ## min.ff is from ffbase
+      if(min.ff(chromData) < 1 ) ## min.ff is from ffbase
           caughtUserError2("Chromosome is NOT a positive integer (or has values > 32000) \n")
-      ## if(max.ff(chromData)> 30000) ## max.ff is from ffbase
-      if(max(chromData)> 30000) ## max.ff is from ffbase
+      if(max.ff(chromData)> 30000) ## max.ff is from ffbase
           caughtUserError2("Chromosome has more than 30000 levels!!\n")
   } else {  
     if(!all(is.wholeposnumber(inputData[, 2])))

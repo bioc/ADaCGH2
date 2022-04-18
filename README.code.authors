@@ -25,3 +25,8 @@ the files for further details.
   internalDNAcopySmooth
   internalDNAcopySegm
 
+- From Edwin de Jonge, Jan Wijffels, Jan van der Laan, code that was part of
+  CRAN package ffbase, which was removed from the CRAN repository on
+  2022-04-04: https://cran.r-project.org/web/packages/ffbase/index.html
+
+  This code is in R/from-ffbase.R
