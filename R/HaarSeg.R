@@ -46,117 +46,117 @@ ad_HaarSeg <- function(I,
                        haarEndLevel = 5)
 {
 
-ProbeNum = length(I);
-weightsFlag = length(W);
-nsvFlag = length(rawI);
-
-if (nsvFlag) {
-  # non stationary variance empirical threshold set to 50
-  NSV_TH = 50;
-  varMask = (rawI < NSV_TH);
-}
-
-S = I;
-allSt = vector();
-allSize = vector();
-allVal = vector();
-CFun = .C("ad_rConvAndPeak", 
-		as.double(I), 
-  	as.integer(ProbeNum), 
-		as.integer(1), 
-		convResult = double(ProbeNum), 
-		peakLoc = integer(ProbeNum) );
-diffI = CFun$convResult;
-if (nsvFlag) {
-  pulseSize = 2;
-  CFun = .C("ad_rPulseConv",
-            as.double(varMask),
-					  as.integer(ProbeNum),
-					  as.integer(pulseSize),
- 					  as.double(1/pulseSize),
-					  res = double(ProbeNum));
-  diffMask = (CFun$res >= 0.5);
-
-  peakSigmaEst = median(abs(diffI[!diffMask])) / 0.6745;
-  noisySigmaEst = median(abs(diffI[diffMask])) / 0.6745;
-  
-  if (is.na(peakSigmaEst)) {  peakSigmaEst = 0; }
-  if (is.na(noisySigmaEst)) {  noisySigmaEst = 0; }  
-} else {
-  peakSigmaEst = median(abs(diffI)) / 0.6745;
-}
-
-# segmentation is done on each chromosome seperatly
-for (chr in 1:nrow(chromPos)) {
-	y = I[chromPos[chr,1]:chromPos[chr,2]];
-  if (nsvFlag) {
-    yVarMask = varMask[chromPos[chr,1]:chromPos[chr,2]];
-  }
-  if (weightsFlag) {
-    wei = W[chromPos[chr,1]:chromPos[chr,2]];
-  }
-	uniPeakLoc = as.integer(-1);
-	for (level in haarStartLevel:haarEndLevel) {
-		stepHalfSize = 2^(level);
-    if (weightsFlag) {
-     	CFun = .C("ad_rWConvAndPeak",
-            as.double(y),
-				    as.double(wei),
-					  as.integer(length(y)),
-					  as.integer(stepHalfSize),
-					  convResult = double(length(y)),
-					  peakLoc = integer(length(y)) );
-   	} else {
-      CFun = .C("ad_rConvAndPeak",
-					  as.double(y),
-					  as.integer(length(y)),
-					  as.integer(stepHalfSize),
-					  convResult = double(length(y)),
-					  peakLoc = integer(length(y)) );
-    }
-    convRes = CFun$convResult;
-    peakLocForC = CFun$peakLoc;
-    peakLoc = peakLocForC[1:match(-1,peakLocForC)-1]+1;
-
-		if (nsvFlag) {
-      pulseSize = 2*stepHalfSize;
-      CFun = .C("ad_rPulseConv",
-            as.double(yVarMask),
-					  as.integer(length(yVarMask)),
-					  as.integer(pulseSize),
- 					  as.double(1/pulseSize),
-					  res = double(length(yVarMask)));
-      convMask = as.double(CFun$res >= 0.5);
-      sigmaEst = (1-convMask)*peakSigmaEst + convMask*noisySigmaEst;
-      T = ad_FDRThres(convRes[peakLoc] / sigmaEst[peakLoc], breaksFdrQ, 1);
-		} else {
-		  T = ad_FDRThres(convRes[peakLoc], breaksFdrQ, peakSigmaEst);
-		}
-
-	  unifyWin = as.integer(2^(level - 1));
-    tmpPeakLoc = uniPeakLoc;
+    ProbeNum = length(I);
+    weightsFlag = length(W);
+    nsvFlag = length(rawI);
 
     if (nsvFlag) {
-      convRes = convRes / sigmaEst;
-    } 
- 		CThres <- .C("ad_rThresAndUnify", 
-  					as.double(convRes), 
-  					as.integer(length(y)), 
-  					peakLocForC,
-  					tmpPeakLoc,
-  					as.double(T),
-  					as.integer(unifyWin),
-  					uniPeakLoc = integer(length(y)) );
-		uniPeakLoc = CThres$uniPeakLoc;
+                                        # non stationary variance empirical threshold set to 50
+        NSV_TH = 50;
+        varMask = (rawI < NSV_TH);
+    }
+
+    S = I;
+    allSt = vector();
+    allSize = vector();
+    allVal = vector();
+    CFun = .C(C_ad_rConvAndPeak, 
+              as.double(I), 
+              as.integer(ProbeNum), 
+              as.integer(1), 
+              convResult = double(ProbeNum), 
+              peakLoc = integer(ProbeNum) );
+    diffI = CFun$convResult;
+    if (nsvFlag) {
+        pulseSize = 2;
+        CFun = .C(C_ad_rPulseConv,
+                  as.double(varMask),
+                  as.integer(ProbeNum),
+                  as.integer(pulseSize),
+                  as.double(1/pulseSize),
+                  res = double(ProbeNum));
+        diffMask = (CFun$res >= 0.5);
+
+        peakSigmaEst = median(abs(diffI[!diffMask])) / 0.6745;
+        noisySigmaEst = median(abs(diffI[diffMask])) / 0.6745;
+        
+        if (is.na(peakSigmaEst)) {  peakSigmaEst = 0; }
+        if (is.na(noisySigmaEst)) {  noisySigmaEst = 0; }  
+    } else {
+        peakSigmaEst = median(abs(diffI)) / 0.6745;
+    }
+
+                                        # segmentation is done on each chromosome seperatly
+    for (chr in 1:nrow(chromPos)) {
+	y = I[chromPos[chr,1]:chromPos[chr,2]];
+        if (nsvFlag) {
+            yVarMask = varMask[chromPos[chr,1]:chromPos[chr,2]];
+        }
+        if (weightsFlag) {
+            wei = W[chromPos[chr,1]:chromPos[chr,2]];
+        }
+	uniPeakLoc = as.integer(-1);
+	for (level in haarStartLevel:haarEndLevel) {
+            stepHalfSize = 2^(level);
+            if (weightsFlag) {
+                CFun = .C(C_ad_rWConvAndPeak,
+                          as.double(y),
+                          as.double(wei),
+                          as.integer(length(y)),
+                          as.integer(stepHalfSize),
+                          convResult = double(length(y)),
+                          peakLoc = integer(length(y)) );
+            } else {
+                CFun = .C(C_ad_rConvAndPeak,
+                          as.double(y),
+                          as.integer(length(y)),
+                          as.integer(stepHalfSize),
+                          convResult = double(length(y)),
+                          peakLoc = integer(length(y)) );
+            }
+            convRes = CFun$convResult;
+            peakLocForC = CFun$peakLoc;
+            peakLoc = peakLocForC[1:match(-1,peakLocForC)-1]+1;
+
+            if (nsvFlag) {
+                pulseSize = 2*stepHalfSize;
+                CFun = .C(C_ad_rPulseConv,
+                          as.double(yVarMask),
+                          as.integer(length(yVarMask)),
+                          as.integer(pulseSize),
+                          as.double(1/pulseSize),
+                          res = double(length(yVarMask)));
+                convMask = as.double(CFun$res >= 0.5);
+                sigmaEst = (1-convMask)*peakSigmaEst + convMask*noisySigmaEst;
+                T = ad_FDRThres(convRes[peakLoc] / sigmaEst[peakLoc], breaksFdrQ, 1);
+            } else {
+                T = ad_FDRThres(convRes[peakLoc], breaksFdrQ, peakSigmaEst);
+            }
+
+            unifyWin = as.integer(2^(level - 1));
+            tmpPeakLoc = uniPeakLoc;
+
+            if (nsvFlag) {
+                convRes = convRes / sigmaEst;
+            } 
+            CThres <- .C(C_ad_rThresAndUnify, 
+                         as.double(convRes), 
+                         as.integer(length(y)), 
+                         peakLocForC,
+                         tmpPeakLoc,
+                         as.double(T),
+                         as.integer(unifyWin),
+                         uniPeakLoc = integer(length(y)) );
+            uniPeakLoc = CThres$uniPeakLoc;
 	}# for level
 	breakpoints = uniPeakLoc[1:match(-1,uniPeakLoc)-1] + 1;
 	
 	if (weightsFlag) {
-		segs = ad_SegmentByPeaks(y, breakpoints, wei);
+            segs = ad_SegmentByPeaks(y, breakpoints, wei);
 	} else {
-		segs = ad_SegmentByPeaks(y, breakpoints);
+            segs = ad_SegmentByPeaks(y, breakpoints);
 	}
-		
+        
 	dsegs = which(diff(segs) != 0);
 	segSt = c(1,dsegs + 1);
 	segEd = c(dsegs,length(segs));
@@ -164,12 +164,12 @@ for (chr in 1:nrow(chromPos)) {
 	allSt = c(allSt,(segSt + chromPos[chr,1] - 1));
 	allSize = c(allSize,segSize);
 	allVal = c(allVal,segs[segSt]);
-  S[chromPos[chr,1]:chromPos[chr,2]] = segs;
+        S[chromPos[chr,1]:chromPos[chr,2]] = segs;
 
-}#for chr
+    }#for chr
 
-segTable = matrix(c(allSt,allSize,allVal),length(allSt),3);
-return(list(SegmentsTable = segTable, Segmented = S));
+    segTable = matrix(c(allSt,allSize,allVal),length(allSt),3);
+    return(list(SegmentsTable = segTable, Segmented = S));
 }#HaarSeg
 
 ad_FDRThres <- function(x, q, sdev) {

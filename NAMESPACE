@@ -1,4 +1,4 @@
-useDynLib(ADaCGH2, .registration = TRUE)
+useDynLib(ADaCGH2, .registration = TRUE, .fixes = "C_")
 
 export("pSegmentDNAcopy",
        "pSegmentWavelets",

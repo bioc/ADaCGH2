@@ -1,5 +1,6 @@
 /* Common code for registration of routines */
 
+#include <stdlib.h> // for NULL
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>  /* For R registration */
 #include "all_headers.h"

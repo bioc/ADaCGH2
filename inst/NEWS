@@ -1,3 +1,6 @@
+Changes in version 2.39.1 (2023-04-14):
+	- Fixed "DLL requires the use of native symbols" with R-4.3.0.
+
 Changes in version 2.35.1 (2022-04-19):
 	- Added required code from ffbase (as ffbase no longer in CRAN)
 	  (ffbase authors added to authors' list). ffbase no longer
