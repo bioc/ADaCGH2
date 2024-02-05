@@ -68,7 +68,7 @@ This vignette presents the ADaCGH2 package using:
 \item Three fully commented examples that deal with the usage of the
   different parallelization options and types of objects (in particular,
   \textit{ff} objects) available.
-\item Examples of using ADaCGH2 with CGHregions, Limma, and snapCGH.
+\item Examples of using ADaCGH2 with CGHregions and Limma.
  
 \end{itemize}
 
@@ -277,23 +277,6 @@ ADaCGH2 includes functions that use as input, or produce as output, either
 choose between using forking and using other mechanisms for
 parallelization.  
 
-
-% \begin{description}
-% \item[inputToADaCGH]
-%   \begin{description}
-%   \item[Input] Local R objects, text file, Limma and snapCGH
-%   \end{description}
-
-% \end{description}
-
-
-% This figure summarizes input, output, and
-% parallelization choices.
-
-% \begin{figure}
-%   \begin{tikzpicture}
-%   \end{tikzpicture}
-% \end{figure}
 
 
 
@@ -534,8 +517,8 @@ file repeatedly as input.
 
 
 
-\subsubsection{Using data from Limma or snapCGH}
-You can also use data from snapCGH and Limma. See section \ref{snap}.
+\subsubsection{Using data from Limma}
+You can also use data from Limma. See section \ref{limma-ex}.
 
 
 \subsubsection{Reading data from a directory}
@@ -689,8 +672,7 @@ cases we produce as output \textit{ff} files (sections \ref{to-ff},
 \ref{input-as-text-to-ff-ex3}), the data used as input are the same, so
 there is no problem here (although we will leave binary \textit{ff}
 objects on disk without a corresponding \textit{ff} RData object on the R
-session). In particular, note that when we show the usage of Limma and
-snapCGH objects as input (section \ref{snap}), we are using RAM objects
+session). In particular, note that when we show the usage of Limma  objects as input (section \ref{limma-ex}), we are using RAM objects
 (not \textit{ff} objects) as output, so there is no confusion.
 
 
@@ -826,8 +808,8 @@ inputToADaCGH(ff.or.RAM = "ff",
 
 
 
-\subsubsection{Using data from Limma or snapCGH}
-You can also use data from snapCGH and Limma. See section \ref{snap}.
+\subsubsection{Using data from Limma}
+You can also use data from Limma. See section \ref{limma-ex}.
 
 
 \subsubsection{Reading data from a directory}
@@ -1078,8 +1060,8 @@ inputToADaCGH(ff.or.RAM = "ff",
 }
 @ 
 
-\subsubsection{Using data from Limma or snapCGH}
-You can also use data from snapCGH and Limma. See section \ref{snap}.
+\subsubsection{Using data from Limma}
+You can also use data from Limma. See section \ref{limma-ex}.
 
 
 \subsubsection{Reading data from a directory}
@@ -1334,88 +1316,87 @@ pChromPlot(outRDataName = "haar.ff.fork.RData",
 
 \section{Input and output to/from other packages}
 
-\subsection{\label{snap}Input data from Limma and snapCGH}
+\subsection{\label{limma-ex}Input data from Limma}
 
 Many aCGH studies use pre-processing steps similar to those of gene
-expression data. The \texttt{MAList} object, from \textit{Limma} and
-\texttt{SegList} object, from \textit{snapCGH}, are commonly used to store
+expression data. The \texttt{MAList} object, from \textit{Limma} (and
+\texttt{SegList} object, from the now unavailable \textit{snapCGH} package), are commonly used to store
 aCGH information. The following examples illustrate the usage of the
-function \texttt{inputToADaCGH} to convert \texttt{MAList} and
-\texttt{SegList} data into a format suitable for \textit{ADaCGH2}.
+function \texttt{inputToADaCGH} to convert \texttt{MAList}  data into a format suitable for \textit{ADaCGH2}.
 
 
-We will start with objects produced by \textit{snapCGH}. The following
-code is copied from the \textit{snapCGH} vignette (pp.\ 2 and 3). Please
-check the original vignette for details. In summary, a set of array files
-are read, the data are normalized and, finally, averaged over
-clones. snapCGH uses limma for the initial import of data and, next, with
-the \texttt{read.clonesinfo} function adds additional information such as
-chromosome and position.  The \texttt{MA} object created is of class
-\texttt{MAList}, but with added information (compared to a basic,
-original, limma MAList object). \texttt{MA2} is of type \texttt{SegList}.
+% We will start with objects produced by \textit{snapCGH}. The following
+% code is copied from the \textit{snapCGH} vignette (pp.\ 2 and 3). Please
+% check the original vignette for details. In summary, a set of array files
+% are read, the data are normalized and, finally, averaged over
+% clones. snapCGH uses limma for the initial import of data and, next, with
+% the \texttt{read.clonesinfo} function adds additional information such as
+% chromosome and position.  The \texttt{MA} object created is of class
+% \texttt{MAList}, but with added information (compared to a basic,
+% original, limma MAList object). \texttt{MA2} is of type \texttt{SegList}.
 
 
-%% This code is not run now, as it depends on \textit{snapCGH} which is not
-%% available at his time (2013-10) for BioC devel.
+% %% This code is not run now, as it depends on \textit{snapCGH} which is not
+% %% available at his time (2013-10) for BioC devel.
 
-<<chunk0004>>=
-if(.Platform$OS.type != "windows") {
-require("limma")
-require("snapCGH")
-datadir <- system.file("testdata", package = "snapCGH")
-targets <- readTargets("targets.txt", path = datadir)
-RG1 <- read.maimages(targets$FileName, path = datadir, source = "genepix")
-
-
-## This is snapCGH-specific
-RG1 <- read.clonesinfo("cloneinfo.txt", RG1, path = datadir) 
-RG1$printer <- getLayout(RG1$genes)
-types <- readSpotTypes("SpotTypes.txt", path = datadir)
-RG1$genes$Status <- controlStatus(types, RG1)
-
-RG1$design <- c(-1, -1)
+% <<chunk0004>>=
+% if(.Platform$OS.type != "windows") {
+% require("limma")
+% require("snapCGH")
+% datadir <- system.file("testdata", package = "snapCGH")
+% targets <- readTargets("targets.txt", path = datadir)
+% RG1 <- read.maimages(targets$FileName, path = datadir, source = "genepix")
 
 
-RG2 <- backgroundCorrect(RG1, method = "minimum") ## class RGList
-MA <- normalizeWithinArrays(RG2, method = "median") ## class MAList
-class(MA)
-## now obtain an object of class SegList
-MA2 <- processCGH(MA, method.of.averaging = mean, ID = "ID") 
-class(MA2)
-}
-@ 
+% ## This is snapCGH-specific
+% RG1 <- read.clonesinfo("cloneinfo.txt", RG1, path = datadir) 
+% RG1$printer <- getLayout(RG1$genes)
+% types <- readSpotTypes("SpotTypes.txt", path = datadir)
+% RG1$genes$Status <- controlStatus(types, RG1)
+
+% RG1$design <- c(-1, -1)
+
+
+% RG2 <- backgroundCorrect(RG1, method = "minimum") ## class RGList
+% MA <- normalizeWithinArrays(RG2, method = "median") ## class MAList
+% class(MA)
+% ## now obtain an object of class SegList
+% MA2 <- processCGH(MA, method.of.averaging = mean, ID = "ID") 
+% class(MA2)
+% }
+% @ 
 
 
 
-%% FIXME: watch out for NAs!
-All the information (intensity ratios and location) is available in the
-\texttt{MA} and \texttt{MA2} objects. We can directly convert them to
-\textit{ADaCGH2} objects (we set \texttt{na.omit = TRUE} as the data
-contain missing values). The first call process the \texttt{MAList} and
-the second the \texttt{SegList}. 
+% %% FIXME: watch out for NAs!
+% All the information (intensity ratios and location) is available in the
+% \texttt{MA} and \texttt{MA2} objects. We can directly convert them to
+% \textit{ADaCGH2} objects (we set \texttt{na.omit = TRUE} as the data
+% contain missing values). The first call process the \texttt{MAList} and
+% the second the \texttt{SegList}. 
 
 
-In this section, we use the argument \texttt{robjnames}, to produce as
-output a set of RAM objects with a different set of names from the
-default. (Note that we could also have produced \textit{ff} files as
-output, using the option \texttt{ff.or.RAM = "ff"}).
+% In this section, we use the argument \texttt{robjnames}, to produce as
+% output a set of RAM objects with a different set of names from the
+% default. (Note that we could also have produced \textit{ff} files as
+% output, using the option \texttt{ff.or.RAM = "ff"}).
 
-<<chunk0005>>=
-if(.Platform$OS.type != "windows") {
-tmp <- inputToADaCGH(MAList = MA, 
-                             robjnames = c("cgh-ma.dat", "chrom-ma.dat",
-                                          "pos-ma.dat", "probenames-ma.dat"))
+% <<chunk0005>>=
+% if(.Platform$OS.type != "windows") {
+% tmp <- inputToADaCGH(MAList = MA, 
+%                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
+%                                           "pos-ma.dat", "probenames-ma.dat"))
 
-tmp <- inputToADaCGH(MAList = MA2, 
-                             robjnames = c("cgh-ma.dat", "chrom-ma.dat",
-                                          "pos-ma.dat", "probenames-ma.dat"),
-                             minNumPerChrom = 4)
-}
-@ 
+% tmp <- inputToADaCGH(MAList = MA2, 
+%                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
+%                                           "pos-ma.dat", "probenames-ma.dat"),
+%                              minNumPerChrom = 4)
+% }
+% @ 
 
-We need to change the argument to \texttt{minNumPerChrom} because, after
-the data processing step in \texttt{processCGH}, chromosome 21 has only
-four observations. 
+% We need to change the argument to \texttt{minNumPerChrom} because, after
+% the data processing step in \texttt{processCGH}, chromosome 21 has only
+% four observations. 
 
 
 
@@ -1424,33 +1405,38 @@ not have chromosome and position information. That is what the
 \texttt{read.clonesinfo} function from \textit{snapCGH} did. To allow
 using objects directly from \textit{limma} and incorporating position
 information, we will use an approach to directly mimicks that in
-\textit{snapCGH}. If you use and \texttt{MAList} you can also provide a
+\textit{snapCGH}. If you use \texttt{MAList} you can also provide a
 \texttt{cloneinfo} argument; this can be either the full path to a file
 with the format required by \texttt{read.clonesinfo} or, else, the name of
 an object with (at least) three columns, names \texttt{ID}, \texttt{Chr},
 and \texttt{Position}. 
 
+Note: this code is no longer run, since these examples used data examples available from the \texttt{snapCGH} package. The code is left here, but you would need to provide the appropriate paths.
+
 
 We copy from the limma vignette (section 3.2, p.8), changing the names of
-objets by appending ``.limma''. 
-<<chunk0006>>=
+objects by appending ``.limma''. 
+<<chunk0006,eval=FALSE>>=
 if(.Platform$OS.type != "windows") {
-targets.limma <- readTargets("targets.txt", path = datadir)
-RG.limma <- read.maimages(targets.limma, path = datadir, 
-                          source="genepix")
-RG.limma <- backgroundCorrect(RG.limma, method="normexp", 
-                              offset=50)
-MA.limma <- normalizeWithinArrays(RG.limma)
+  require("limma")
+  datadir <- system.file("testdata", package = "snapCGH")
+  targets.limma <- readTargets("targets.txt", path = datadir)
+  RG.limma <- read.maimages(targets.limma, path = datadir, 
+                            source="genepix")
+  RG.limma <- backgroundCorrect(RG.limma, method="normexp", 
+                                offset=50)
+  MA.limma <- normalizeWithinArrays(RG.limma)
 }
 @ 
 
 We can add the chromosomal and position information in two different
-ways. First, as in  \texttt{read.clonesinfo} or, else, we can provide the
+ways. First, as was done in  \texttt{read.clonesinfo} from \texttt{snapCGH} or, else, we can provide the
 name of a file (with the same format as required by
 \texttt{read.clonesinfo}). Note that \texttt{fclone} is a path (and, thus,
 a character vector).
 
-<<chunk0007>>=
+The following code is no longer run as it searches for the \texttt{cloneinfo.txt} example file from the \texttt{snapCGH} package. If you have that file, or a file with similar structure, you can easily run this code by providing the path to the file.
+<<chunk0007,eval=FALSE>>=
 if(.Platform$OS.type != "windows") {
 fclone <- list.files(path = system.file("testdata", package = "snapCGH"),
                      full.names = TRUE, pattern = "cloneinfo.txt")
@@ -1464,11 +1450,13 @@ tmp <- inputToADaCGH(MAList = MA.limma,
 
 Alternatively, we can provide the name of an object with the additional
 information. For illustrative purposes, we can use here the columns of the
-\texttt{MA} object.
+\texttt{MA} object. (This code does not run either, as it requires an MA.limma object, created above with paths from the former \texttt{snapCGH} package).
 
 
 
-<<chunk0008>>=
+
+
+<<chunk0008,eval=FALSE>>=
 if(.Platform$OS.type != "windows") {
 acloneinfo <- MA$genes
 tmp <- inputToADaCGH(MAList = MA.limma, 
@@ -1611,7 +1599,7 @@ The steps above need to deal with the following possible problems:
 
 
 Let us now examine the second scenario, where we parallelize by
-subject*chromosome. This is done, for instance, with HMM or BioHMM in
+subject*chromosome. This is done, for instance, with HMM in
 ADaCGH2. Why? Because the methods are sufficiently slow that a finer
 grained division is likely to pay off in terms of gain in speed. In this
 case, additional partition and reassembly of the data are required for the
@@ -1665,7 +1653,7 @@ calls to the same process (which we can do successfully, as can be seen
 from the benchmarks for large numbers of arrays with more than 6 million
 probes ---memory usage levels out; see the file ``benchmarks.pdf'' ). Of
 course, ADaCGH2 provides other benefits (e.g., facilities for using as
-input the data from other packages ---e.g, section \ref{snap}--- or providing
+input the data from other packages ---e.g, section \ref{limma-ex}--- or providing
 output for other packages ---e.g., section \ref{cghregions}).
 
 

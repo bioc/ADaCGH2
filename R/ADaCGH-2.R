@@ -3253,193 +3253,6 @@ internalMerge <- function(index, smoothedff, tableArrChrom, cghRDataName,
 }
 
 
-
-pSegmentBioHMM <- function(cghRDataName, chromRDataName, posRDataName,
-                           merging = "mergeLevels", mad.threshold = 3,
-                           aic.or.bic = "AIC",
-                           typeParall = "fork",
-                           mc.cores = detectCores(),
-                           certain_noNA = FALSE,
-                           loadBalance = TRUE,                           
-                           ...) {
-
-  type.of.data <- RAM.or.ff(cghRDataName)
-  type.of.chrom <- RAM.or.ff(chromRDataName)
-  if(type.of.data != type.of.chrom)
-    stop("The cgh and chrom data should be of the same type:",
-         "both RAM objects, or both RData with an ff",
-         "object inside.")
-
-  ff.object <- ifelse(type.of.data == "ff", TRUE, FALSE)
-
-  if((FALSE == ff.object) && ("cluster" == typeParall))
-    stop("regular R objects in RAM (non ff objects) can only be used",
-         "if you are using forking")
-
-  
-  ## The table exists. No need to re-create if
-  ## really paranoid about speed
-  
-  if (ff.object)
-    tableArrChrom <- wrapCreateTableArrChr(cghRDataName, chromRDataName)
-  else
-    tableArrChrom <- createTableArrChrom(colnames(cghRDataName),
-                                                  chromRDataName)
-
-  if(ff.object){
-    nameCgh <- getffObjNoOpen(cghRDataName, silent = TRUE)
-    arrayNames <- colnames(get(nameCgh))
-    narrays <- ncol(get(nameCgh))
-##    nvalues <- nrow(get(nameCgh))
-    ## close(get(nameCgh))
-  } else {
-    arrayNames <- colnames(cghRDataName)
-    narrays <- ncol(cghRDataName)
-##    nvalues <- nrow(cghRDataName)
-  }
-
-
-
-  
-  out0 <- distribute(type = typeParall,
-                     mc.cores = mc.cores,
-                     tableArrChrom$Index,
-                     internalBioHMM,
-                     tableArrChrom,
-                     cghRDataName,
-                     posRDataName,
-                     aic.or.bic,
-                     ff.object,
-                     silent = TRUE,
-                     certain_noNA,
-                     loadBalance = loadBalance)
-  ## nodeWhere("pSegmentBioHMM_0")
-  te <- unlist(unlist(lapply(out0, function(x) inherits(x, "my-try-error"))))
-  if(any(te)) {
-    m1 <- "The BioHMM code occassionally crashes (don't blame us!)."
-    m2 <- "You can try rerunning it a few times."
-    m2b <- "You can use another method. "
-    m3 <- "You can also tell the authors of the BioHMM package"
-    m4 <- " that you get the error(s): \n\n "
-    mm <- paste(m1, m2, m2b, m3, m4, paste(out0[which(te)], collapse = "    \n   "))
-    caughtError(mm)
-  }
-
-  ## Parallelized by array
-  if(merging == "mergeLevels") {
-    out <- distribute(type = typeParall,
-                      mc.cores = mc.cores,
-                      1:narrays,
-                      internalMerge,
-                      out0,
-                      tableArrChrom,
-                      cghRDataName,
-                      ff.object,
-                      certain_noNA,
-                      loadBalance = loadBalance
-                      )
-  } else if(merging == "MAD") {
-    out <- distribute(type = typeParall,
-                      mc.cores = mc.cores,
-                      1:narrays,
-                      internalMADCall,
-                      out0,
-                      tableArrChrom,
-                      cghRDataName,
-                      mad.threshold,
-                      ff.object,
-                      certain_noNA,
-                      loadBalance = loadBalance)
-  } else {
-    stop("This merging method not recognized")
-  }
-
-  ## Clean up ff files
-  if(ff.object) lapply(out0, delete)
-  rm(out0)
-  gc()
-  ## nodeWhere("pSegmentHMM_1")
-  return(outToffdf2(out, arrayNames, ff.out = ff.object))
-  
-}
-
-internalBioHMM <- function(tableIndex, tableArrChrom, cghRDataName,
-                           posRDataName, aic.or.bic, ff.object,
-                           certain_noNA) {
-  ff.out <- ff.object
-  arrayIndex <- tableArrChrom[tableIndex, "ArrayNum"]
-  chromPos <- unlist(tableArrChrom[tableIndex, c("posInit", "posEnd")])
-  ## nodeWhere("internalBioHMM")
-  if(ff.object) {
-    return(BioHMMWrapper(getCGHValue(cghRDataName, arrayIndex, chromPos),
-                         getPosValue(posRDataName, chromPos),
-                         aic.or.bic, ff.out,
-                         certain_noNA))
-  } else {
-    return(BioHMMWrapper(cghRDataName[seq.int(from = chromPos[1], to = chromPos[2]),
-                                      arrayIndex],
-                         posRDataName[seq.int(from = chromPos[1], to = chromPos[2])],
-                         aic.or.bic, ff.out,
-                         certain_noNA))
-  }
-  
-  ## return(BioHMMWrapper(getCGHValue(cghRDataName, arrayIndex, chromPos),
-  ##                      getPosValue(posRDataName, chromPos), aic.or.bic))
-}
-
-BioHMMWrapper <- function(logratio, Pos, aic.or.bic, ff.out,
-                          certain_noNA) {
-##  cat("\n       .... running BioHMMWrapper \n")
-  ydat <- matrix(logratio, ncol=1)
-
-  if(!certain_noNA) {
-      cleanDataList <- expungeNA(ydat)
-      ydat <- local(cleanDataList$x_clean)
-      Pos <- Pos[cleanDataList$pos_clean]
-  }
-  
-  n <- length(ydat)
-
-  ## res <- try(snapCGH::fit.model(sample = 1, chrom = 1, dat = matrix(ydat, ncol = 1),
-  ##                               datainfo = data.frame(Name = 1:n, Chrom = rep(1, n),
-  ##                                   Position = Pos),
-  ##                               aic = ifelse(aic.or.bic == "AIC", TRUE, FALSE),
-  ##                               bic = ifelse(aic.or.bic == "BIC", TRUE, FALSE)
-  ##                               ))
-  res <- try(fit.model(sample = 1, chrom = 1, dat = matrix(ydat, ncol = 1),
-                       datainfo = data.frame(Name = 1:n, Chr = rep(1, n),
-                           Position = Pos),
-                       aic = ifelse(aic.or.bic == "AIC", TRUE, FALSE),
-                       bic = ifelse(aic.or.bic == "BIC", TRUE, FALSE)
-                       ))
-  rm(Pos)
-  rm(ydat)
-
-  ## nodeWhere("BioHMMWrapper")
-  if(inherits(res, "try-error")) {
-    try(rm(cleanDataList))
-    gc()
-    class(res) <- "my-try-error"
-    return(res)
-  } else {
-    mean.out <- res$out.list$mean
-    rm(res)
-    if(!certain_noNA) {
-        mean.out <- local(inpungeNA(mean.out,
-                                    cleanDataList$lx,
-                                    cleanDataList$pos_clean,
-                                    cleanDataList$nas))
-        rm(cleanDataList)
-        gc()
-    }
-    if(ff.out) {
-      return(ffVecOut(mean.out))      
-    } else {
-      return(mean.out)
-    }
-  }
-}
-
 pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                            merging = "MAD", mad.threshold = 3,
                            typeParall = "fork",
@@ -3473,18 +3286,18 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
     tableArrChrom <- wrapCreateTableArrChr(cghRDataName, chromRDataName)
   else
     tableArrChrom <- createTableArrChrom(colnames(cghRDataName),
-                                                  chromRDataName)
+                                         chromRDataName)
 
   if(ff.object){
     nameCgh <- getffObjNoOpen(cghRDataName, silent = TRUE)
     arrayNames <- colnames(get(nameCgh))
     narrays <- ncol(get(nameCgh))
-##    nvalues <- nrow(get(nameCgh))
+    ##    nvalues <- nrow(get(nameCgh))
     ## close(get(nameCgh))
   } else {
     arrayNames <- colnames(cghRDataName)
     narrays <- ncol(cghRDataName)
-##    nvalues <- nrow(cghRDataName)
+    ##    nvalues <- nrow(cghRDataName)
   }
 
   
@@ -3503,7 +3316,7 @@ pSegmentCGHseg <- function(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                      ff.object,
                      certain_noNA,
                      loadBalance = loadBalance)
-    ## nodeWhere("pSegmentCGHseg_0")
+  ## nodeWhere("pSegmentCGHseg_0")
 
   ## Parallelized by array
   if(merging == "mergeLevels") {
@@ -3594,11 +3407,11 @@ internalCGHseg <- function(tableIndex, tableArrChrom, cghRDataName, CGHseg.thres
     y <- getCGHValue(cghRDataName, arrayIndex, chromPos)
   } else {
     y <- cghRDataName[seq.int(from = chromPos[1], to = chromPos[2]),
-                                      arrayIndex]
+                      arrayIndex]
   }
   if(!certain_noNA) {
-      cleanDataList <- expungeNA(y)
-      y <- cleanDataList$x_clean
+    cleanDataList <- expungeNA(y)
+    y <- cleanDataList$x_clean
   }
   
   n <- length(y)
@@ -3619,17 +3432,17 @@ internalCGHseg <- function(tableIndex, tableArrChrom, cghRDataName, CGHseg.thres
   ## nodeWhere("internalCGHseg")
 
   if(certain_noNA) {
-      return(piccardsStretch01(obj1, optk, n, y, merging, ff.out,
-                               lx = NA,
-                               pos_clean = NA,
-                               nas = NA,
-                               certain_noNA = TRUE))
+    return(piccardsStretch01(obj1, optk, n, y, merging, ff.out,
+                             lx = NA,
+                             pos_clean = NA,
+                             nas = NA,
+                             certain_noNA = TRUE))
   } else {
-      return(piccardsStretch01(obj1, optk, n, y, merging, ff.out,
-                               lx = cleanDataList$lx,
-                               pos_clean = cleanDataList$pos_clean,
-                               nas = cleanDataList$nas,
-                               certain_noNA = FALSE))
+    return(piccardsStretch01(obj1, optk, n, y, merging, ff.out,
+                             lx = cleanDataList$lx,
+                             pos_clean = cleanDataList$pos_clean,
+                             nas = cleanDataList$nas,
+                             certain_noNA = FALSE))
   }
   ## return(piccardsStretch01(obj1, optk, n, y, merging, ff.out))
 

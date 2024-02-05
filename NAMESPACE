@@ -3,7 +3,6 @@ useDynLib(ADaCGH2, .registration = TRUE, .fixes = "C_")
 export("pSegmentDNAcopy",
        "pSegmentWavelets",
        "pSegmentHMM",
-       "pSegmentBioHMM",
        "pSegmentGLAD",
        "pSegmentCGHseg",
        "pSegmentHaarSeg",
@@ -23,7 +22,6 @@ importFrom("DNAcopy", getbdry)
 importFrom("tilingArray", segment)
 
 
-importFrom("snapCGH", fit.model)
 importFrom("aCGH", mergeLevels, create.aCGH, find.hmm.states, "hmm<-")
 import(GLAD) 
 importFrom("waveslim", modwt, imodwt)

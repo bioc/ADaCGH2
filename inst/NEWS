@@ -1,3 +1,7 @@
+Changes in version 2.43.1 (2024-02-06):
+	- Removed dependency from snapCGH (and functionality related to snapCGH).
+      	  The snapCGH package was deprecated in Bioconductor 3.18 and removed in 3.19.
+
 Changes in version 2.39.1 (2023-04-14):
 	- Fixed "DLL requires the use of native symbols" with R-4.3.0.
 

@@ -43,14 +43,8 @@ inputToADaCGH(ff.or.RAM = "RAM",
 
 
   \item{MAList}{The name of an object of class \code{MAList}
-    %% (\code{\link[limma]{as.MAList}})
-    %% (\code{\link[limma]{MAList-class}})
-    %% (\code{\link{MAList-class}})
-    %% OK, I give up
-    (\code{as.MAList})
-    or \code{SegList} (e.g.,
-    \code{\link{dim.SegList}}). See vignnettes for these
-    packages (\pkg{limma} and \pkg{snapCGH}) for details about these
+       (\code{as.MAList}). See vignnettes of
+    package \pkg{limma} for details about these
     objects.
 
     
@@ -59,8 +53,9 @@ inputToADaCGH(ff.or.RAM = "RAM",
   }
 
   \item{cloneinfo}{A character vector with the full path to a file that
-    conforms to the characteristics of \code{file} in function
-    \code{\link[snapCGH]{read.clonesinfo}} (see details in the vignette)
+    conforms to the characteristics of \code{file} in the
+     function  \code{read.clonesinfo} from the no-longer-available
+    \code{snapCGH} package (see details in the vignette)
     or the name of a data frame with at least a column named "Chr" (with
     chromosomal informtaion) and "Position".
 
@@ -200,8 +195,7 @@ inputToADaCGH(ff.or.RAM = "RAM",
 
   
   
-  Commented examples of reading objects from \pkg{limma} and
-  \pkg{snapCGH} are provided in the vignnette.
+  Commented examples of reading objects from \pkg{limma}  are provided in the vignnette.
   %%  ~~ If necessary, more details than the description above ~~
 }
 

@@ -2,7 +2,6 @@
 \alias{pSegmentDNAcopy}
 \alias{pSegmentHMM}
 \alias{pSegmentGLAD}
-\alias{pSegmentBioHMM}
 \alias{pSegmentCGHseg}
 \alias{pSegmentWavelets}
 \alias{pSegmentHaarSeg}
@@ -57,17 +56,6 @@ pSegmentHMM(cghRDataName, chromRDataName,
             loadBalance = TRUE,
             ...)
 
-
-
-pSegmentBioHMM(cghRDataName, chromRDataName, posRDataName,
-               merging = "mergeLevels", mad.threshold = 3,
-               aic.or.bic = "AIC",
-               typeParall = "fork",
-               mc.cores = detectCores(),
-               certain_noNA = FALSE,
-               loadBalance = TRUE,
-               ...)
-
 pSegmentCGHseg(cghRDataName, chromRDataName, CGHseg.thres = -0.05,
                merging = "MAD", mad.threshold = 3,
                typeParall = "fork",
@@ -118,7 +106,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     \code{\link{inputToADaCGH}} to produce these type of files.
 
     Note that the type of object in \code{cghRDataName},
-    \code{chromRDataName}, \code{posRDataName}, should all be of the
+    \code{chromRDataName}, should all be of the
     same type: all \code{ff} objects, or all RAM objects, the usual R
     objects. Moreover, the type of input determines the type of output:
     if you use \code{ff} objects as input, you will get the output as an
@@ -130,11 +118,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     RAM R object with the data. Function
     \code{\link{inputToADaCGH}} produces these type of files. }
   
-  \item{posRDataName}{The RData file name with the ff double vector with
-    the location (e.g., position in kbases) of each probe in the
-    chromosome, or the name of the in-memory RAM R object with the
-    data. Function \code{\link{inputToADaCGH}} produces these
-    type of files.}
+ 
   
   \item{merging}{Merging method; for most methods one of "MAD" or
     "mergeLevels". For CBS (pSegmentDNAcopy),  GGHseg (pSegmentCGHseg),
@@ -211,8 +195,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     largest possible segment that can be detected. The default is value is
     5, corresponding to step of 32 probes in each direction.}
 
-  \item{aic.or.bic}{For HMM and BioHMM. One of "AIC" or "BIC". See
-  \option{criteria} in \code{\link[snapCGH]{runBioHMM}}.} 
+  \item{aic.or.bic}{For HMM. One of "AIC" or "BIC". } 
 
 
   \item{CGHseg.thres}{The threshold for the adaptive penalization in
@@ -277,7 +260,7 @@ you can use both \code{typeParall = "cluster"} and \code{typeParall =
 
 
 
-For HMM, BioHMM, CGHseg, and Wavelets, the first part of the analysis is
+For HMM, CGHseg, and Wavelets, the first part of the analysis is
 conducted parallelizing over array by chromosome (because the methods
 are slow and/or very memory consuming). The final step (merging),
 however, is carried out over array (it is a step that must be carried
@@ -306,7 +289,7 @@ When using GLAD, we use the HaarSeg approach. This is the same as using
 the \code{daglad} function with argument \code{smoothfunc = "haarseg"}.
 
 
-For BioHMM and HMM the smoothed results are merged, by default by the
+For HMM the smoothed results are merged, by default by the
 mergeLevels algorithm, as recommended in \cite{Willenbrock and
 Fridlyand, 2005}. For DNAcopy the default used to be mergeLevels,
 following the above recommendations, but we are now using MAD by
@@ -409,14 +392,6 @@ CGH-data. \emph{Bioinformatics}, \bold{21}: 821--822.
 
 
 
-Marioni, J. C.  and Thorne, N. P.  and Tavare, S. (2006). BioHMM: a
-heterogeneous hidden Markov model for segmenting array CGH
-data. \emph{Bioinformatics}, \bold{22}: 1144--1146.
-
-
-
-
-
   Olshen, A. B.  and Venkatraman, E. S.  and Lucito, R.  and Wigler,
   M. (2004) Circular binary segmentation for the analysis of array-based
   DNA copy number data. \emph{Biostatistics}, \bold{4}, 557--572.
@@ -460,10 +435,10 @@ the Segmentation of aCGH Data, \emph{Bioinformatics}, \bold{24}: i139-i145.
 
 \author{
 
-The code for DNAcopy, HMM, BioHMM, and GLAD are basically wrappers
+The code for DNAcopy, HMM,  and GLAD are basically wrappers
 around the original functions by their corresponding authors, with some
 modiffications for parallelization and usage of ff objects. The original
-packages are: \code{DNAcopy}, \code{aCGH}, \code{snapCGH}, \code{cgh},
+packages are: \code{DNAcopy}, \code{aCGH},  \code{cgh},
 \code{GLAD}, respectively. The CGHseg method uses package
 \code{tilingArray}.
 
