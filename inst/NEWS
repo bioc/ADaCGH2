@@ -1,3 +1,6 @@
+Changes in version 2.47.1 (2025-02-19):
+	- Removed dependency on GLAD. GLAD fails in all platforms on BioC 3.21.
+
 Changes in version 2.43.1 (2024-02-06):
 	- Removed dependency from snapCGH (and functionality related to snapCGH).
       	  The snapCGH package was deprecated in Bioconductor 3.18 and removed in 3.19.

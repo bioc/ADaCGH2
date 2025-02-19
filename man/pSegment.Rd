@@ -35,10 +35,10 @@ pSegmentDNAcopy(cghRDataName, chromRDataName, merging = "MAD",
                 ...)
 
 pSegmentHaarSeg(cghRDataName, chromRDataName,
-                merging = "MAD", mad.threshold = 3, 
+                merging = "MAD", mad.threshold = 3,
                 W = vector(),
-                rawI = vector(), 
-                breaksFdrQ = 0.001,			  
+                rawI = vector(),
+                breaksFdrQ = 0.001,
                 haarStartLevel = 1,
                 haarEndLevel = 5,
                 typeParall = "fork",
@@ -95,7 +95,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  
+
   \item{cghRDataName}{The Rdata file name that contains the
     \code{\link[ff]{ffdf}} with the aCGH data or the name of the
     in-memory, RAM, R object with the data (a data frame).
@@ -111,22 +111,22 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     objects. Moreover, the type of input determines the type of output:
     if you use \code{ff} objects as input, you will get the output as an
     \code{ff} object.  }
-    
-    
+
+
   \item{chromRDataName}{The RData file name with the ff (short integer)
     vector with the chromosome indicator, or the name of the in-memory
     RAM R object with the data. Function
     \code{\link{inputToADaCGH}} produces these type of files. }
-  
- 
-  
+
+
+
   \item{merging}{Merging method; for most methods one of "MAD" or
     "mergeLevels". For CBS (pSegmentDNAcopy),  GGHseg (pSegmentCGHseg),
     HaarSeg (pSegmentHaarSeg), and Wavelets (as
     in Hsu et al. ---pSegmentWavelets)  also "none". This option
     does not apply to GLAD (which has its own merging-like approach). See
     details.}
-  
+
   \item{mad.threshold}{If using \code{merging = "MAD"} the value such
     that all segments where abs(smoothed value) > m*MAD will be declared
     aberrant ---see p. i141 of Ben-Yaacov and Eldar. No effect if
@@ -159,29 +159,29 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
   \code{\link{clusterApply}}) and a similar approach for
   forking ( set \code{mc.preschedule = FALSE} in the call to
   \code{\link{mclapply}} ).}
-      
+
 \item{smooth}{For DNAcopy only. If TRUE (default) carry out smoothing as
   explained in \code{\link[DNAcopy]{smooth.CNA}}.}
 
-  
-  \item{alpha}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
-  \item{nperm}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
-  \item{p.method}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
-  \item{min.width}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
+
+  \item{alpha}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
+  \item{nperm}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
+  \item{p.method}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
+  \item{min.width}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
   \item{kmax}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
   \item{nmin}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
-  \item{eta}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
-  \item{trim}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
-  \item{undo.splits}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
-  \item{undo.prune}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
-  \item{undo.SD}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.} 
+  \item{eta}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
+  \item{trim}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
+  \item{undo.splits}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
+  \item{undo.prune}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
+  \item{undo.SD}{For DNAcopy only. See \code{\link[DNAcopy]{segment}}.}
 
 
-  \item{W}{For HaarSeg:  Weight matrix, corresponding to quality of measurment. 
+  \item{W}{For HaarSeg:  Weight matrix, corresponding to quality of measurment.
     Insert 1/(sigma**2) as weights if your platform output sigma as
     the quality of measurment. W must have the same size as I.}
   \item{rawI}{For HaarSeg. Mininum of the raw red and raw green measurment, before the log.
-    rawI is used for the non-stationary variance compensation. 
+    rawI is used for the non-stationary variance compensation.
     rawI must have the same size as I. }
   \item{breaksFdrQ}{For HaarSeg.  The FDR q parameter. Common used
     values are 0.05, 0.01, 0.001. Default value is 0.001.}
@@ -195,7 +195,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     largest possible segment that can be detected. The default is value is
     5, corresponding to step of 32 probes in each direction.}
 
-  \item{aic.or.bic}{For HMM. One of "AIC" or "BIC". } 
+  \item{aic.or.bic}{For HMM. One of "AIC" or "BIC". }
 
 
   \item{CGHseg.thres}{The threshold for the adaptive penalization in
@@ -215,7 +215,7 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
   \item{GLADdetails}{Only for GLAD. If set to TRUE the function returns
   verbose output about where it is along the execution. This option
   (setting it to FALSE) is likely to become hard-coded in the future.}
-  
+
 
 
   \item{minMergeDiff}{Used only when doing merging in the wavelet
@@ -233,8 +233,8 @@ pSegmentWavelets(cghRDataName, chromRDataName, merging = "MAD",
     al.}
 
   \item{initClusterLevels}{For Wavelets (Hsu et al.). The initial number of clusters to form. }
- 
-  
+
+
   \item{...}{Additional arguments; not used.}
 }
 
@@ -268,12 +268,12 @@ array-wise). For all other methods, we have parallelized over arrays:
 the extra communication overheads of the much finer-grained
 parallelization of array by chromosome are rarely justified with these
 methods and, in the case of GLAD, would require modifying the original C
-code. 
+code.
 
 
 % We have parallelized all computations by array (in contrast to former
 % versions of ADaCGH, where some computations, depending on number of
-% samples, could be parallelized over array*chromosome). 
+% samples, could be parallelized over array*chromosome).
 
 
 CGHseg has been implemented here following the original authors
@@ -330,29 +330,33 @@ one. When using MAD this step is implicit in the procedure ( any segment
 with absolute value larger than mad.threshold * MAD is considered
 aberrant).
 
-  
+
 Note that "mergeLevels", in addition to being used for calling gains and
 losses, results in a decrease in the number of distinct smoothed values,
 since it can merge two or more adjacent smoothed levels. "MAD", in
 contrast, performs no merging as such, but only calling.
+
+
+For \code{pSegmentGLAD} to work, of course you need GLAD, and it might
+not be available for BioConductor 3.21.
 
 }
 
 
 \value{A list of two components (the components will be either
   \code{ff} or regular, in-memory R objects, depending on the input):
-  
+
   \item{outSmoothed}{The smoothed values, as either a
     \code{\link[ff]{ffdf}} object or a data frame object. Each column is
     an array or sample, and each row a probe.}
-  
+
   \item{outState}{The calls for each probe, as either an
     \code{\link[ff]{ffdf}} object or a data frame object. Each column is
     an array or sample, and each row a probe. For methods that accept
     "none" as an argument to \option{merging}, the states cannot be
     interpreted directly as gain or loss; they are simply discrete codes
     for distinct segments.}
-  
+
   If the output uses \code{\link[ff]{ffdf}}, rows and columns of each
   element can be accessed in the usual way for \code{\link[ff]{ffdf}}
   objects, but accept also most of the usual R operations for data
@@ -364,17 +368,17 @@ contrast, performs no merging as such, but only calling.
 
 Diaz-Uriarte, R. (2014). ADaCGH2: parallelized analysis of (big) CNA
 data. \emph{Bioinformatics}, \bold{30}: 1759--1761.
-  
+
 Carro A, Rico D, Rueda O M, Diaz-Uriarte R, and Pisano DG.
   (2010). waviCGH: a web application for the analysis and visualization of
   genomic copy number alterations. \emph{Nucleic Acids Research}, \bold{38 Suppl}:W182--187.
 
-  
+
 Fridlyand, Jane   and Snijders, Antoine  M.  and Pinkel, Dan   and
 Albertson, Donna  G. (2004). Hidden Markov models approach to the
 analysis of array CGH data. \emph{Journal of Multivariate Analysis},
-\bold{90}: 132--153. 
-  
+\bold{90}: 132--153.
+
   Hsu L, Self SG, Grove D, Randolph T, Wang K, Delrow JJ, Loo L, Porter
 P. (2005) Denoising array-based comparative genomic hybridization data
 using wavelets. \emph{Biostatistics}, \bold{6}:211-26.
@@ -383,7 +387,7 @@ using wavelets. \emph{Biostatistics}, \bold{6}:211-26.
 Hupe, P.  and Stransky, N.  and Thiery, J. P.  and Radvanyi, F.  and
 Barillot, E. (2004). Analysis of array CGH data: from signal ratio to
 gain and loss of DNA regions. \emph{Bioinformatics}, \bold{20}:
-3413--3422. 
+3413--3422.
 
 
   Lingjaerde OC, Baumbusch LO, Liestol K, Glad I,
@@ -401,25 +405,25 @@ CGH-data. \emph{Bioinformatics}, \bold{21}: 821--822.
   Picard, F.  and Robin, S.  and Lavielle, M.  and Vaisse, C.  and
   Daudin, J. J. (2005). A statistical approach for array CGH data
   analysis. \emph{BMC Bioinformatics}, \bold{6},
-  27. \url{http://dx.doi.org/10.1186/1471-2105-6-27}. 
+  27. \url{http://dx.doi.org/10.1186/1471-2105-6-27}.
 
 
-  
+
   Price TS, Regan R, Mott R, Hedman A, Honey B, Daniels RJ,
 Smith L, Greenfield A, Tiganescu A, Buckle V, Ventress N, Ayyub H,
 Salhan A, Pedraza-Diaz S, Broxholme J, Ragoussis J, Higgs DR, Flint J,
 Knight SJ. (2005) SW-ARRAY: a dynamic programming solution for the
 identification of copy-number changes in genomic DNA using array
 comparative genome hybridization data. \emph{Nucleic Acids Res.},
-\bold{33}:3455-64. 
+\bold{33}:3455-64.
 
 
   Willenbrock, H. and Fridlyand, J. (2005). A comparison study: applying
   segmentation to array CGH data for downstream
   analyses. \emph{Bioinformatics}, \bold{21}, 4084--4091.
-  
 
-  
+
+
   Diaz-Uriarte, R. and Rueda, O.M. (2007). ADaCGH: A parallelized
   web-based application and R package for the analysis of aCGH data,
   \emph{PLoS ONE}, \bold{2}: e737.
@@ -457,7 +461,7 @@ calls. Their original code is included in the sources of the package.
 
 
 Parallelization and modifications for using ff and additions are by
-Ramon Diaz-Uriarte         
+Ramon Diaz-Uriarte
 \email{rdiaz02@gmail.com}
 
 }
@@ -555,7 +559,7 @@ inputToADaCGH(ff.or.RAM = "ff",
 
 ## Segment with HaarSeg
 
-##    You might want to adapt mc.cores to your hardware    
+##    You might want to adapt mc.cores to your hardware
 haar.ff.fork <- pSegmentHaarSeg("cghData.RData",
                                 "chromData.RData",
                                 merging = "MAD",
@@ -579,7 +583,7 @@ haar.ff.fork
 
 cl2 <- parallel::makeCluster(2,"PSOCK")
 parallel::clusterSetRNGStream(cl2)
-parallel::setDefaultCluster(cl2) 
+parallel::setDefaultCluster(cl2)
 parallel::clusterEvalQ(NULL, library("ADaCGH2"))
 ## The following is not really needed if you create the cluster AFTER
 ## changing directories. But better to be explicit.
@@ -683,8 +687,8 @@ unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
 % #### Writing
 % common <- cghE1[, 1:4]
 % writeResults(hmm.out, cghE1[, 5:7], common)
-% writeResults(glad.out, cghE1[, 5:7], common)        
-% writeResults(cghseg.out, cghE1[, 5:7], common)   
+% writeResults(glad.out, cghE1[, 5:7], common)
+% writeResults(cghseg.out, cghE1[, 5:7], common)
 % writeResults(ace.out.sum, cghE1[, 5:7], common)
 % writeResults(wave.out, cghE1[, 5:7], common)
 % writeResults(wave.nm.out, cghE1[, 5:7], common)
@@ -697,7 +701,7 @@ unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
 
 
 
-% segmentPlot(hmm.out, 
+% segmentPlot(hmm.out,
 %             geneNames = cghE1[, 1],
 %             yminmax = yminmax,
 %             idtype = "ug",
@@ -715,13 +719,13 @@ unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
 %             idtype = "ug",
 %             organism = "Hs")
 
-% segmentPlot(wave.out, 
+% segmentPlot(wave.out,
 %             geneNames = cghE1[, 1],
 %             yminmax = yminmax,
 %             idtype = "ug",
 %             organism = "Hs")
 
-% segmentPlot(wave.out, 
+% segmentPlot(wave.out,
 %             geneNames = cghE1[, 1],
 %             yminmax = yminmax,
 %             idtype = "ug",
@@ -733,7 +737,7 @@ unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
 %             idtype = "ug",
 %             organism = "Hs")
 
-% segmentPlot(cbs.out, 
+% segmentPlot(cbs.out,
 %             geneNames = cghE1[, 1],
 %             yminmax = yminmax,
 %             idtype = "ug",
@@ -751,13 +755,13 @@ unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
 %             idtype = "ug",
 %             organism = "Hs"))
 
-% try(segmentPlot(biohmm.out, 
+% try(segmentPlot(biohmm.out,
 %             geneNames = cghE1[, 1],
 %             yminmax = yminmax,
 %             idtype = "ug",
 %             organism = "Hs"))
 
-% segmentPlot(ace.out.sum, 
+% segmentPlot(ace.out.sum,
 %             geneNames = cghE1[, 1],
 %             yminmax = yminmax,
 %             idtype = "ug",
@@ -1206,4 +1210,3 @@ unlink("ADaCGH2_example_tmp_dir", recursive = TRUE)
 % Sys.sleep(2)
 
 % }
-

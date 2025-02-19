@@ -1764,6 +1764,19 @@ inpungeNA <- function(x, lx, pos_clean, nas) {
 #####################################################
 #####################################################
 
+
+## These used to be defined in GLAD
+utils::globalVariables(c("chrBreakpoints", "OptimBkpFindCluster",
+                         "DelRegionTooSmal", "prepare.output.daglad",
+                         "BkpInfo",  "chrBreakpoints",
+                         "DelRegionTooSmall",  "filterBkpStep",
+                         "MoveBkpStep", "OptimBkpFindCluster",
+                         "OutliersGNL"))
+
+
+
+
+
 pSegmentGLAD <- function(cghRDataName, chromRDataName,
                          deltaN = 0.10,
                          forceGL = c(-0.15, 0.15),

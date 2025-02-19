@@ -23,7 +23,7 @@ importFrom("tilingArray", segment)
 
 
 importFrom("aCGH", mergeLevels, create.aCGH, find.hmm.states, "hmm<-")
-import(GLAD) 
+## import(GLAD) ## No longer, as GLAD not available for BioC 3.21
 importFrom("waveslim", modwt, imodwt)
 importFrom("cluster", pam, clara)
 
@@ -34,5 +34,3 @@ importFrom("stats", "IQR", "mad", "median", "na.omit", "pnorm",
            "qnorm", "runif", "update")
 importFrom("utils", "capture.output", "data", "file_test",
            "object.size", "packageDescription", "read.table")
-
-
