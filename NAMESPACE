@@ -23,7 +23,7 @@ importFrom("tilingArray", segment)
 
 
 importFrom("aCGH", mergeLevels, create.aCGH, find.hmm.states, "hmm<-")
-## import(GLAD) ## No longer, as GLAD not available for BioC 3.21
+## import(GLAD) ## No longer, as GLAD sometimes not available for BioC 3.21
 importFrom("waveslim", modwt, imodwt)
 importFrom("cluster", pam, clara)
 
