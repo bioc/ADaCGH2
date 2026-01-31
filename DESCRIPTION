@@ -1,7 +1,7 @@
 Package: ADaCGH2
-Version: 2.51.0
-Date: 2025-04-08
-Title: Analysis of big data from aCGH experiments using parallel computing and ff objects
+Version: 2.51.1
+Date: 2026-01-31
+Title: Analysis of Big Data from aCGH Experiments using Parallel Computing and ff Objects
 Author: Ramon Diaz-Uriarte <rdiaz02@gmail.com> and Oscar M. Rueda <rueda.om@gmail.com>. Wavelet-based aCGH smoothing code from Li Hsu <lih@fhcrc.org> and Douglas Grove <dgrove@fhcrc.org>. Imagemap code from Barry Rowlingson <B.Rowlingson@lancaster.ac.uk>. HaarSeg code from Erez Ben-Yaacov; downloaded from <http://www.ee.technion.ac.il/people/YoninaEldar/Info/software/HaarSeg.htm>. Code from ffbase <https://github.com/edwindj/ffbase> by Edwin de Jonge <edwindjonge@gmail.com>, Jan Wijffels, Jan van der Laan.
 Maintainer: Ramon Diaz-Uriarte <rdiaz02@gmail.com>
 Depends: R (>= 3.2.0), parallel, ff

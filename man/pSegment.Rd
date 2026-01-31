@@ -399,13 +399,13 @@ CGH-data. \emph{Bioinformatics}, \bold{21}: 821--822.
   Olshen, A. B.  and Venkatraman, E. S.  and Lucito, R.  and Wigler,
   M. (2004) Circular binary segmentation for the analysis of array-based
   DNA copy number data. \emph{Biostatistics}, \bold{4}, 557--572.
-  \url{http://www.mskcc.org/biostat/~olshena/research}.
+
 
 
   Picard, F.  and Robin, S.  and Lavielle, M.  and Vaisse, C.  and
   Daudin, J. J. (2005). A statistical approach for array CGH data
   analysis. \emph{BMC Bioinformatics}, \bold{6},
-  27. \url{http://dx.doi.org/10.1186/1471-2105-6-27}.
+  27. \doi{10.1186/1471-2105-6-27}.
 
 
 

@@ -8,7 +8,7 @@
 \description{
   A fictitious aCGH data set.
 }
-\usage{inputEx}
+\usage{data(inputEx)}
 
 \format{A data frame with 500 rows and 6 columns; the last three
   correspond to the aCGH data for three samples. There are data for five
@@ -23,10 +23,3 @@
 %   \url{http://adacgh.bioinfo.cnio.es}.
 % }
 \keyword{datasets}
-
-
-
-
-
-
-

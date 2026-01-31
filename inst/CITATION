@@ -1,6 +1,6 @@
 citHeader("To cite ADaCGH2 in publications use:")
 
-citEntry(entry="Article",
+bibentry("Article",
          author = "R Diaz-Uriarte",
          title = "ADaCGH2: parallelized analysis of (big) CNA data.",
          journal = "Bioinformatics",
@@ -10,6 +10,6 @@ citEntry(entry="Article",
          number = "12",
          pages = "1759--1761",
          textVersion = paste("R Diaz-Uriarte.",
-             "ADaCGH2: parallelized analysis of (big) CNA data.",
-             "Bioinformatics, 30(12):1759--1761, 2014.")
+                             "ADaCGH2: parallelized analysis of (big) CNA data.",
+                             "Bioinformatics, 30(12):1759--1761, 2014.")
 )

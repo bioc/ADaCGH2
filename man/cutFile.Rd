@@ -16,7 +16,7 @@ cutFile(filename,
         chrom.col,
         pos.col,
         sep = "\t",
-        cols = NULL, 
+        cols = NULL,
         mc.cores = detectCores(),
         delete.columns = NULL,
         fork = FALSE)
@@ -29,20 +29,20 @@ cutFile(filename,
   for position, and one or more for data. The column is expected to have
   a first row with an identifier. All columns are to be separated by a
   single separating ccharacter \code{colsep}.}
-  
+
   \item{id.col}{The number of the column (starting from 1) that should
     be used as ID. This is the name before any columns are possibly
     deleted (see argument \code{delete.columns}).}
-  
+
   \item{chrom.col}{The number of the column (starting from 1) that
     should be used as the identifier for Chromosome. This is the name
     before any columns are possibly deleted (see argument
     \code{delete.columns}).}
-  
+
   \item{pos.col}{The number of the column (starting from 1) that should
     be used as the position (the coordinates). This is the name before any
     columns are possibly deleted (see argument \code{delete.columns}).}
-  
+
   \item{cols}{The number of columns of the file. If not specified, we
     try to guess it. But guessing can be dangerous.}
 
@@ -54,9 +54,9 @@ cutFile(filename,
     consecutive tab or space field separators are taken as one ---this
     is also the behavior in \code{read.table} or awk, which is what we
     use.}
-  
+
   \item{mc.cores}{The number of processes to launch simultaneously.}
-  
+
   \item{delete.columns}{The number of the columns (starting from 1) that
     you do not want to preserve. You probably do not want to have too
     many of these, and if you do you should note that the file is cut
@@ -76,7 +76,7 @@ cutFile(filename,
   function should work under Mac OS, and it does in the machines we've
   tried it, but it seems not to work on the BioC testing machine.
 
-  
+
   This function basically calls "head" and "awk" using \code{system},
   and trying to divide all the jobs into as many cores as you specify
   (argument \code{cores}). %% There
@@ -86,13 +86,13 @@ cutFile(filename,
 \value{
 
   This function is used for it main effect: cutting a file into
-  individual one-column files. These files are names "col_1.txt",
+  individual one-column files. These files are named "col_1.txt",
   "col_2.txt", etc, and there are three called "ID.txt", "Chrom.txt",
   "Pos.txt". The files are created in the current working directory.
 
   As we move the files corresponding to "ID", "Chrom", and "Position",
   the stdout output is shown to the user (to check that things worked).
-  
+
   After calling this function, you can call
   \code{\link{inputToADaCGH}}.  }
 

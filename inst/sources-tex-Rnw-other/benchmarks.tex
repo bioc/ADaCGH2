@@ -24,7 +24,8 @@
 \newdateformat{mydate}{\THEDAY-\monthname[\THEMONTH]-\THEYEAR}
 
 \title{Benchmarking ADaCGH2 and comparison with previous versions}
-\date{\mydate\today}
+% \date{\mydate\today}
+\date{28-December-2013; re-compiled fixing R CMD check notes on 31-January-2026}
 \author{Ramon Diaz-Uriarte$^{1}$}
 
 
@@ -97,12 +98,12 @@ over the initial one documented in the PLoS ONE paper, mainly:
   smaller than the ones for v.\ 1.10, and analyses were also  slower.
 \item Two algorithms, ACE and PSW, were eliminated because of little
   usage, and a new and very fast one, HaarSeg, included.
-\item Input from, and output to, other BioConductor packages was added. 
+\item Input from, and output to, other BioConductor packages was added.
 \end{itemize}
 
 Therefore, in what follows, ``old'' refers to v.\ 1.10, as available from
 BioConductor 2.12, and ``new'' to versions $ge 2.3$, and those are the
-versions that will be compared. 
+versions that will be compared.
 
 
 \subsection{Data set and hardware}
@@ -113,7 +114,7 @@ We will use a simulated data set that contains 6,067,433 rows and up to
 probes and data for up to 4000 subjects. Many of the examples shown below
 will use smaller subsets of the data, smaller in terms of the number of
 subjects or samples (columns). There are 421,000 missing values per data
-column. 
+column.
 
 To give an idea of sizes, the ASCII file with the data for the 1000 column
 data is about 96 GB\footnote{All sizes are computed from the reported size
@@ -133,7 +134,7 @@ matrix with just the numeric data for the probes (i.e., without the first
 three columns of ID, chromosome, and location) has a size of 45.2 GB
 (therefore, the difference of 300 MB due to the first column, ID, being a
 factor with the identifiers, is minute relative to the size of the
-matrix).  
+matrix).
 
 
 
@@ -143,7 +144,7 @@ matrix).
 
  %%             used    (Mb) gc trigger    (Mb)   max used    (Mb)
  %% Ncells    6272458   335.0    9532693   509.2    6273371   335.1
- %% Vcells 6102207940 46556.2 6634368466 50616.3 6102370100 46557.4 
+ %% Vcells 6102207940 46556.2 6634368466 50616.3 6102370100 46557.4
 
 
 
@@ -167,12 +168,12 @@ might vary). Therefore, in the table entries below, executions using both
 nodes will indicate ``124 cores'' \footnote{124 is not a typo; it is 124,
   even if the total number of cores is $128 = 64 * 2$. This is due to the
   following documented issue with Open MPI and Infiniband:
-  \url{http://www.open-mpi.org/community/lists/users/2011/07/17003.php},
+  \url{https://www.open-mpi.org/community/lists/users/2011/07/17003.php},
   and since $128^2 = 16384$, we are hitting the limit, and we have not had
   a chance to correct this problem yet. Regardless, the penalty we would
   pay would be a difference of 4 process out of 124.}
 
-  
+
 We will also show some examples run on an HP Z800 workstation, with 2
 Intel Xeon E5645 processors (each processor has six cores), and 64 GB of
 RAM. The data live on an ext4 partition on a SATA disk (7200 rmp). % In the
@@ -201,7 +202,7 @@ function \texttt{pSegment}):
   \texttt{DNAcopy}.
 
 \item A wavelet-based method, proposed in \cite{waves-hsu}. This is called
-  \texttt{pSegementWavelets} in ADaCGH2. 
+  \texttt{pSegementWavelets} in ADaCGH2.
 
 \item Another wavelet-based method, HaarSeg, published in
   \cite{haarseg-paper}. This was later made available as an R-package as
@@ -209,10 +210,10 @@ function \texttt{pSegment}):
 
 
 \item HMM, as described by \cite{hmm-fridlyand} and implemented in package
-  \cite{aCGHpackage}. 
+  \cite{aCGHpackage}.
 
 \item BioHMM, a non-homogeneous HMM, described in \cite{biohmm} and
-  implemented in package \cite{snapCGH}. 
+  implemented in package \cite{snapCGH}.
 
 
 \item The CGHseg method described in \cite{cghseg}. An implementation of
@@ -265,7 +266,7 @@ For the tables below, the meaning of columns is as follows:
 \item[Wall time (min.)] The ``elapsed'' entry returned by the command
   \texttt{system.time}. This is the real elapsed time, the wall time, in
   minutes, since the function was called.
-  
+
   It is important to understand that these timings can be variable. In
   many cases, we show repeated executions with the exact same settings,
   that will help show the variability in those numbers.
@@ -303,15 +304,15 @@ For the tables below, the meaning of columns is as follows:
   Finally, note that for cases where we know that there is a single R
   process (e.g., reading with the old version), there is an excellent
   agreement between the ``Memory (GB)'' (whose value is reported from R
-  itself) and ``$\Sigma$ Memory (GB)''. 
-  
+  itself) and ``$\Sigma$ Memory (GB)''.
+
   \item[Columns] The number of data columns of the data set; the same as
     the number of arrays or the number of samples.
   \item[Method] The analysis method. ``Haar'' for HaarSeg, ``CBS'' for
     Circular Binary Segmentation (from package \texttt{DNAcopy}), ``HMM''
     for the HMM approach in package \texttt{aCGH}, ``BioHMM'' for the
     non-homogeneous HMM method in package \texttt{snapCGH}, and ``GLAD''
-    for the method with the same name in package \texttt{GLAD}. See 
+    for the method with the same name in package \texttt{GLAD}. See
     section \ref{methodproblems} for why other methods are not shown in
     the tables.
 
@@ -349,16 +350,16 @@ For the tables below, the meaning of columns is as follows:
 
 \item[Version] The version of ADaCGH2. For simplicity, ``Old'' means
   version 1.10 and ``New'' versions 2.1 and larger.
-  
+
   The post-fix ``-noNA'' means the new version was run using option
   \texttt{certain\_noNA = TRUE}; note that the old version of ADaCGH2
   assumes there are no missing values in the data. Thus,
-  \texttt{certain\_noNA = TRUE} is the closest to what the old version assumes. 
+  \texttt{certain\_noNA = TRUE} is the closest to what the old version assumes.
 
 \item[ff/RAM] Where applicable in the tables, if the data for the analysis
   had been stored as an \textit{ff} object, or as a data frame inside an
   RData that was loaded before the analysis.
-  
+
 
 \end{description}
 
@@ -493,21 +494,23 @@ point of view.
   uncommented to make these two methods available in ADaCGH2 if either of
   those packages were not to pass checks in future versions of
   BioConductor.
- 
+
 \end{description}
 
 
 
 \subsection{Data and code availability}
 
-All scripts, data, and results from these benchmarks are available from
-\url{http://www2.iib.uam.es/rduriarte\_lab/ADaCGH2-v2-suppl-files/public}. The
-scripts include the R code to obtain the tables and figures shown
-here. All of the code, scripts, and benchmark results are also available
-from my personal web site at
-\url{http://ligarto.org/rdiaz/Papers/ADaCGH2-v2-suppl-files/} (for space
-restriction reasons, the more than 140 GB of data in the form of RData and
-txt files are only available from the previous site.)
+All scripts and results are available from me. (They used to be publicly available, including the 140 GB of data in the form of RData and txt files, but the machine where those were stored broke.)
+
+% All scripts, data, and results from these benchmarks are available from
+% \url{http://www2.iib.uam.es/rduriarte\_lab/ADaCGH2-v2-suppl-files/public}. The
+% scripts include the R code to obtain the tables and figures shown
+% here. All of the code, scripts, and benchmark results are also available
+% from my personal web site at
+% \url{http://ligarto.org/rdiaz/Papers/ADaCGH2-v2-suppl-files/} (for space
+% restriction reasons, the more than 140 GB of data in the form of RData and
+% txt files are only available from the previous site.)
 
 
 
@@ -562,7 +565,7 @@ limited by reducing the number of cores used (with little effects on speed
   data sets, specially in less capable machines; these variations,
   however, are most likely of little practical relevance.
 
-  
+
 
 
 \item[Speed and number of cores in new version] Reading speed does not
@@ -666,8 +669,8 @@ to \ref{anal-lacerta-gallotia} (see also Figure\ref{fig-anal}) are:
   nodes. For CBS there is a slight advantage of running over two
   nodes. Running over more than one node to increase the number of
   cores/CPUs is, however, advantageous for the slower methods (e.g.,
-  HMM).  
-  
+  HMM).
+
   Note that these results are \textbf{highly hardware dependent}: slower
   communication between nodes or slower I/O from shared storage will make
   running over several nodes less worth it. However, increasing the
@@ -786,7 +789,7 @@ repeated calls to the function.
 
 
 \hline
-   
+
 
   \end{tabular}
 
@@ -801,7 +804,7 @@ repeated calls to the function.
       % , both o
       %  which introduce an important penalty. We must do this to make
       % analysis comparable to those of \texttt{pSegmentHaarSeg} that
-      % \textbf{always} checks, and allows, for missing values. 
+      % \textbf{always} checks, and allows, for missing values.
       If there are no missing values in this data set, the total time of
       analysis (i.e., sending the whole matrix at once and not checking
       for, nor removing, NAs) is 3.3 minutes.
@@ -852,11 +855,11 @@ used for analysis (see section \ref{ramobj}).
 
 \begin{center}
 \begin{threeparttable}
-  \caption{Time and memory usage when reading data}    
+  \caption{Time and memory usage when reading data}
 \label{large-ex-read}
 
   \begin{tabular}{lp{3.62cm}p{1.7cm}p{1.8cm}p{1.8cm}p{3.99cm}}
- 
+
  \hline   \hline
 & Reading operation&Columns & Wall time (min)& Memory (GB) & $\Sigma$ Memory (GB)\\
 \hline
@@ -872,7 +875,7 @@ used for analysis (see section \ref{ramobj}).
 
 
 \hline
-   
+
   \end{tabular}
 
   \begin{tablenotes}
@@ -910,10 +913,10 @@ shown than for similarly sized problems when using \textit{ff} objects
 \renewcommand{\arraystretch}{1.4}
 
 \begin{center}
-  
+
 \begin{threeparttable}
 
-  \caption{Time and memory usage of segmentation with default options}    
+  \caption{Time and memory usage of segmentation with default options}
   \begin{tabular}{lp{1.2cm}p{1.0cm}p{1.0cm}p{1.1cm}p{1.35cm}p{3.0cm}p{1.6cm}p{1.6cm}}
 
     \hline\hline
@@ -925,7 +928,7 @@ shown than for similarly sized problems when using \textit{ff} objects
 \rownumber&Haar & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 \rownumber&Haar & Fork &64  & RAM & 1000 & NA & NA & \textbf{Cannot allocate memory} \\
 \hline
-   
+
   \end{tabular}
 
   \begin{tablenotes}
@@ -940,7 +943,7 @@ shown than for similarly sized problems when using \textit{ff} objects
     %   % , both o
     %   %  which introduce an important penalty. We must do this to make
     %   % analysis comparable to those of \texttt{pSegmentHaarSeg} that
-    %   % \textbf{always} checks, and allows, for missing values. 
+    %   % \textbf{always} checks, and allows, for missing values.
     %   If there are no missing values in this data set, the total time of
     %   analysis (i.e., sending the whole matrix at once and not checking
     %   for, nor removing, NAs) is 3.3 minutes.
@@ -962,7 +965,7 @@ shown than for similarly sized problems when using \textit{ff} objects
 
 
 
-            
+
 
 
 
@@ -1009,12 +1012,12 @@ shown than for similarly sized problems when using \textit{ff} objects
   given that we are returning lists. In contrast, when saving as
   \textit{ff} objects, the slaves are only returning tiny objects (just
   pointers to a file).
-  
+
 \item Saving data as RData objects will also not be an option for large
   numbers of columns as we will quickly exhaust available memory when
-  trying to analyze them. 
-  
-  
+  trying to analyze them.
+
+
 \item In a single machine, and for the same number of cores, analyzing
   data with MPI is often generally slower than using forking, which is not
   surprising. Note also that with MPI there is an overhead of spawning
@@ -1022,8 +1025,8 @@ shown than for similarly sized problems when using \textit{ff} objects
   about half a minute to a minute). %% These overheads could be amortized if
   %% you continue using MPI for a session (but OpenMPI is not ideal for that
   %% scenario, in contrast to other versions such as LAM MPI).
-  
-  
+
+
 \item When using two nodes (i.e., almost doubling the number of cores),
   MPI might, or might not, be faster than using forking on a single
   node. Two main issues affect the speed differences: inter-process
@@ -1034,16 +1037,16 @@ shown than for similarly sized problems when using \textit{ff} objects
   be worth if each individual calculation is fast; this is why MPI with
   HaarSeg does not pay off, but it does pay off with HMM and is borderline
   with CBS.
-  
-  
+
+
 \item When using \textit{ff}, the exact same operations in systems with
   different RAM can lead to different amounts of memory usage, as
-  \textit{ff} tries autotuning when starting. 
+  \textit{ff} tries autotuning when starting.
 
   You can tune parameters when you load the \textbf{ff} package, but even
   if you don't (and, by default, we don't), defaults are often sensible
   and will play in your favor.
-  
+
 \item Even for relatively small examples, using \textit{ff} can be faster
   than using RAM objects. Using RAM objects incurs overheads of loading
   and saving the RData objects in memory, but analyses also tend to be
@@ -1058,8 +1061,8 @@ shown than for similarly sized problems when using \textit{ff} objects
   single data frame simultaneously from multiple processes, compared to
   loading exactly just one column independently in each process, and/or
   repeated cache misses.
-  
-  
+
+
 \item \texttt{inputToADaCGH} (i.e., transforming a directory of files into
   \textit{ff} objects) can be severely affected, of course, by other
   processes accessing the disk. More generally, since with
@@ -1073,7 +1076,7 @@ shown than for similarly sized problems when using \textit{ff} objects
   working directory for segmentation analysis is another empty directory
   if you are using \texttt{ff} objects.
 
-  
+
   \texttt{inputToADaCGH} accepts an argument to reduce the number of cores used,
   which can help with contention issues related to I/O. A multicore
   machine (say, 12 cores) with a single SATA drive might actually
@@ -1081,11 +1084,11 @@ shown than for similarly sized problems when using \textit{ff} objects
   reading. But your mileage might vary. See also comments and full tables
   in section \ref{comp-read}.
 
-   
+
 \item Reordering data takes time (a lot if you do not use \textit{ff}
   objects) and can use a lot of memory. So it is much better if input data are
   already ordered (by Chromosome and Position within Chromosome).
-  
+
 \end{enumerate}
 
 
@@ -1096,18 +1099,3 @@ shown than for similarly sized problems when using \textit{ff} objects
 
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

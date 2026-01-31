@@ -48,7 +48,7 @@ ff objects}
 Universidad Autonoma de Madrid
 Instituto de Investigaciones Biomedicas ``Alberto Sols'' (UAM-CSIC), Madrid
 (SPAIN).
-2. Structural Computational Biology Group. 
+2. Structural Computational Biology Group.
 Spanish National Cancer Center (CNIO), Madrid
 (SPAIN).
 3. Cancer Research UK
@@ -69,7 +69,7 @@ This vignette presents the ADaCGH2 package using:
   different parallelization options and types of objects (in particular,
   \textit{ff} objects) available.
 \item Examples of using ADaCGH2 with CGHregions and Limma.
- 
+
 \end{itemize}
 
 
@@ -100,24 +100,24 @@ ADaCGH2 is a package for the analysis of CGH data. The main features of ADaCGH2 
   algorithms currently available, to allow efficient usage of computing
   clusters. Parallelization can use either \textit{forking} (in Unix-like
   OSs) or sockets, MPI, etc, as provided by package \textit{snow}
-  (\url{http://cran.r-project.org/web/packages/snow/index.html}).
-  
+  (\url{https://CRAN.r-project.org/package=snow}).
+
   Forking will probably be the fastest approach in multicore machines,
   whereas MPI or sockets will be used with clusters made of several
   independent machines with few CPUs/cores each.
-  
+
 \item Optional storage of, and access to, data using the \textit{ff}
-  package (\url{http://cran.r-project.org/web/packages/ff/index.html}),
+  package (\url{https://CRAN.r-project.org/package=ff}),
   making it possible to analyze data from very large projects and/or use
   machines with limited memory.
-  
-  
+
+
 \item Parallelization and \textit{ff} can be used simultaneously. WaviCGH
-  \cite{Carro2010} (\url{http://wavi.bioinfo.cnio.es}), a web-server
+  \cite{Carro2010}, a web-server
   application for the analysis and visualization of array-CGH data that
   uses ADaCGH2, consitutes a clear demonstration of the usage of
-  \textit{ff} on a computing cluster with shared storage over NFS.
-  
+  \textit{ff} on a computing cluster with shared storage over NFS. (Note: the site is no longer available).
+
 \end{itemize}
 
 
@@ -136,14 +136,14 @@ reading is parallelized and makes use of temporary \textit{ff} objects and
 we allow parallelization of analysis (and data reading) using
 forking. Further details and comparisons between the old and new versions are
 provided in the document ``benchmarks.pdf'', included with this
-package. 
+package.
 
 
 
 
 \subsection{Terminology}
 
-The following is the meaning of some terms we will use repeatedly. 
+The following is the meaning of some terms we will use repeatedly.
 
 
 \begin{description}
@@ -151,11 +151,11 @@ The following is the meaning of some terms we will use repeatedly.
   tiny part of that object lives in memory, in the R session, but most of
   the object is stored on the hard drive. The part that lives in memory is
   just a pointer to the object that resides in the hard drive.
-  
-  
+
+
 \item[RAM objects] The ``usual'' R objects (in our case, mainly data
-  frames and matrices); these are stored, or live, in memory. 
-  
+  frames and matrices); these are stored, or live, in memory.
+
   Somewhat similar to what the documentation of the \texttt{ff} package
   does, we refer to these objects, that reside in memory, as RAM
   objects. Technically, a given data frame, for instance, need not be in
@@ -164,8 +164,8 @@ The following is the meaning of some terms we will use repeatedly.
   which resides in memory.  Likewise, note that \textit{ff} also have a
   small part that is in memory, but the data themselves are stored on
   disk.
-  
-    
+
+
 \item[forking] We copy literally from the vignette of the
   \textit{parallel} package \cite{Rcitation}: ``Fork is a concept from POSIX operating
   systems, and should be available on all R platforms except Windows. This
@@ -173,18 +173,18 @@ The following is the meaning of some terms we will use repeatedly.
   including the workspace and state of the random-number stream.  However,
   the copy will (in any reasonable OS) share memory pages with the master
   until modified so forking is very fast.''
-  
+
   Forking is, thus, a reasonable way of parallelizing jobs in multicore
   computers. Note, however, that this will not work \textbf{across}
   machines (for instance, across workstations in clusters of
   workstations).
-  
-  
+
+
 \item[cluster] We use it here to contrast it with \textit{forking}. With
   \textit{cluster}, tasks are sent to other R processes using, for
   instance, MPI or any of the other methods provided by package
   \textbf{snow} (e.g., PVM, sockets, or NWS).
-  
+
   For example, MPI (for ``Message Passing Interface'') is a standardized
   system for parallel computing, probably the most widely used approach
   for parallelization with distributed memory machines (such as in
@@ -193,17 +193,17 @@ The following is the meaning of some terms we will use repeatedly.
   however, we will use clusters of type \textit{socket}, as these are
   available in several OSs (including Windows), and do not require
   installation of MPI.
-  
- 
+
+
   If we are running Linux, Unix, or other POSIX operating systems, in a
   single computer with multiple cores we can use both forking and clusters
   (e.g., MPI or sockets). In most cases forking will be preferable as we
   will avoid some communication overheads and it will also probably use
   less total memory. If we are running Windows, however, we will need to
   use a cluster even in a single multicore machine.
-  
- 
-  
+
+
+
 \end{description}
 
 
@@ -275,7 +275,7 @@ The examples below cover all three possible usage patterns:
 ADaCGH2 includes functions that use as input, or produce as output, either
 \textit{ff} objects or RAM R objects. Some functions also allow you to
 choose between using forking and using other mechanisms for
-parallelization.  
+parallelization.
 
 
 
@@ -356,7 +356,7 @@ file ``benchmarks.pdf''.
 
 % With
 % forking, the R object that holds the CGH data is accessed only for
-% reading, and thus can be shared between all processes. 
+% reading, and thus can be shared between all processes.
 % This should be
 % faster than using \textit{ff} (see section \ref{to-ff}), because access to
 % disk is several orders of magnitude slower than access to memory
@@ -396,7 +396,7 @@ sources. Of course, in any specific case, you only need to use one route.
 
 As we said in section \ref{inputdata}, the data are available as an R data
 frame (\texttt{inputEx}), which we have saved as an RData file
-(\texttt{inputEx.RData}). 
+(\texttt{inputEx.RData}).
 
 
 We will use \texttt{inputToADaCGH} to produce the three objects
@@ -412,7 +412,7 @@ fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
 
 inputToADaCGH(ff.or.RAM = "RAM",
                       RDatafilename = fnameRdata)
-@ 
+@
 
 We need to provide the path to the RData file, which we stored in the
 object \texttt{fnameRData}. This RData file will contain a single data
@@ -443,7 +443,7 @@ contain the data for the arrays, one column per array.
 data(inputEx) ## make inputEx available as a data frame with that name
 inputToADaCGH(ff.or.RAM = "RAM",
                       dataframe = inputEx)
-@ 
+@
 
 
 
@@ -458,7 +458,7 @@ data(inputEx)
 cgh.dat <- inputEx[, -c(1, 2, 3)]
 chrom.dat <- as.integer(inputEx[, 2])
 pos.dat <- inputEx[, 3]
-@ 
+@
 
 
 \subsubsection{Using input data from a text file}
@@ -481,7 +481,7 @@ fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
 tmp <- inputToADaCGH(ff.or.RAM = "RAM",
                      textfilename = fnametxt,
                      mc.cores = 2)
-@ 
+@
 
 
 If you will be using a cluster created with \texttt{makeCluster} (see
@@ -501,10 +501,10 @@ in the disk.
 
 %% <<>>=
 %% fnametxt
-%% @ 
+%% @
 
 %% you will see that. As far as you are concerned, this is irrelevant here,
-%% and 
+%% and
 
 The function \texttt{inputToADaCGH} will work with both compressed
 and uncompressed files. However, if you are working with a really large
@@ -543,7 +543,7 @@ explicitly for clarity.
 
 <<eval=FALSE>>=
 help(pSegment)
-@ 
+@
 
 <<>>=
 ##    You might want to adapt mc.cores to your hardware
@@ -551,7 +551,7 @@ haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
                                    merging = "MAD",
                                  typeParall = "fork",
                                  mc.cores = 2)
-@ 
+@
 
 Since the input are RAM objects, the output is also a RAM object (a
 regular R object, in this case a list).
@@ -559,7 +559,7 @@ regular R object, in this case a list).
 <<>>=
 lapply(haar.RAM.fork, head)
 summary(haar.RAM.fork[[1]])
-@ 
+@
 
 \subsection{Plotting the results}
 \label{plot-local-fork}
@@ -583,7 +583,7 @@ pChromPlot(haar.RAM.fork,
            imgheight = 350,
            typeParall = "fork",
            mc.cores = 2)
-@ 
+@
 
 
 
@@ -647,7 +647,7 @@ originalDir <- getwd()
 ## make it explicit where we are
 print(originalDir)
 }
-@ 
+@
 
 <<>>=
 if(.Platform$OS.type != "windows") {
@@ -683,9 +683,9 @@ session). In particular, note that when we show the usage of Limma  objects as i
 
 Converting the original data to \textit{ff} objects can be done either
 before or after initializing the cluster (section \ref{initcluster}), as
-it does not use the computing cluster. The purpose of this step is to write 
+it does not use the computing cluster. The purpose of this step is to write
 the \textit{ff} files to disk, so they are available for the segmentation
-and ploting functions.  
+and ploting functions.
 
 
 \subsubsection{Data available as a data frame in an RData file}
@@ -702,7 +702,7 @@ fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
 inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 }
-@ 
+@
 
 The first command is used in this example to find the complete path of the
 example data set. The actual call to the function is the second
@@ -744,7 +744,7 @@ single step that consumes the most RAM, since we need to load the original
 data into R. Even if, after the conversion to \textit{ff}, we remove the
 original data and call \texttt{gc()}, R might not return all of the memory
 to the operating system, and this might be inconvenient in multiuser
-environments and/or long running processes. 
+environments and/or long running processes.
 
 We can try dealing with the above problems by executing the conversion to
 \textit{ff} in a separate R process that is spawned exclusively just for
@@ -759,7 +759,7 @@ mcparallel(inputToADaCGH(ff.or.RAM = "ff",
   if(inherits(tableChromArray, "try-error")) {
     stop("ERROR in input data conversion")
   }
-@ 
+@
 
 That way, the \textit{ff} are produced and stored locally in the hard
 drive, but the R process where the original data was loaded (and the
@@ -778,7 +778,7 @@ data(inputEx) ## make inputEx available as a data frame with that name
 inputToADaCGH(ff.or.RAM = "ff",
                       dataframe = inputEx)
 }
-@ 
+@
 
 
 \subsubsection{Using input data from a text file}\label{input-as-text-to-ff}
@@ -803,7 +803,7 @@ inputToADaCGH(ff.or.RAM = "ff",
               textfilename = fnametxt,
               mc.cores = 2)
 }
-@ 
+@
 
 
 
@@ -844,7 +844,7 @@ ffload(file = "pathtofile/savedcghData", rootpath = getwd())
 
 \subsection{Initializing the computing cluster}\label{initcluster}
 
-%%Unless we use forking, we need to set up and initialize a cluster. 
+%%Unless we use forking, we need to set up and initialize a cluster.
 Cluster initialization uses the functions provided in
 \texttt{parallel}. In the example we will use a sockect cluster, since
 this is likely to run under a variety of operating systems and should not
@@ -855,18 +855,18 @@ many nodes as cores can be detected.
 
 <<>>=
 if(.Platform$OS.type != "windows") {
-## Adapt number of nodes to your hardware    
+## Adapt number of nodes to your hardware
 number.of.nodes <- 2 ##detectCores()
 cl2 <- parallel::makeCluster(number.of.nodes, "PSOCK")
 parallel::clusterSetRNGStream(cl2)
-parallel::setDefaultCluster(cl2) 
+parallel::setDefaultCluster(cl2)
 parallel::clusterEvalQ(NULL, library("ADaCGH2"))
 
 wdir <- getwd()
 parallel::clusterExport(NULL, "wdir")
 parallel::clusterEvalQ(NULL, setwd(wdir))
 }
-@ 
+@
 
 The first two calls create a cluster and initialize the random number
 generator\footnote{We use the version from package \textbf{parallel},
@@ -897,27 +897,27 @@ in the second vignette.
 
 <<eval=FALSE>>=
 help(pSegment)
-@ 
+@
 <<>>=
 if(.Platform$OS.type != "windows") {
     haar.ff.cluster <- pSegmentHaarSeg("cghData.RData",
-                                   "chromData.RData", 
+                                   "chromData.RData",
                                    merging = "MAD",
                                    typeParall = "cluster")
 }
-@ 
+@
 
 We can take a quick look at the output. We first open the \textit{ff}
 objects (the output is a list of \textit{ff} objects) and then call
 \texttt{summary} on the list that contains the results of the wavelet
-smoothing: 
+smoothing:
 
 <<>>=
 if(.Platform$OS.type != "windows") {
 lapply(haar.ff.cluster, open)
 summary(haar.ff.cluster[[1]][,])
 }
-@ 
+@
 
 
 \subsection{Plotting the results}
@@ -941,7 +941,7 @@ pChromPlot(outRDataName = "hs_mad.out.RData",
            imgheight = 350,
            typeParall = "cluster")
 }
-@ 
+@
 
 
 Finally, we stop the workers and close the cluster
@@ -949,7 +949,7 @@ Finally, we stop the workers and close the cluster
 if(.Platform$OS.type != "windows") {
 parallel::stopCluster(cl2)
 }
-@ 
+@
 
 \section{Example 3: \textit{ff} objects and forking}
 \label{ex-ff-fork}
@@ -1015,7 +1015,7 @@ fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
 inputToADaCGH(ff.or.RAM = "ff",
                       RDatafilename = fnameRdata)
 }
-@ 
+@
 
 \subsubsection{Converting from RData to \textit{ff} objects in a separate
   process}
@@ -1026,17 +1026,17 @@ to \textit{ff} objects in a separate process, as we did in section
 \ref{separate-proc}, since the conversion to \textit{ff} objects might be
 the step that consumes most RAM in the whole process and we might want to
 make sure we return that memory to the operating system as soon as
-possible. 
+possible.
 
 <<eval=FALSE>>=
 mcparallel(inputToADaCGH(ff.or.RAM = "ff",
-                                 RDatafilename = fnameRdata), 
+                                 RDatafilename = fnameRdata),
            silent = FALSE)
 tableChromArray <- collect()
 if(inherits(tableChromArray, "try-error")) {
   stop("ERROR in input data conversion")
 }
-@ 
+@
 
 
 \subsubsection{Data available as an R data frame}\label{input-as-df-ff-fork}
@@ -1058,7 +1058,7 @@ inputToADaCGH(ff.or.RAM = "ff",
               textfilename = fnametxt,
               mc.cores = 2)
 }
-@ 
+@
 
 \subsubsection{Using data from Limma}
 You can also use data from Limma. See section \ref{limma-ex}.
@@ -1111,10 +1111,10 @@ directory where we have stored the files split by column.
 %   cuttedFile.dir <- getwd()
 %   setwd("../")
 % } else {
-%   cuttedFile.dir <- system.file("example-datadir", 
+%   cuttedFile.dir <- system.file("example-datadir",
 %                                  package = "ADaCGH2")
 % }
-% @ 
+% @
 
 
 
@@ -1134,10 +1134,10 @@ if( (.Platform$OS.type == "unix") && (Sys.info()['sysname'] != "Darwin") ) {
   cuttedFile.dir <- getwd()
   setwd("../")
 } else {
-  cuttedFile.dir <- system.file("example-datadir", 
+  cuttedFile.dir <- system.file("example-datadir",
                                  package = "ADaCGH2")
 }
-@ 
+@
 
 
 We create a new directory and carry out the file cutting there since the
@@ -1160,7 +1160,7 @@ actually be much simpler, and something like the following:
   lets call this file \texttt{afile.txt}.
 \item In R, move to \texttt{d1} (for example, \texttt{setwd("~/d1")}).
 \item Use \texttt{cutFile}: \texttt{cutFile("afile.txt", 1, 2, 3)}.
-\item Call \texttt{inputToADaCGH}: 
+\item Call \texttt{inputToADaCGH}:
   \texttt{inputToADaCGH(ff.or.RAM = "ff", path = getwd(),
     excludefile = "afile.txt")}
 \end{enumerate}
@@ -1203,7 +1203,7 @@ After you have cut the file, each file contains one column of data. Three
 of the files must be named \texttt{"ID.txt"}, \texttt{"Chrom.txt"}, and
 \texttt{"Pos.txt"}. The rest of the files contain the data for each one of
 the arrays or subjects. The name of the rest of the files is
-irrelevant. 
+irrelevant.
 
 When using \texttt{inputDataToADaCGH} with a directory, the output can be
 either \textit{ff} objects or RAM objects. However, the latter
@@ -1215,14 +1215,14 @@ contraints); see the discussion in file ``benchmarks.pdf''.
 %% namepath <- system.file("example-datadir", package = "ADaCGH2")
 %% inputToADaCGH(ff.or.local = "ff",
 %%                       path = namepath)
-%% @ 
+%% @
 
 
 %% <<>>=
-%% namepath <- getwd() 
+%% namepath <- getwd()
 %% inputToADaCGH(ff.or.local = "ff",
 %%                       path = namepath)
-%% @ 
+%% @
 
 %% (If we are using Windows, we cannot use \texttt{cutFile}; in this
 %% vignette, therefore, we will use a directory where we have placed the
@@ -1231,13 +1231,13 @@ contraints); see the discussion in file ``benchmarks.pdf''.
 
 <<chunk0001>>=
 if(.Platform$OS.type != "windows") {
-## You might want to adapt mc.cores to your hardware    
+## You might want to adapt mc.cores to your hardware
 inputToADaCGH(ff.or.RAM = "ff",
               path = cuttedFile.dir,
               verbose = TRUE,
               mc.cores = 2)
 }
-@ 
+@
 
 
 We have used the previously cut files in this example. You can also check
@@ -1278,7 +1278,7 @@ by column is often small. See examples with large data sets in section
 \label{segment-ff-fork-ex3}
 
 The call is similar to the one in \ref{segment-ff-cluster}, except for the
-argument \texttt{typeParall}. 
+argument \texttt{typeParall}.
 
 
 <<chunk0002>>=
@@ -1290,7 +1290,7 @@ haar.ff.fork <- pSegmentHaarSeg("cghData.RData",
                                 typeParall = "fork",
                                 mc.core = 2)
 }
-@ 
+@
 
 \subsection{Plotting the results}
 \label{plot-ff-fork-ex3}
@@ -1312,7 +1312,7 @@ pChromPlot(outRDataName = "haar.ff.fork.RData",
            typeParall = "fork",
            mc.cores = 2)
 }
-@ 
+@
 
 \section{Input and output to/from other packages}
 
@@ -1349,7 +1349,7 @@ function \texttt{inputToADaCGH} to convert \texttt{MAList}  data into a format s
 
 
 % ## This is snapCGH-specific
-% RG1 <- read.clonesinfo("cloneinfo.txt", RG1, path = datadir) 
+% RG1 <- read.clonesinfo("cloneinfo.txt", RG1, path = datadir)
 % RG1$printer <- getLayout(RG1$genes)
 % types <- readSpotTypes("SpotTypes.txt", path = datadir)
 % RG1$genes$Status <- controlStatus(types, RG1)
@@ -1361,10 +1361,10 @@ function \texttt{inputToADaCGH} to convert \texttt{MAList}  data into a format s
 % MA <- normalizeWithinArrays(RG2, method = "median") ## class MAList
 % class(MA)
 % ## now obtain an object of class SegList
-% MA2 <- processCGH(MA, method.of.averaging = mean, ID = "ID") 
+% MA2 <- processCGH(MA, method.of.averaging = mean, ID = "ID")
 % class(MA2)
 % }
-% @ 
+% @
 
 
 
@@ -1373,7 +1373,7 @@ function \texttt{inputToADaCGH} to convert \texttt{MAList}  data into a format s
 % \texttt{MA} and \texttt{MA2} objects. We can directly convert them to
 % \textit{ADaCGH2} objects (we set \texttt{na.omit = TRUE} as the data
 % contain missing values). The first call process the \texttt{MAList} and
-% the second the \texttt{SegList}. 
+% the second the \texttt{SegList}.
 
 
 % In this section, we use the argument \texttt{robjnames}, to produce as
@@ -1383,20 +1383,20 @@ function \texttt{inputToADaCGH} to convert \texttt{MAList}  data into a format s
 
 % <<chunk0005>>=
 % if(.Platform$OS.type != "windows") {
-% tmp <- inputToADaCGH(MAList = MA, 
+% tmp <- inputToADaCGH(MAList = MA,
 %                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
 %                                           "pos-ma.dat", "probenames-ma.dat"))
 
-% tmp <- inputToADaCGH(MAList = MA2, 
+% tmp <- inputToADaCGH(MAList = MA2,
 %                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
 %                                           "pos-ma.dat", "probenames-ma.dat"),
 %                              minNumPerChrom = 4)
 % }
-% @ 
+% @
 
 % We need to change the argument to \texttt{minNumPerChrom} because, after
 % the data processing step in \texttt{processCGH}, chromosome 21 has only
-% four observations. 
+% four observations.
 
 
 
@@ -1409,25 +1409,25 @@ information, we will use an approach to directly mimicks that in
 \texttt{cloneinfo} argument; this can be either the full path to a file
 with the format required by \texttt{read.clonesinfo} or, else, the name of
 an object with (at least) three columns, names \texttt{ID}, \texttt{Chr},
-and \texttt{Position}. 
+and \texttt{Position}.
 
 Note: this code is no longer run, since these examples used data examples available from the \texttt{snapCGH} package. The code is left here, but you would need to provide the appropriate paths.
 
 
 We copy from the limma vignette (section 3.2, p.8), changing the names of
-objects by appending ``.limma''. 
+objects by appending ``.limma''.
 <<chunk0006,eval=FALSE>>=
 if(.Platform$OS.type != "windows") {
   require("limma")
   datadir <- system.file("testdata", package = "snapCGH")
   targets.limma <- readTargets("targets.txt", path = datadir)
-  RG.limma <- read.maimages(targets.limma, path = datadir, 
+  RG.limma <- read.maimages(targets.limma, path = datadir,
                             source="genepix")
-  RG.limma <- backgroundCorrect(RG.limma, method="normexp", 
+  RG.limma <- backgroundCorrect(RG.limma, method="normexp",
                                 offset=50)
   MA.limma <- normalizeWithinArrays(RG.limma)
 }
-@ 
+@
 
 We can add the chromosomal and position information in two different
 ways. First, as was done in  \texttt{read.clonesinfo} from \texttt{snapCGH} or, else, we can provide the
@@ -1441,12 +1441,12 @@ if(.Platform$OS.type != "windows") {
 fclone <- list.files(path = system.file("testdata", package = "snapCGH"),
                      full.names = TRUE, pattern = "cloneinfo.txt")
 fclone
-tmp <- inputToADaCGH(MAList = MA.limma, 
+tmp <- inputToADaCGH(MAList = MA.limma,
                              cloneinfo = fclone,
                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
                                           "pos-ma.dat", "probenames-ma.dat"))
 }
-@ 
+@
 
 Alternatively, we can provide the name of an object with the additional
 information. For illustrative purposes, we can use here the columns of the
@@ -1459,7 +1459,7 @@ information. For illustrative purposes, we can use here the columns of the
 <<chunk0008,eval=FALSE>>=
 if(.Platform$OS.type != "windows") {
 acloneinfo <- MA$genes
-tmp <- inputToADaCGH(MAList = MA.limma, 
+tmp <- inputToADaCGH(MAList = MA.limma,
                              cloneinfo = acloneinfo,
                              robjnames = c("cgh-ma.dat", "chrom-ma.dat",
                                           "pos-ma.dat", "probenames-ma.dat"))
@@ -1495,7 +1495,7 @@ if(require(CGHregions)) {
   regions1
 }
 }
-@ 
+@
 
 Please note that \texttt{outputToCGHregions} does NOT check if the calls
 are something that can be meaningfully passed to CGHregions. In
@@ -1521,7 +1521,7 @@ dir("ADaCGH2_vignette_tmp_dir")
 unlink("ADaCGH2_vignette_tmp_dir", recursive = TRUE)
 ## Sys.sleep(1)
 }
-@ 
+@
 
 
 
@@ -1541,7 +1541,7 @@ only specific rows of a single column.
 
 Now, we need to think how to parallelize the analysis. We will consider two
 cases: parallelizing by subject (or array or column) and parallelizing by
-subject*chromosome. 
+subject*chromosome.
 
 Let's first examine the simplest case: we will parallelize by subject, as
 is done by ADaCGH2 with HaarSeg and CBS (these methods are very fast, and
@@ -1551,7 +1551,7 @@ required steps:
 \begin{enumerate}
 \item Each R process needs to have access to the chromosome information;
   this probably requires loading a vector with chromosome positions.
-  
+
 \item Each process will carry these steps until all the columns/subjects
   have been processed:
   \begin{enumerate}
@@ -1573,14 +1573,14 @@ The steps above need to deal with the following possible problems:
 \item We need to consider how to deal with missing values, since
   a simple removal of missing values case by case will result in a ragged
   array of results, which would probably not be acceptable.
-  
+
 \item ``loading'' and ``saving'' can be time-consuming steps: the direct
   way in R would be to use functions such as \texttt{scan} (for reading)
   and \texttt{save} (for saving), but when done repeatedly, these are
   likely to be slower than using \textit{ff} objects (e.g., using
   \texttt{scan} will be slower than acessing data from an \textit{ff}
   object).
-  
+
 \item Much more serious can be step \ref{assemble} since we need to
   assemble a whole object with results. If the analysis involves many
   arrays and/or data sets with millions of probes, then we will not be
@@ -1588,7 +1588,7 @@ The steps above need to deal with the following possible problems:
   the use of \textit{ff} objects is to never reload all of the results to
   assemble the final object, but only assemble a set of pointers to data
   structures on disk).
-  
+
   Of course, an alternative is to leave the results as a large collection
   of files, and never try to assemble a single object with results. This,
   however, is likely much more cumbersome than having a single results
@@ -1607,7 +1607,7 @@ segmentation and merging steps. These are the main steps:
 
 \begin{enumerate}
 \item Each R process needs to have access to the chromosome information.
-  
+
 \item Each process will carry these steps until all the columns/subjects
   have been processed:
   \begin{enumerate}
@@ -1619,7 +1619,7 @@ segmentation and merging steps. These are the main steps:
   \end{enumerate}
 \item When all segmentation steps are completed, assemble the results by
   column/subject for the merging step.
-  
+
 \item For the merging step, each process will load the data for a complete
   column/subject and merge them with the corresponding algorithm:
   \begin{enumerate}
@@ -1637,7 +1637,7 @@ This process is, of course, more convoluted than when parallelizing only
 by subject. As above, we need to consider how to deal with missing values,
 the use of repeated ``scan'' and ``save'', and the much more serious
 problem of putting together the complete object with all of the
-results. 
+results.
 
 
 Finally, if we were interested in analyzing the data with more than one
@@ -1708,7 +1708,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%   a chance to correct this problem yet. Regardless, the penalty we would
 %%   pay would be a difference of 4 process out of 124.}
 
-  
+
 %% We will also show some examples run on an HP Z800 workstation, with 2
 %% Intel Xeon E5645 processors (each processor has six cores), and 64 GB of
 %% RAM. The data live on an ext4 partition on a SATA disk (7200 rmp). In the
@@ -1754,9 +1754,9 @@ output for other packages ---e.g., section \ref{cghregions}).
 
 %%  %%             used    (Mb) gc trigger    (Mb)   max used    (Mb)
 %%  %% Ncells    6272458   335.0    9532693   509.2    6273371   335.1
-%%  %% Vcells 6102207940 46556.2 6634368466 50616.3 6102370100 46557.4 
+%%  %% Vcells 6102207940 46556.2 6634368466 50616.3 6102370100 46557.4
 
-%% %% 100 data columns (columns 101 to 200) occupy, as data.frame 
+%% %% 100 data columns (columns 101 to 200) occupy, as data.frame
 %% %% 4853957368 bytes, so about 4.52 GB.
 %% %% As a matrix, 4853952408 bytes, so another 4.52 GB.
 
@@ -1778,13 +1778,13 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% \item[Wall time] The ``elapsed'' entry returned by the command
 %%   \texttt{system.time}. This is the real elapsed time since the function
 %%   was called.
-  
+
 %%   It is important to understand that these timings can be variable, and we
 %%   show here a single number.%  In other words, repeated executions of the
 %%   % same script can show variations in time; for instance, variations that
 %%   % can be of a few minutes for reading of data sets with 50 to 200 columns
 %%   % (i.e., where the wall time can, in some cases, increase or decrease by
-%%   % about 50\%). 
+%%   % about 50\%).
 
 %% \item[Max.\ mem (\texttt{gc})] The sum of the two rows of the ``max used''
 %%   column reported by \texttt{gc()}, in R, at the end of the execution of
@@ -1806,7 +1806,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%   weight cron jobs). Second, sampling is carried out every 0.5 seconds, so
 %%   we could miss short peaks in RAM usage (at least one likely example of
 %%   such underestimation shows in the tables below).
-  
+
 %%   \item[Columns] The number of data columns of the data set.
 %%   \item[Method] The analysis method (either HaarSeg or CBS ---DNAcopy).
 %%   \item[Fork/MPI] Whether forking (via \texttt{mclapply}) or MPI (using
@@ -1822,7 +1822,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% \item[ff/RAM] If the data for the analysis had been stored as an
 %%   \textit{ff} object, or as a data frame inside an RData that was loaded
 %%   before the analysis.
-  
+
 %% \end{description}
 
 
@@ -1837,10 +1837,10 @@ output for other packages ---e.g., section \ref{cghregions}).
 
 %% \begin{center}
 %% \begin{threeparttable}
-%%   \caption{Time and memory usage when reading data}    
+%%   \caption{Time and memory usage when reading data}
 
 %%   \begin{tabular}{p{3.52cm}p{1.8cm}p{1.8cm}p{2.65cm}p{3.4cm}}
- 
+
 %%     \hline
 %%     &Columns & Wall time (minutes)& Max.\ mem.\ (\texttt{gc}), GB &
 %%     Max.\ $\Sigma$ mem., GB\\
@@ -1876,7 +1876,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 
 
 %% \hline
-   
+
 %%   \end{tabular}
 
 %%   \begin{tablenotes}
@@ -1912,10 +1912,10 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% %\thispagestyle{empty}
 
 %% \begin{center}
-  
+
 %% \begin{threeparttable}
 
-%%   \caption{Time and memory usage of segmentation with default options}    
+%%   \caption{Time and memory usage of segmentation with default options}
 %%   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
 
 %%     \hline
@@ -1927,7 +1927,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% CBS&MPI &124  & ff & 1000 & 313 & 0.14 & 53 \\
 %% CBS&MPI&64& ff & 1000 & 545 & 0.14 & 51 \\
 
-%% CBS    & Fork & 64 & ff  & 2000 & 705.3 & 0.16 & 45.7 \\ 
+%% CBS    & Fork & 64 & ff  & 2000 & 705.3 & 0.16 & 45.7 \\
 %% CBS    & Fork & 12 & ff  & 2000 & 2414.4 & 0.15 & 19.3 \\
 %% CBS&Fork&64&ff&1000&339 & 0.136 & 41 \\
 %% CBS&Fork&12&ff&1000&1184.0 & 0.142 & 13.8 \\
@@ -1938,13 +1938,13 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% HaarSeg & MPI &64  & ff & 1000 & 9.5 & 0.145 & 38.5 \\
 %% HaarSeg & MPI &12 & ff & 1000 & 36 & 0.144 & 7.2 \\
 %% HaarSeg & Fork &64  & ff & 2000 & 18.7 & 0.15 & 28.4 \\
-%% HaarSeg & Fork &12  & ff & 2000 & 57.4 & 0.16 & 10.1 \\ 
+%% HaarSeg & Fork &12  & ff & 2000 & 57.4 & 0.16 & 10.1 \\
 %% HaarSeg & Fork &64  & ff & 1000 & 7.9 & 0.14 & 27 \\
 %% HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
 %% HaarSeg & Fork &64  & ff & 200 & 2.3 & 0.135 & 28.6\\
 %% HaarSeg & Fork &64  & ff & 500 & 4.6 & 0.13 & 26 \\
 %% &&&&&&&\\
-%% % 
+%% %
 %% HaarSeg & Fork &10\tnote{f}  & ff & 1000 &33.3 & 0.142 & 5.9 \\
 %% % HaarSeg & Fork &20\tnote{f} & ff & 1000 & 17.4 & 0.142 & 10.0 \\
 %% % HaarSeg & Fork &40\tnote{f}  & ff & 1000 & 10.2 & 0.142 & 17.5 \\
@@ -1963,7 +1963,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% HaarSeg & Fork &64  & RAM & 1000 & NA & NA & \textbf{Cannot allocate memory} \\
 %% HaarSeg & Fork &64  & RAM & 200 & NA & NA & \textbf{Cannot allocate memory}\\
 %% \hline
-   
+
 %%   \end{tabular}
 
 %%   \begin{tablenotes}
@@ -1978,7 +1978,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%     %   % , both o
 %%     %   %  which introduce an important penalty. We must do this to make
 %%     %   % analysis comparable to those of \texttt{pSegmentHaarSeg} that
-%%     %   % \textbf{always} checks, and allows, for missing values. 
+%%     %   % \textbf{always} checks, and allows, for missing values.
 %%     %   If there are no missing values in this data set, the total time of
 %%     %   analysis (i.e., sending the whole matrix at once and not checking
 %%     %   for, nor removing, NAs) is 3.3 minutes.
@@ -1999,10 +1999,10 @@ output for other packages ---e.g., section \ref{cghregions}).
 
 
 %% %% time and memory, haar seg, with increasing num. cols in 64 cores
-%% %% h2 <- rbind(c(50, 0.5, 20.6), 
-%% %%             c(200, 2.3, 28.6), 
-%% %%             c(500, 4.6, 26), 
-%% %%             c(1000, 7.9, 27), 
+%% %% h2 <- rbind(c(50, 0.5, 20.6),
+%% %%             c(200, 2.3, 28.6),
+%% %%             c(500, 4.6, 26),
+%% %%             c(1000, 7.9, 27),
 %% %%             c(2000, 18.7, 28.4))
 
 %% %% plot(h2[, 2] ~ h2[, 1])
@@ -2018,7 +2018,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% %% m.h <- c(28, 23, 19.5, 11.9, 8)
 %% %% plot(m.h ~ x)
 %% %% plot(t.h ~ x)
-            
+
 
 %% %\clearpage
 
@@ -2074,7 +2074,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% CBS     & NP &-  &RAM  & 100 & 0.95 + 1698 + 6.7\tnote{c}  &   40   &  40\tnote{d}  \\
 
 %% \hline
-   
+
 %%   \end{tabular}
 
 %%   \begin{tablenotes}
@@ -2087,7 +2087,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%       % , both o
 %%       %  which introduce an important penalty. We must do this to make
 %%       % analysis comparable to those of \texttt{pSegmentHaarSeg} that
-%%       % \textbf{always} checks, and allows, for missing values. 
+%%       % \textbf{always} checks, and allows, for missing values.
 %%       If there are no missing values in this data set, the total time of
 %%       analysis (i.e., sending the whole matrix at once and not checking
 %%       for, nor removing, NAs) is 3.3 minutes.
@@ -2114,12 +2114,12 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% %% %\thispagestyle{empty}
 
 %% %% \begin{center}
-  
+
 %% %% \begin{table}
 %% %% \caption{Further benchmarks on the Dell Opterons, with varying numbers of
 %% %%   cores used}
 %% %%   \begin{tabular}{p{1.5cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.5cm}p{3.0cm}p{1.8cm}p{1.6cm}}
-    
+
 %% %%     \hline
 
 %% %% Method& Fork /MPI & Cores & ff/RAM & Columns & Wall time (min.) & Max.\ mem. (\texttt{gc}), GB & Max.\ $\Sigma$ mem., GB\\
@@ -2129,7 +2129,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 %% %% HaarSeg & Fork &64  & ff & 1000 & 8 & 0.136 & 35 \\
 %% %% HaarSeg & Fork &12 & ff & 1000 & 32 & 0.129 & 7.3 \\
 %% %% \hline
-   
+
 %% %%   \end{tabular}
 
 %% %% \end{table}
@@ -2149,13 +2149,13 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%   given that we are returning actual lists. In contrast, when saving as
 %%   \textit{ff} objects, the slaves are only returning tiny objects (just
 %%   pointers to a file).
-  
-  
+
+
 %% \item Saving data as RData objects will also not be an option for large
 %%   numbers of columns as we will quickly exhaust available memory when
-%%   trying to analyze them. 
-  
-  
+%%   trying to analyze them.
+
+
 %% \item In a single machine, and for the same number of cores, analyzing
 %%   data with MPI is often generally slower than using forking, which is not
 %%   surprising. Note also that with MPI there is an overhead of spawning
@@ -2163,8 +2163,8 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%   about half a minute to a minute). %% These overheads could be amortized if
 %%   %% you continue using MPI for a session (but OpenMPI is not ideal for that
 %%   %% scenario, in contrast to other versions such as LAM MPI).
-  
-  
+
+
 %% \item When using two nodes (i.e., almost doubling the number of cores),
 %%   MPI might, or might not, be faster than using forking on a single
 %%   node. Two main issues affect the speed differences: inter-process
@@ -2174,18 +2174,18 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%   might be much faster. Regardless, the MPI costs might not be worth if
 %%   each individual calculation is fast; this is why MPI with HaarSeg does
 %%   not pay off, but it does pay off with CBS.
-    
-  
+
+
 %% \item When using \textit{ff}, the exact same operations in systems with
 %%   different RAM can lead to different amounts of memory usage, as
 %%   \textit{ff} tries autotuning when starting. %% Note, for instance, the
 %%   %% differences in RAM usage between our two machines when reading a
 %%   %% directory with a 1000 column data set. Hey! This is just because we
-%%   %% use 12 or 64 cores! 
+%%   %% use 12 or 64 cores!
 %%   You can tune parameters when you load the \textbf{ff} package, but even
 %%   if you don't (and, by default, we don't), defaults are often sensible
 %%   and will play in your favor.
-    
+
 %% \item Even for relatively small examples, using \textit{ff} can be faster
 %%   than using RAM objects. Using RAM objects incurs overheads of loading
 %%   and saving the RData objects in memory, but analyses also tend to be
@@ -2200,8 +2200,8 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%   single data frame simultaneously from multiple processes, compared to
 %%   loading exactly just one column independently in each process, and/or
 %%   repeated cache misses.
-  
-  
+
+
 %% \item \texttt{inputToADaCGH} (i.e., transforming a directory of files into
 %%   \textit{ff} objects) can be severely affected, of course, by other
 %%   processes accessing the disk. More generally, since with
@@ -2220,18 +2220,18 @@ output for other packages ---e.g., section \ref{cghregions}).
 %%   working directory for segmentation analysis is another empty directory
 %%   if you are using \texttt{ff} objects.
 
-  
+
 %%   \texttt{inputToADaCGH} accepts an argument to reduce the number of cores used,
 %%   which can help with contention issues related to I/O. A multicore
 %%   machine (say, 12 cores) with a single SATA drive might actually
 %%   complete the reading faster if you use fewer than 12 cores for the
 %%   reading. But your mileage might vary.
-  
-  
+
+
 %% \item Reordering data takes time (a lot if you do not use \textit{ff}
 %%   objects) and can use a lot of memory. So it is much better if input data are
 %%   already ordered (by Chromosome and Position within Chromosome).
-  
+
 %% \end{enumerate}
 
 
@@ -2251,7 +2251,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 This is the information about the version of R and packages used:
 <<>>=
 sessionInfo()
-@ 
+@
 
 \newpage
 \bibliographystyle{apalike}
@@ -2261,7 +2261,7 @@ sessionInfo()
 ## try(closeAllConnections()) ## nope, breaks things
 ## Remove this sys.sleep; is this sometimes breaking windoze build in BioC?
 ## Sys.sleep(1) ## I hope we do not need this
-@ 
+@
 
 \end{document}
 
@@ -2304,19 +2304,19 @@ sessionInfo()
 
 
 % ## edit, change name, see and produce pdf
-% ## dotty pSegment-DNAcopy.dot 
+% ## dotty pSegment-DNAcopy.dot
 % ## dot -Tpdf pSegment-DNAcopy.dot > foo.pdf
 % ## xpdf foo.pdf
 
 
 
 
-% @ 
+% @
 
 
 
-                                           
-                                           
+
+
 
 
 % <<>>=
@@ -2325,7 +2325,7 @@ sessionInfo()
 %                            chrom.dat, merging = "mergeLevels");head(waves.merge.local.fork[[1]])
 
 
-% @ 
+% @
 
 
 
@@ -2360,15 +2360,15 @@ sessionInfo()
 %%     %in%
 
 %% Loading required package: parallel
-%% > 
+%% >
 %% > fnameRData <- paste(getwd(), "/Data1000cols.RData", sep = "")
-%% > 
+%% >
 %% > unix.time(tableChromArray <- inputToADaCGH(ff.or.local = "ff",
 %% +                                                    RDatafilename = fnameRData, na.omit = TRUE))
-%% Error in cbind(deparse.level, ...) : 
+%% Error in cbind(deparse.level, ...) :
 %%   resulting vector exceeds vector length limit in 'AnswerType'
 %% Calls: unix.time ... inputToADaCGH -> is.na -> is.na.data.frame -> do.call -> cbind
-%% Timing stopped at: 768.444 113.815 892.471 
+%% Timing stopped at: 768.444 113.815 892.471
 %% Execution halted
 
 
