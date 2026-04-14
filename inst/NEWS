@@ -1,3 +1,7 @@
+Changes in version 2.51.2 (2026-04-14):
+	- Fixed "Remove Maintainer field. Use Authors@R [cre] designation"
+	  error from r-universe.
+
 Changes in version 2.51.1 (2026-01-31):
 	- Fixed (most) NOTES from R CMD check --as-cran
 

@@ -1,9 +1,27 @@
 Package: ADaCGH2
-Version: 2.51.1
-Date: 2026-01-31
+Version: 2.51.2
+Date: 2026-04-14
 Title: Analysis of Big Data from aCGH Experiments using Parallel Computing and ff Objects
-Author: Ramon Diaz-Uriarte <rdiaz02@gmail.com> and Oscar M. Rueda <rueda.om@gmail.com>. Wavelet-based aCGH smoothing code from Li Hsu <lih@fhcrc.org> and Douglas Grove <dgrove@fhcrc.org>. Imagemap code from Barry Rowlingson <B.Rowlingson@lancaster.ac.uk>. HaarSeg code from Erez Ben-Yaacov; downloaded from <http://www.ee.technion.ac.il/people/YoninaEldar/Info/software/HaarSeg.htm>. Code from ffbase <https://github.com/edwindj/ffbase> by Edwin de Jonge <edwindjonge@gmail.com>, Jan Wijffels, Jan van der Laan.
-Maintainer: Ramon Diaz-Uriarte <rdiaz02@gmail.com>
+Authors@R: c(
+    person("Ramon", "Diaz-Uriarte", email = "rdiaz02@gmail.com",
+           role = c("aut", "cre")),
+    person("Oscar M.", "Rueda", email = "rueda.om@gmail.com",
+           role = "aut"),
+    person("Li", "Hsu", email = "lih@fhcrc.org",
+           role = "ctb", comment = "Wavelet-based aCGH smoothing code"),
+    person("Douglas", "Grove", email = "dgrove@fhcrc.org",
+           role = "ctb", comment = "Wavelet-based aCGH smoothing code"),
+    person("Barry", "Rowlingson", email = "B.Rowlingson@lancaster.ac.uk",
+           role = "ctb", comment = "Imagemap code"),
+    person("Erez", "Ben-Yaacov",
+           role = "ctb", comment = "HaarSeg code"),
+    person("Edwin", "de Jonge", email = "edwindjonge@gmail.com",
+           role = "ctb", comment = "Code from ffbase"),
+    person("Jan", "Wijffels",
+           role = "ctb", comment = "Code from ffbase"),
+    person("Jan", "van der Laan",
+           role = "ctb", comment = "Code from ffbase")
+    )
 Depends: R (>= 3.2.0), parallel, ff
 Imports: bit, DNAcopy, tilingArray, waveslim, cluster, aCGH
 Suggests: CGHregions, Cairo, limma

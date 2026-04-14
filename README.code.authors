@@ -6,6 +6,9 @@ the files for further details.
 - From Ben-Yaacov and Eldar for HaarSeg method:
   src/r_hharseg.c
   R/HaarSeg.R
+  (downloaded from
+  <http://www.ee.technion.ac.il/people/YoninaEldar/Info/software/HaarSeg.htm>)
+
 
 - From Hsu and Grove the code for the wavelet approach in Hsu et al. In
   particular, the following functions in ADaCGH-2.R:
@@ -30,3 +33,5 @@ the files for further details.
   2022-04-04: https://cran.r-project.org/web/packages/ffbase/index.html
 
   This code is in R/from-ffbase.R
+
+  It was downloaded from Code from <https://github.com/edwindj/ffbase>
