@@ -1,10 +1,11 @@
 Package: ADaCGH2
-Version: 2.51.2
+Version: 2.51.3
 Date: 2026-04-14
 Title: Analysis of Big Data from aCGH Experiments using Parallel Computing and ff Objects
 Authors@R: c(
     person("Ramon", "Diaz-Uriarte", email = "rdiaz02@gmail.com",
-           role = c("aut", "cre")),
+           role = c("aut", "cre"),
+	   comment = c(ORCID = "0000-0002-6637-9039")),
     person("Oscar M.", "Rueda", email = "rueda.om@gmail.com",
            role = "aut"),
     person("Li", "Hsu", email = "lih@fhcrc.org",
@@ -32,7 +33,8 @@ Description: Analysis and plotting of array CGH data. Allows usage of
 	     HMM, GLAD, CGHseg. Most computations are
 	     parallelized (either via forking or with clusters, including
 	     MPI and sockets clusters) and use ff for storing data.
-biocViews: Microarray, CopyNumberVariants
+biocViews: Microarray, CopyNumberVariation, aCGH
 LazyLoad: Yes
 License: GPL (>= 3)
 URL: https://github.com/rdiaz02/adacgh2
+BugReports: https://github.com/rdiaz02/adacgh2

@@ -310,7 +310,7 @@ The data are available as an RData file
 
 
 
-<<>>=
+<<load-library-data>>=
 library(ADaCGH2)
 
 data(inputEx)
@@ -406,7 +406,7 @@ missing values, repeated identifiers and positions, etc.
 % sessions, the conversion takes as input the name of an RData.
 
 %%FIXME
-<<>>=
+<<input-ram-rdata>>=
 fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
 
@@ -439,7 +439,7 @@ checks. The first three columns of the data frame are the IDs of the
 probes, the chromosome number, and the position, and all remaining columns
 contain the data for the arrays, one column per array.
 
-<<>>=
+<<input-ram-dataframe>>=
 data(inputEx) ## make inputEx available as a data frame with that name
 inputToADaCGH(ff.or.RAM = "RAM",
                       dataframe = inputEx)
@@ -453,7 +453,7 @@ interested in the checks provided by \texttt{inputToADaCGH}, we do
 not need to call it. To prepare the data for later usage with
 \texttt{pSegment} we can just do as follows:
 
-<<>>=
+<<prep-ram-objects>>=
 data(inputEx)
 cgh.dat <- inputEx[, -c(1, 2, 3)]
 chrom.dat <- as.integer(inputEx[, 2])
@@ -473,7 +473,7 @@ arrays\footnote{If they are not, utilities such as \texttt{awk},
 store it as an \textit{ff} object or a RAM object without exhausting the
 available RAM.
 
-<<>>=
+<<input-ram-textfile>>=
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
 
@@ -541,11 +541,11 @@ to \texttt{fork} is not needed (it is the default), but we set it here
 explicitly for clarity.
 
 
-<<eval=FALSE>>=
+<<help-psegment-ram, eval=FALSE>>=
 help(pSegment)
 @
 
-<<>>=
+<<segment-ram-fork>>=
 ##    You might want to adapt mc.cores to your hardware
 haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
                                    merging = "MAD",
@@ -556,7 +556,7 @@ haar.RAM.fork <- pSegmentHaarSeg(cgh.dat, chrom.dat,
 Since the input are RAM objects, the output is also a RAM object (a
 regular R object, in this case a list).
 
-<<>>=
+<<summary-ram-fork>>=
 lapply(haar.RAM.fork, head)
 summary(haar.RAM.fork[[1]])
 @
@@ -573,7 +573,7 @@ results stored as \textit{ff} objects). Setting argument
 but we set it here explicitly for clarity.
 
 
-<<>>=
+<<plot-ram-fork>>=
 ##    You might want to adapt mc.cores to your hardware
 pChromPlot(haar.RAM.fork,
            cghRDataName = cgh.dat,
@@ -640,7 +640,7 @@ in this new directory.
 (Just in case, we check for the existence of the directory first. We also
 store the current working directory to return to it at the very end.)
 
-<<>>=
+<<get-orig-dir>>=
 if(.Platform$OS.type != "windows") {
 
 originalDir <- getwd()
@@ -649,7 +649,7 @@ print(originalDir)
 }
 @
 
-<<>>=
+<<create-tmp-dir>>=
 if(.Platform$OS.type != "windows") {
 if(!file.exists("ADaCGH2_vignette_tmp_dir"))
   dir.create("ADaCGH2_vignette_tmp_dir")
@@ -695,7 +695,7 @@ To allow the conversion to be carried out using data from previous
 sessions, the conversion takes as input the name of an RData that contains
 plain, ``regular'' R objects (which, if loaded, would be RAM objects).
 
-<<>>=
+<<input-ff-rdata>>=
 if(.Platform$OS.type != "windows") {
 fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
@@ -751,7 +751,7 @@ We can try dealing with the above problems by executing the conversion to
 the conversion. For instance, we could use the \texttt{mcparallel}
 function (from package \textbf{parallel}) and do:
 
-<<eval=FALSE>>=
+<<input-ff-separate-proc, eval=FALSE>>=
 mcparallel(inputToADaCGH(ff.or.RAM = "ff",
                                  RDatafilename = fnameRData),
                                  silent = FALSE)
@@ -772,7 +772,7 @@ conversion, freeing back the memory to the operating system.
 Instead of accessing the RData file, we can directly use the data
 frame, as we did in section \ref{input-as-df}.
 
-<<>>=
+<<input-ff-dataframe>>=
 if(.Platform$OS.type != "windows") {
 data(inputEx) ## make inputEx available as a data frame with that name
 inputToADaCGH(ff.or.RAM = "ff",
@@ -793,7 +793,7 @@ however, the output will be a set of \textit{ff} objects.
 % a very large data set and store it as an \textit{ff} object (or a local R
 % object) without exhausting the available RAM.
 
-<<>>=
+<<input-ff-textfile>>=
 if(.Platform$OS.type != "windows") {
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
@@ -853,7 +853,7 @@ fact, that is what we use in our servers). In this example we will use as
 many nodes as cores can be detected.
 
 
-<<>>=
+<<init-cluster>>=
 if(.Platform$OS.type != "windows") {
 ## Adapt number of nodes to your hardware
 number.of.nodes <- 2 ##detectCores()
@@ -895,10 +895,10 @@ Segmentation and calling are carried out with the \texttt{pSegment}
 functions. Here we show just one such example. Many more are available
 in the second vignette.
 
-<<eval=FALSE>>=
+<<help-psegment-ff, eval=FALSE>>=
 help(pSegment)
 @
-<<>>=
+<<segment-ff-cluster>>=
 if(.Platform$OS.type != "windows") {
     haar.ff.cluster <- pSegmentHaarSeg("cghData.RData",
                                    "chromData.RData",
@@ -912,7 +912,7 @@ objects (the output is a list of \textit{ff} objects) and then call
 \texttt{summary} on the list that contains the results of the wavelet
 smoothing:
 
-<<>>=
+<<summary-ff-cluster>>=
 if(.Platform$OS.type != "windows") {
 lapply(haar.ff.cluster, open)
 summary(haar.ff.cluster[[1]][,])
@@ -929,7 +929,7 @@ objects, we also need to first write to disk the (\textit{ff}) object with
 the results.
 
 
-<<>>=
+<<plot-ff-cluster>>=
 if(.Platform$OS.type != "windows") {
 save(haar.ff.cluster, file = "hs_mad.out.RData", compress = FALSE)
 
@@ -945,7 +945,7 @@ pChromPlot(outRDataName = "hs_mad.out.RData",
 
 
 Finally, we stop the workers and close the cluster
-<<>>=
+<<stop-cluster>>=
 if(.Platform$OS.type != "windows") {
 parallel::stopCluster(cl2)
 }
@@ -1008,7 +1008,7 @@ working directory to slave processes explictly (in contrast to
 \label{RData-to-ff-ex3}
 
 
-<<>>=
+<<input-ff-rdata-ex3>>=
 if(.Platform$OS.type != "windows") {
 fnameRdata <- list.files(path = system.file("data", package = "ADaCGH2"),
                      full.names = TRUE, pattern = "inputEx.RData")
@@ -1028,7 +1028,7 @@ the step that consumes most RAM in the whole process and we might want to
 make sure we return that memory to the operating system as soon as
 possible.
 
-<<eval=FALSE>>=
+<<input-ff-separate-proc-ex3, eval=FALSE>>=
 mcparallel(inputToADaCGH(ff.or.RAM = "ff",
                                  RDatafilename = fnameRdata),
            silent = FALSE)
@@ -1048,7 +1048,7 @@ frame, as we did in section \ref{input-as-df-cluster}.
 \label{input-as-text-to-ff-ex3}
 
 
-<<>>=
+<<input-ff-textfile-ex3>>=
 if(.Platform$OS.type != "windows") {
 fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                          full.names = TRUE, pattern = "inputEx.txt")
@@ -1118,7 +1118,7 @@ directory where we have stored the files split by column.
 
 
 
-<<>>=
+<<input-cutfile-dir>>=
 if( (.Platform$OS.type == "unix") && (Sys.info()['sysname'] != "Darwin") ) {
   fnametxt <- list.files(path = system.file("data", package = "ADaCGH2"),
                           full.names = TRUE, pattern = "inputEx.txt")
@@ -2249,7 +2249,7 @@ output for other packages ---e.g., section \ref{cghregions}).
 \section{Session info and packages used}
 
 This is the information about the version of R and packages used:
-<<>>=
+<<session-info>>=
 sessionInfo()
 @
 
@@ -2257,7 +2257,7 @@ sessionInfo()
 \bibliographystyle{apalike}
 \bibliography{ADaCGH2}
 
-<<echo=FALSE>>=
+<<cleanup, echo=FALSE>>=
 ## try(closeAllConnections()) ## nope, breaks things
 ## Remove this sys.sleep; is this sometimes breaking windoze build in BioC?
 ## Sys.sleep(1) ## I hope we do not need this

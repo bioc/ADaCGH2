@@ -5011,16 +5011,17 @@ createIM2 <- function(im, file = "", imgTags = list(),
 
 ### Utility functions
 
-add.names.as.attr <- function(x, anames) {
-    if(is.null(anames))
-        anames <- paste("sample.", 1:length(x[[1]]), sep = "")
-    
-    for(i in 1:length(x[[1]])) {
-        attributes(x[[1]][[i]]) <- c(attributes(x[[1]][[i]]),
-                                     "ArrayName" = anames[i])
-    }
-    return(x)
-}
+## Dead code.
+## add.names.as.attr <- function(x, anames) {
+##     if(is.null(anames))
+##         anames <- paste("sample.", 1:length(x[[1]]), sep = "")
+##
+##     for(i in 1:length(x[[1]])) {
+##         attributes(x[[1]][[i]]) <- c(attributes(x[[1]][[i]]),
+##                                      "ArrayName" = anames[i])
+##     }
+##     return(x)
+## }
 
 warn.too.few.in.chrom2 <- function(x, min.num.chrom = 20) {
   if(!inherits(x, "rle"))

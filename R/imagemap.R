@@ -74,8 +74,8 @@ lines.imPoly <- function(x,...){
 }
 
 lines.imCircle <- function(x,...){
-   symbols(x$xc,x$yc,circles=x$r,inches=F,add=T,...)
- }
+  symbols(x$xc,x$yc,circles=x$r,inches=FALSE,add=TRUE,...)
+}
 
 lines.imRect <- function(x,...){
   rect(x$xleft,x$ybottom,x$xright,x$ytop,...)
@@ -297,6 +297,3 @@ xytrans <- function(xy,par){
   cbind((xy[,1]-par[1])/(par[2]-par[1]),
         (xy[,2]-par[3])/(par[4]-par[3]))
 }
- 
-
-  
