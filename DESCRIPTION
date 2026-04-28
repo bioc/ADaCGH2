@@ -1,5 +1,5 @@
 Package: ADaCGH2
-Version: 2.51.3
+Version: 2.52.0
 Date: 2026-04-14
 Title: Analysis of Big Data from aCGH Experiments using Parallel Computing and ff Objects
 Authors@R: c(
